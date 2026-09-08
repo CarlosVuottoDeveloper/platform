@@ -12,23 +12,29 @@
 
 [Storybook Web][sb-web] · [Storybook Mobile][sb-mobile]
 
+**por [Carlos Amorim](https://carlos-vuotto.vercel.app)** — React Native & React Developer
+
 </div>
 
 ---
 
 ## Sobre mim
 
-Olá, sou o **Carlos Amorim** — Frontend Developer, React.js & React Native, focado em performance e UX.
+Sou o **Carlos Amorim** — React Native & React Developer, TypeScript e Design Systems. São Paulo, Brasil.
 
-Este repositório é onde eu levo essas ideias até o fim. Não é uma coleção de exercícios: são dois aplicativos reais, publicados, com dados de usuário de verdade — um deles lidando com informação sensível de saúde sob a LGPD — sustentados por um design system que eu projetei e implementei do zero, sem Material UI e sem React Native Paper.
+Sete anos construindo frontend, a maior parte em produtos com muita gente do outro lado: **PicPay**, uma das maiores fintechs do país, com milhões de usuários, e **Caju**, plataforma de benefícios com mais de 10 mil.
 
-O que eu tentei provar aqui:
+Na PicPay trabalhei na criação e evolução do **design system cross-platform** — mais de 50 componentes entre React e React Native, consumidos por dois times de produto, distribuídos como pacote privado via Nexus, documentados no Storybook e com regressão visual contínua no Chromatic. Na Caju, atuei em três produtos da plataforma, mantendo cobertura de testes em torno de 95% e participando das definições de arquitetura frontend junto aos tech leads.
 
-- **Que consistência visual entre web e nativo é um problema de arquitetura, não de CSS.** Um único pacote de tokens alimenta dois design systems em plataformas que não compartilham nem motor de layout.
-- **Que decisão de build merece o mesmo cuidado que código de produto.** O resolver do Metro deste monorepo existe porque quatro pacotes quebram em silêncio se resolverem para cópias diferentes — está documentado no ponto exato onde alguém tentaria "simplificar".
-- **Que teste que não roda em CI não existe.** São 907 testes e um gate de cobertura de 95% por arquivo alterado.
+**Este repositório é essa mesma disciplina, do zero e sem rede.** Não há um time de design system ao lado, nem uma decisão de arquitetura já tomada por outra pessoa. Cada escolha aqui é minha, e cada uma delas está documentada onde alguém iria procurar:
 
-[github.com/CarlosAmorimDeveloper](https://github.com/CarlosAmorimDeveloper)
+- **Consistência entre web e nativo é problema de arquitetura, não de CSS.** Um único pacote de tokens alimenta dois design systems em plataformas que não compartilham nem motor de layout — porque React Native não resolve `oklch()`, os valores de origem passam por um gerador em vez de existirem duas vezes
+- **Decisão de build merece o mesmo cuidado que código de produto.** O resolver do Metro deste monorepo existe porque quatro pacotes quebram _em silêncio_ se resolverem para cópias diferentes — e está comentado exatamente onde alguém tentaria simplificá-lo
+- **Teste que não roda em CI não existe.** São 907 testes, gate de cobertura de 95% por arquivo alterado, e regras de segurança verificadas contra o emulador real do Firestore. Foi assim que uma escalada de privilégio real apareceu — e foi corrigida
+
+E os dois apps estão publicados, com usuários de verdade. Um deles lida com dado sensível de saúde sob a LGPD, o que muda o que "pronto" significa.
+
+[Portfólio](https://carlos-vuotto.vercel.app) · [LinkedIn](https://linkedin.com/in/kaduvuotto) · [GitHub](https://github.com/CarlosAmorimDeveloper) · kaduvuotto@hotmail.com
 
 ---
 
