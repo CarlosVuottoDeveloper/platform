@@ -1,98 +1,56 @@
 # @repo/eslint-config
 
-[![ESLint][eslint-shield]][eslint-url]
-[![TypeScript][typescript-shield]][typescript-url]
+**As configurações de ESLint compartilhadas do monorepo** — flat config, ESLint 9. Um detalhe de design define como tudo aqui funciona: **toda regra vira warning**, e o que quebra o build é `--max-warnings 0`.
 
-Configurações ESLint compartilhadas do monorepo `platform`. Fornece três configurações prontas para uso com ESLint v9 (flat config), além de regras de fronteira de import compostas por quem consome.
+## O truque do `only-warn`
 
-## Índice
+Todas as três configs carregam `eslint-plugin-only-warn`, que converte qualquer violação em warning. Cada workspace então roda:
 
-- [Construído com](#construído-com)
-- [Configurações disponíveis](#configurações-disponíveis)
-- [Uso](#uso)
-- [Fronteiras de import](#fronteiras-de-import)
-- [Plugins incluídos](#plugins-incluídos)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
-
-## Construído com
-
-[![ESLint][eslint-shield]][eslint-url]
-[![TypeScript][typescript-shield]][typescript-url]
-[![Prettier][prettier-shield]][prettier-url]
-
-## Configurações disponíveis
-
-| Export                               | Arquivo             | Uso recomendado             |
-| ------------------------------------ | ------------------- | --------------------------- |
-| `@repo/eslint-config/base`           | `base.js`           | Qualquer pacote TypeScript  |
-| `@repo/eslint-config/next-js`        | `next.js`           | Aplicações Next.js          |
-| `@repo/eslint-config/react-internal` | `react-internal.js` | Pacotes React (sem Next.js) |
-
-## Uso
-
-### Aplicação Next.js
-
-```js
-// eslint.config.mjs
-import { nextJsConfig } from '@repo/eslint-config/next-js';
-
-export default nextJsConfig;
+```sh
+eslint . --max-warnings 0
 ```
 
-### Pacote React interno (`packages/design-system/industry/web`)
+O efeito é que **a severidade declarada na regra é cosmética**. Uma regra em `"error"` se comporta exatamente como uma em `"warn"`; o que reprova o build é a contagem chegar a um.
+
+Isso vale para quem for adicionar regra aqui: não adianta subir a severidade para "forçar" alguma coisa. E vale para quem for lendo o output — um `warning` neste repo não é advisory, é build quebrado.
+
+## As três configs
+
+| Export                               | Uso                                                                        |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| `@repo/eslint-config/base`           | Qualquer pacote TypeScript                                                 |
+| `@repo/eslint-config/react-internal` | Pacotes React — `@industry/web`, `@industry/mobile`                        |
+| `@repo/eslint-config/next-js`        | Aplicações Next.js. Mantido para uso futuro; nenhum workspace consome hoje |
 
 ```js
 // eslint.config.mjs
 import { config } from '@repo/eslint-config/react-internal';
 
-export default config;
+export default [...config, { ignores: ['storybook-static/**'] }];
 ```
 
-### Pacote TypeScript genérico
+## Fronteiras de arquitetura, aplicadas pelo linter
+
+A parte mais interessante do pacote. `architecture-boundaries` exporta `domainServicesBoundaries(appSrcDir)`, que gera regras de `no-restricted-imports` transformando a camada de Clean Architecture em algo verificável:
 
 ```js
-// eslint.config.mjs
-import { config } from '@repo/eslint-config/base';
-
-export default config;
-```
-
-## Fronteiras de import
-
-`@repo/eslint-config/architecture-boundaries` exporta `domainServicesBoundaries(appSrcDir)`, que gera blocos de config (`no-restricted-imports`) aplicando a camada `domain/` → `services/` → `screens/`/`hooks/`/`components/`/`context/`/`store/`/`navigation/` documentada no `CLAUDE.md` raiz ("Clean Architecture"): `domain/` não pode importar de nenhuma camada externa, `services/` não pode importar de `screens/`/`hooks/`/etc. Usado por `appointmate`/`tickets-app`.
-
-```js
-// eslint.config.mjs (app com domain/services/screens)
 import { config } from '@repo/eslint-config/react-internal';
 import { domainServicesBoundaries } from '@repo/eslint-config/architecture-boundaries';
 
 export default [...config, ...domainServicesBoundaries('src')];
 ```
 
-## Plugins incluídos
+O que passa a ser impossível:
 
-- `@eslint/js` — regras base do JavaScript
-- `typescript-eslint` — suporte a TypeScript
-- `eslint-plugin-react` + `eslint-plugin-react-hooks` — regras React
-- `@next/eslint-plugin-next` — regras específicas do Next.js
-- `eslint-plugin-turbo` — regras para variáveis de ambiente do Turborepo
-- `eslint-config-prettier` — desativa regras que conflitam com Prettier
-- `eslint-plugin-only-warn` — converte erros em warnings (útil em desenvolvimento)
+- **`domain/` não importa de camada nenhuma de fora.** É TypeScript puro — sem React, sem Firebase, sem navegação — e continua assim porque o linter recusa o contrário
+- **`services/` não importa de `screens/`, `hooks/`, `components/`, `context/`, `store/` ou `navigation/`.** As dependências apontam para dentro
 
-## Contribuindo
+Sem isso, "a arquitetura é em camadas" é um acordo verbal que se desfaz no primeiro import de conveniência às onze da noite. Com isso, é uma propriedade do build. Usado pelo `appointmate` e pelo `tickets-app`.
 
-Consulte o [README raiz do monorepo](../../README.md) para instruções de configuração e fluxo de contribuição.
+## Plugins
 
-## Licença
+`@eslint/js` · `typescript-eslint` · `eslint-plugin-react` · `eslint-plugin-react-hooks` · `@next/eslint-plugin-next` · `eslint-plugin-turbo` · `eslint-config-prettier` · `eslint-plugin-only-warn`
 
-Uso interno — repositório privado.
+## Onde isso roda
 
----
-
-[eslint-shield]: https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white
-[eslint-url]: https://eslint.org
-[typescript-shield]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
-[typescript-url]: https://www.typescriptlang.org
-[prettier-shield]: https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black
-[prettier-url]: https://prettier.io
+O `mobile-apps.yml` faz lint dos dois apps e do `@industry/mobile` a cada PR que os toque. Os demais pacotes dependem do hook de pre-commit do Husky — que roda `check-types`, **não** lint — e de execução manual. Essa lacuna está registrada como débito conhecido no documento de arquitetura.

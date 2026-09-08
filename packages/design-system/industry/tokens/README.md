@@ -1,66 +1,78 @@
 # @industry/tokens
 
-Fonte única dos tokens de design do **Industry** — o design system de blueprint sobre fundo escuro — compartilhada por `@industry/web` e `@industry/mobile`. Portado de `~/Documents/ds/theme.json` e `styles.css`; ver `~/Documents/ds/readme.md` e `~/Documents/ds/DESIGN-SYSTEM.md` para o briefing completo do sistema.
+**A fonte única de verdade do Industry.** Um conjunto de valores, duas saídas: CSS custom properties para a web, constantes resolvidas para o nativo. Consumido por [`@industry/web`](../web/README.md), [`@industry/mobile`](../mobile/README.md) e diretamente pelo código dos apps.
 
-Ao contrário do `@vuotto/tokens` (removido do monorepo, REB-100), o Industry **não tem tema claro** — `color-scheme: dark` é fixo no `:root` (`~/Documents/ds/DESIGN-SYSTEM.md`, §13).
+Industry é um sistema de **blueprint sobre fundo escuro**. Não existe tema claro como produto — `color-scheme: dark` é fixo. Há um conjunto `light*` de espelhos nos tokens, usado apenas por superfícies que precisam inverter pontualmente.
 
-## Duas saídas, um valor de origem
+## O problema que este pacote resolve
 
-- **Web** (`./styles.css`, `./tokens/*`): os arquivos CSS deste pacote, com as mesmas rampas OKLCH do protótipo. Cores em `oklch()`, transparências em `color-mix(in srgb, ...)` — resolvidas pelo motor CSS do browser.
-- **Mobile** (import default `.`): React Native não resolve `oklch()`/`color-mix()` em tempo real. `scripts/build-native-tokens.mjs` resolve os mesmos valores de `tokens/colors.css` para hex/rgba concretos via [`culori`](https://culorijs.org), gerando `src/native/colors.generated.ts` (arquivo gerado, nunca editado à mão — refaça `yarn build` depois de mudar `colors.css`).
+As cores são authored em OKLCH, com rampas geradas por luminosidade e croma. Isso é ótimo na web: `oklch()` e `color-mix(in srgb, ...)` são resolvidos pelo motor do browser em tempo real.
 
-## Instalação
+React Native não resolve nenhum dos dois.
+
+Então `scripts/build-native-tokens.mjs` pega os mesmos valores de origem e os resolve — via [`culori`](https://culorijs.org) — para hex e rgba concretos, gerando `src/native/colors.generated.ts`. É arquivo gerado: **nunca edite à mão**, rode `yarn build` depois de mudar a origem.
+
+O efeito prático é que uma mudança de cor é uma mudança nas duas plataformas ao mesmo tempo, por construção. Não há uma segunda lista de hex para alguém esquecer de atualizar.
+
+## Uso
 
 ```ts
-// Web
+// Web — os tokens são globais, via CSS custom properties
 import '@industry/tokens/styles.css';
 
-// Mobile
-import { color, neutral, accentRamp, success, space, control, fontSize } from '@industry/tokens';
+// Mobile — constantes TypeScript
+import {
+  color,
+  neutral,
+  accentRamp,
+  semanticColor,
+  space,
+  fontSize,
+  alpha,
+} from '@industry/tokens';
 ```
+
+## Como ler as rampas
+
+A leitura inverte em relação a um tema claro. As rampas completas — `neutral`, `accentRamp`, `accent2Ramp`, nove passos cada — seguem:
+
+| Passo       | Papel                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **100–200** | Tinta sobre preenchimentos tingidos                                                                                             |
+| **300**     | O passo legível — tipo e ícones coloridos sobre o grafite                                                                       |
+| **400**     | O preenchimento — botões, barras, pontos, trilhos ativos. É o valor por trás de `color.accent`, `semanticColor.success` e afins |
+| **900**     | A superfície tingida — fundo de tag, campo tênue                                                                                |
+
+As rampas semânticas (`success`, `warning`, `danger`) são um subconjunto de cinco passos: `200`, `300`, `400`, `700`, `900`. O `200` cumpre ali o papel do `100`.
+
+Prefira sempre um passo da rampa a montar uma cor translúcida ad-hoc. `alpha(hex, percent)` existe só para o que a rampa não cobre.
+
+Para gráficos, seis séries em `viz['1']`…`viz['6']` — mesma luminosidade e croma, matiz espalhada. Atribua em ordem para manter gráficos comparáveis entre telas; eixos e gridlines usam `viz.grid`.
+
+## A regra da tinta invertida
+
+Nesta base não existe papel para inverter. **Não** use `--color-bg` / `color.bg` como se fosse o branco de um tema claro:
+
+- Um campo cheio é o passo erguido do acento: `accentRamp['800']`.
+- A tinta sobre esse campo é `color.text`.
+- Hairlines e marcas de registro são mesclas alfa de `color.text` — nunca de `color.bg`.
+- `color.bg` como primeiro plano só é correto em um lugar: tipo escuro sobre um preenchimento accent-400, como o botão primário ou um badge sólido.
+
+## O que não traduz 1:1 para o nativo
+
+| Conceito                  | Na web                                                | No nativo                                                                                                                               |
+| ------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Fonte mono                | `--font-mono`, uma pilha de sistema                   | `fontFamilyMono.ios` / `.android` — não é uma fonte para linkar                                                                         |
+| Safe area                 | `env(safe-area-inset-*)`                              | `useSafeAreaInsets()` do `react-native-safe-area-context`, não um token estático                                                        |
+| Anel hairline das sombras | `0 0 0 1px color-mix(...)` junto de cada `--shadow-*` | Não existe nas props `shadow*` do RN — aproxime com `borderWidth: 1` e `color.divider`                                                  |
+| Elevação no Android       | —                                                     | `elevation` não aceita cor customizada; os tokens trazem um valor numérico aproximado ao lado dos campos `shadow*`, que só valem no iOS |
+| Raios                     | `--radius-sm/md/lg`                                   | Existem (`radii.*`), mas a camada de componentes usa cantos retos. Só recorra a eles saindo deliberadamente do vocabulário blueprint    |
 
 ## Build
 
 ```sh
-yarn workspace @industry/tokens build                    # gera tudo: tokens nativos, tsup, CSS
-yarn workspace @industry/tokens generate:native-tokens    # só a etapa de geração (debug rápido)
+yarn workspace @industry/tokens build                   # gera tokens nativos, formata, empacota e emite o CSS
+yarn workspace @industry/tokens generate:native-tokens  # só a etapa de geração
 ```
 
-## A regra da tinta invertida
-
-Nesta base não existe papel para inverter — **não** troque tinta para `--color-bg`/`color.bg` como se fosse um "branco" de tema claro:
-
-- Um campo cheio é o passo erguido do acento: `--color-accent-800` / `accentRamp['800']`.
-- A tinta sobre esse campo é `--color-text` / `color.text`.
-- Hairlines e marcas de registro sobre um campo ou uma fotografia são mesclas alfa de `--color-text` — nunca de `--color-bg`.
-- `--color-bg` / `color.bg` como primeiro plano só é correto em um lugar: tipo escuro sobre um preenchimento accent-400 (botão primário, segmento marcado, badge sólido).
-
-## Como ler as rampas
-
-A leitura inverte em relação a um tema claro. As rampas `neutral`, `accentRamp`, `accent2Ramp` (nove passos cada uma) e as semânticas `success`, `warning`, `danger` (cinco passos cada uma) compartilham a mesma estrutura conceitual:
-
-- **300 é o passo legível** — tipo e ícones coloridos sobre o grafite.
-- **400 é o preenchimento** — botões, barras de progresso, pontos, trilhos ativos. É o valor por trás dos aliases `color.accent` / `semanticColor.success` / etc.
-- **900 é a superfície tingida** — fundo de tag, campo tênue.
-
-Nas três rampas completas (`neutral`, `accentRamp`, `accent2Ramp`):
-
-- **100–200 é tinta sobre esses preenchimentos tingidos.**
-
-As rampas semânticas (`success`, `warning`, `danger`) são um subconjunto de cinco passos (`200`, `300`, `400`, `700`, `900`) — falta só o `100` (além dos passos intermediários `500` e `600`). O `200` existe e cumpre o mesmo papel do `100` nas rampas completas: tinta sobre esses preenchimentos tingidos. Use os passos disponíveis com a mesma lógica (300 legível, 400 preenchimento, 900 superfície tingida).
-
-Prefira um passo da rampa a montar uma cor translúcida ad-hoc; `alpha(hex, percent)` existe só para os casos que a rampa não cobre.
-
-Seis séries de dado-viz vivem em `viz['1']`…`viz['6']`, em uma luminosidade e croma fixos, matiz espalhada — atribua em ordem para manter gráficos comparáveis entre telas. Eixos e gridlines usam `viz.grid`.
-
-## O que não traduz 1:1 pra mobile
-
-- **`--font-mono`** é uma pilha de sistema (`ui-monospace, 'SF Mono', Menlo, monospace`), não uma fonte para linkar — exportado como `fontFamilyMono.ios`/`fontFamilyMono.android` em vez de um único `fontFamily.mono`.
-- **`--safe-b` / `--safe-t`** (`env(safe-area-inset-*)`) são um conceito de CSS — no mobile, use `useSafeAreaInsets()` de `react-native-safe-area-context` (já é o padrão nos apps deste monorepo), não um token estático.
-- **O anel hairline dos shadows** (`0 0 0 1px color-mix(...)` que acompanha cada `--shadow-*`) não existe nas props `shadow*` legadas do RN — aproxime com `borderWidth: 1` e `borderColor: color.divider`/`dividerStrong` no mesmo elemento.
-- **Cor do `elevation` no Android**: `elevation` não aceita cor customizada — `shadow.md`/`.lg` etc. têm um `elevation` numérico aproximado (monocromático) ao lado dos campos `shadow*` de verdade (que só valem no iOS).
-- **`--radius-sm/md/lg`** existem no token sheet (`radii.sm/md/lg`) mas a camada de componentes do Industry usa cantos retos (`radius: 0`) — só recorra a eles se estiver deliberadamente saindo do vocabulário blueprint (ver `~/Documents/ds/readme.md`).
-
-## Escopo (REB-56 a REB-61)
-
-Cores (rampas OKLCH + data-viz), tipografia (Barlow Condensed/Barlow/mono + escala h1-h6), espaçamento/raio/densidade/touch e elevação. Os componentes de `@industry/web` e `@industry/mobile` (REB-50/51) consomem isso, não o redefinem. O objeto blueprint (`.blueprint`, `.duotone`) é REB-49, não este pacote.
+O build passa o Prettier no arquivo gerado logo após produzi-lo. Sem esse passo, todo build sujava a árvore com um diff cosmético de 122 linhas — o gerador emite JSON com aspas duplas, a cópia versionada é formatada.
