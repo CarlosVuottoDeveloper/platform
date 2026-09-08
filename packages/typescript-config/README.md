@@ -1,145 +1,53 @@
 # @repo/typescript-config
 
-[![TypeScript][typescript-shield]][typescript-url]
+**Os `tsconfig` base compartilhados do monorepo.** Quatro presets, todos estendendo o mesmo núcleo estrito.
 
-Configurações TypeScript compartilhadas do monorepo `platform`. Fornece presets prontos para uso, cobrindo projetos genéricos, aplicações Next.js, pacotes React e pacotes React Native.
+## A base
 
-## Índice
-
-- [Construído com](#construído-com)
-- [Configurações disponíveis](#configurações-disponíveis)
-- [Uso](#uso)
-- [Opções de compilação](#opções-de-compilação)
-- [Exceção: apps Expo](#exceção-apps-expo)
-- [Contribuindo](#contribuindo)
-- [Licença](#licença)
-
-## Construído com
-
-[![TypeScript][typescript-shield]][typescript-url]
-
-## Configurações disponíveis
-
-| Arquivo              | Uso recomendado                                    |
-| -------------------- | -------------------------------------------------- |
-| `base.json`          | Qualquer pacote TypeScript (tokens, eslint-config) |
-| `nextjs.json`        | Aplicações Next.js                                 |
-| `react-library.json` | Pacotes React com JSX (`@industry/web`)            |
-| `react-native.json`  | Pacotes React Native (`@industry/mobile`)          |
-
-## Uso
-
-Estenda a config desejada no `tsconfig.json` do seu pacote:
-
-### Pacote TypeScript genérico
-
-```json
+```jsonc
 {
-  "extends": "@repo/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  },
-  "include": ["src"]
+  "strict": true,
+  "noUncheckedIndexedAccess": true,
+  "target": "ES2022",
+  "module": "NodeNext",
+  "moduleResolution": "NodeNext",
+  "isolatedModules": true,
+  "declaration": true,
+  "declarationMap": true,
 }
 ```
 
-### Aplicação Next.js
+Duas escolhas merecem explicação:
 
-```json
-{
-  "extends": "@repo/typescript-config/nextjs.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
-}
-```
+**`noUncheckedIndexedAccess`** é a mais incômoda e a mais valiosa. Acessar `array[0]` passa a devolver `T | undefined`, não `T` — porque é isso que o acesso realmente devolve. Obriga a tratar o caso vazio no ponto onde ele existe, em vez de descobrir em runtime.
 
-### Pacote React (com JSX)
+**`strict` não é negociável por pacote.** Se um tipo dá erro, o caminho é corrigir o tipo, não afrouxar o config local.
 
-```json
+## Os presets
+
+| Export               | Para                       |
+| -------------------- | -------------------------- |
+| `base.json`          | Qualquer pacote TypeScript |
+| `react-library.json` | Pacotes React com JSX      |
+| `nextjs.json`        | Aplicações Next.js         |
+| `react-native.json`  | Pacotes React Native       |
+
+```jsonc
+// tsconfig.json
 {
   "extends": "@repo/typescript-config/react-library.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
 }
 ```
 
-### Pacote React Native
+## A exceção dos apps Expo
 
-```json
-{
-  "extends": "@repo/typescript-config/react-native.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
-}
-```
+Os dois apps mobile **não** estendem daqui. Eles estendem o `expo/tsconfig.base` diretamente.
 
-## Opções de compilação
+Não é descuido: o Expo mantém o próprio config alinhado com o que cada SDK espera — tipos de plataforma, resolução de módulos, transformações de JSX — e sobrepor isso com o nosso base cria conflito silencioso a cada upgrade de SDK. As garantias de rigor continuam valendo lá porque os apps declaram `strict` por conta própria.
 
-As opções abaixo são definidas em `base.json` e herdadas por todas as configurações:
+## Onde isso roda
 
-| Opção                      | Valor                       | Descrição                                              |
-| -------------------------- | --------------------------- | ------------------------------------------------------ |
-| `target`                   | `ES2022`                    | Compila para ES2022                                    |
-| `lib`                      | `es2022, DOM, DOM.Iterable` | Inclui tipos do DOM e ES2022                           |
-| `module`                   | `NodeNext`                  | Resolução de módulos para Node.js com ESM              |
-| `moduleResolution`         | `NodeNext`                  | Exige extensões explícitas nos imports                 |
-| `strict`                   | `true`                      | Ativa todas as verificações estritas                   |
-| `noUncheckedIndexedAccess` | `true`                      | Acesso por índice retorna `T \| undefined`             |
-| `isolatedModules`          | `true`                      | Compatível com transpiladores como esbuild/swc         |
-| `declaration`              | `true`                      | Gera arquivos `.d.ts`                                  |
-| `declarationMap`           | `true`                      | Gera source maps para as declarações                   |
-| `skipLibCheck`             | `true`                      | Ignora verificação de tipos em `.d.ts` de dependências |
-| `esModuleInterop`          | `true`                      | Compatibilidade com imports de módulos CommonJS        |
+`yarn check-types` a partir da raiz, via Turborepo, respeitando a ordem topológica.
 
-### Adições de `nextjs.json`
-
-| Opção              | Valor      | Descrição                                                               |
-| ------------------ | ---------- | ----------------------------------------------------------------------- |
-| `module`           | `ESNext`   | Sobrescreve para ESNext (bundler do Next.js)                            |
-| `moduleResolution` | `Bundler`  | Resolução via bundler (sem extensões obrigatórias)                      |
-| `jsx`              | `preserve` | Preserva JSX para o Next.js transformar                                 |
-| `noEmit`           | `true`     | Apenas verificação de tipos, sem output                                 |
-| `declaration`      | `false`    | Sobrescreve o `true` herdado de `base.json` — inútil com `noEmit: true` |
-| `declarationMap`   | `false`    | Mesma razão que `declaration`                                           |
-
-### Adições de `react-library.json`
-
-| Opção | Valor       | Descrição                                 |
-| ----- | ----------- | ----------------------------------------- |
-| `jsx` | `react-jsx` | Transforma JSX com o runtime do React 17+ |
-
-### Adições de `react-native.json`
-
-| Opção   | Valor              | Descrição                                      |
-| ------- | ------------------ | ---------------------------------------------- |
-| `lib`   | `ES2022`           | Remove os tipos de DOM herdados de `base.json` |
-| `types` | `["react-native"]` | Inclui os tipos globais do React Native        |
-
-## Exceção: apps Expo
-
-`apps/mobile/appointmate` e `apps/mobile/tickets-app` **não** estendem nenhum preset deste pacote — eles estendem `expo/tsconfig.base` diretamente, porque o Metro bundler do Expo exige opções de módulo/resolução próprias que conflitam com `base.json` (`module`/`moduleResolution: NodeNext`). Para não perder as verificações estritas do restante do monorepo, cada um replica manualmente `strict: true` e `noUncheckedIndexedAccess: true` no próprio `tsconfig.json`. Se `base.json` ganhar novas opções de strictness no futuro, replique-as manualmente nesses dois apps também.
-
-## Contribuindo
-
-Consulte o [README raiz do monorepo](../../README.md) para instruções de configuração e fluxo de contribuição.
-
-## Licença
-
-Uso interno — repositório privado.
-
----
-
-[typescript-shield]: https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white
-[typescript-url]: https://www.typescriptlang.org
+Uma armadilha que vale saber: `check-types` verifica um pacote contra o `dist` construído das suas dependências. **Rode `yarn build` antes** — é a ordem que o CI usa. Fora dessa ordem, um pacote que depende do `@industry/tokens` falha com `Cannot find module '@industry/tokens'`, e o erro não parece o que é.
