@@ -17,6 +17,7 @@ O AppointMate transforma isso em registro contínuo. O formulário é longo de p
 - **Histórico com filtro por período**
 - **Exportação em PDF** — gerado localmente e entregue à folha de compartilhamento do sistema
 - **Máscara de data e validação** — a data da consulta não pode ser retroativa; a da última consulta, por definição, pode
+- **Login com e-mail/senha ou Google** — o Google entra via `@react-native-google-signin` e vira credencial do Firebase Auth; nenhuma coleção de usuários é criada, o app persiste só o que o próprio Auth armazena
 
 ## Privacidade — e por que ela define a arquitetura
 
@@ -50,13 +51,22 @@ O formulário usa `react-hook-form`, com as regras de validação no `Controller
 # da raiz do monorepo
 yarn workspace @app/appointmate start
 
-yarn workspace @app/appointmate test          # 225 testes
+yarn workspace @app/appointmate test          # 243 testes
 yarn workspace @app/appointmate lint          # --max-warnings 0
 yarn workspace @app/appointmate check-types
 yarn workspace @app/appointmate emulators     # emulador do Firestore
 ```
 
-Precisa de um `.env` local com credenciais do Firebase — veja o `.env.example`.
+Precisa de um `.env` local com credenciais do Firebase e o _Web client ID_ OAuth do login com Google — veja o `.env.example`.
+
+**O app não roda mais no Expo Go.** O login com Google exige código nativo, então o desenvolvimento usa um _development build_ (`expo-dev-client`):
+
+```sh
+yarn workspace @app/appointmate build:dev      # gera o APK de desenvolvimento no EAS
+yarn workspace @app/appointmate start          # Metro, conectado ao dev build instalado
+```
+
+Para o login com Google funcionar no Android, o SHA-1 do keystore gerenciado pelo EAS (`eas credentials -p android`) precisa estar registrado no app Android do projeto Firebase, e o provedor Google habilitado em Authentication → Sign-in method. iOS ainda não está configurado para esse fluxo.
 
 **Nota sobre testes:** desde a reformulação da estratégia de mocks, telas como `Home` e `FormEntry` renderizam o **`AuthProvider` de verdade** e mockam apenas `subscribeToAuthChanges`, na fronteira de serviço. Nenhum componente do próprio app é substituído por stub. Foi isso que expôs um bug latente: com o `useAuth` mockado, um teste capturava um listener de foco obsoleto e passava por acidente.
 

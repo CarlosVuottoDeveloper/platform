@@ -1,15 +1,17 @@
 import { FirebaseError } from 'firebase/app';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fireEvent, render, screen, waitFor } from '../../test-utils';
-import { login } from '../../services/authService';
+import { login, loginWithGoogle } from '../../services/authService';
 import type { AuthStackParamList } from '../../navigation/types';
 import { Login } from './Login';
 
 jest.mock('../../services/authService', () => ({
   login: jest.fn(),
+  loginWithGoogle: jest.fn(),
 }));
 
 const mockedLogin = login as jest.Mock;
+const mockedLoginWithGoogle = loginWithGoogle as jest.Mock;
 
 type LoginProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -135,6 +137,73 @@ describe('Login', () => {
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).toBeNull();
+    }, ASYNC_TIMEOUT);
+  }, 40000);
+
+  it('renders the Google sign-in button', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('Continuar com Google')).toBeTruthy();
+  });
+
+  it('calls authService.loginWithGoogle when the Google button is pressed', async () => {
+    mockedLoginWithGoogle.mockResolvedValue({ uid: 'abc123', email: 'user@example.com' });
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(mockedLoginWithGoogle).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('shows a loading indicator while the Google sign-in is in flight', async () => {
+    let resolveLogin: (value: { uid: string; email: string }) => void = () => {};
+    mockedLoginWithGoogle.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveLogin = resolve;
+        }),
+    );
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('progressbar')).toBeTruthy();
+    });
+
+    resolveLogin({ uid: 'abc123', email: 'user@example.com' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).toBeNull();
+    }, ASYNC_TIMEOUT);
+  }, 40000);
+
+  it('stays quiet when the user cancels the Google prompt', async () => {
+    mockedLoginWithGoogle.mockResolvedValue(null);
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).toBeNull();
+    }, ASYNC_TIMEOUT);
+    expect(screen.queryByText(/erro/i)).toBeNull();
+  }, 40000);
+
+  it('shows a friendly error message when the Google sign-in fails', async () => {
+    mockedLoginWithGoogle.mockRejectedValue(
+      new FirebaseError('auth/account-exists-with-different-credential', ''),
+    );
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Este e-mail já está cadastrado com outro método de login.'),
+      ).toBeTruthy();
     }, ASYNC_TIMEOUT);
   }, 40000);
 });
