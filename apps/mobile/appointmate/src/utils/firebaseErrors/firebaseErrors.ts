@@ -20,7 +20,7 @@ export function mapFirebaseAuthError(err: unknown): string {
       case 'auth/account-exists-with-different-credential':
         return 'Este e-mail já está cadastrado com outro método de login.';
       case 'auth/weak-password':
-        return 'A senha deve ter pelo menos 6 caracteres.';
+        return 'A senha deve ter pelo menos 8 caracteres.';
       case 'auth/invalid-email':
         return 'E-mail inválido.';
       case 'auth/too-many-requests':

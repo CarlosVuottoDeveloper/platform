@@ -73,10 +73,10 @@ describe('Login', () => {
     });
   });
 
-  it('navigates to Register when "Criar conta" is pressed', () => {
+  it('navigates to Register when "Criar conta com e-mail" is pressed', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Criar conta'));
+    fireEvent.press(screen.getByText('Criar conta com e-mail'));
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('Register');
   });
@@ -144,6 +144,38 @@ describe('Login', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
     expect(screen.getByText('Continuar com Google')).toBeTruthy();
+  });
+
+  it('explains that Google both signs in and creates the account', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('Entra ou cria sua conta, conforme o caso')).toBeTruthy();
+  });
+
+  it('separates the e-mail form with an "ou com e-mail" divider', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('ou com e-mail')).toBeTruthy();
+  });
+
+  it('offers e-mail sign-up as a link for first-time users', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('Primeira vez?')).toBeTruthy();
+    expect(screen.getByText('Criar conta com e-mail')).toBeTruthy();
+    expect(screen.queryByText('Criar conta')).toBeNull();
+  });
+
+  it('places the Google button before the e-mail fields', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    const google = screen.getByTestId('login-google-button');
+    const email = screen.getByTestId('login-email-input');
+    const form = screen.getByTestId('login-form');
+    const order = form.props.children.map(
+      (child: { props: { testID?: string } }) => child?.props?.testID,
+    );
+    expect(order.indexOf(google.props.testID)).toBeLessThan(order.indexOf(email.props.testID));
   });
 
   it('calls authService.loginWithGoogle when the Google button is pressed', async () => {

@@ -64,15 +64,15 @@ describe('Register', () => {
 
     fireEvent.changeText(screen.getByTestId('register-email-input'), 'not-an-email');
 
-    expect(screen.getByText('E-mail inválido')).toBeTruthy();
+    expect(screen.getByText('Formato de e-mail inválido')).toBeTruthy();
   });
 
-  it('shows an inline error for a password shorter than 6 characters', () => {
+  it('shows an inline error for a password shorter than 8 characters', () => {
     render(<Register navigation={mockNavigation} route={mockRoute} />);
 
     fireEvent.changeText(screen.getByTestId('register-password-input'), 'abc12');
 
-    expect(screen.getByText('Mínimo de 6 caracteres')).toBeTruthy();
+    expect(screen.getByText('Mínimo de 8 caracteres')).toBeTruthy();
   });
 
   it('does not call register when the email is invalid', () => {

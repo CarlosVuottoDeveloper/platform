@@ -10,19 +10,19 @@ describe('emailFormatError', () => {
   });
 
   it('returns an error for an email missing the @', () => {
-    expect(emailFormatError('userexample.com')).toBe('E-mail inválido');
+    expect(emailFormatError('userexample.com')).toBe('Formato de e-mail inválido');
   });
 
   it('returns an error for an email missing the domain', () => {
-    expect(emailFormatError('user@')).toBe('E-mail inválido');
+    expect(emailFormatError('user@')).toBe('Formato de e-mail inválido');
   });
 
   it('returns an error for an email missing the top-level domain', () => {
-    expect(emailFormatError('user@example')).toBe('E-mail inválido');
+    expect(emailFormatError('user@example')).toBe('Formato de e-mail inválido');
   });
 
   it('returns an error for an email with spaces', () => {
-    expect(emailFormatError('user name@example.com')).toBe('E-mail inválido');
+    expect(emailFormatError('user name@example.com')).toBe('Formato de e-mail inválido');
   });
 });
 
@@ -31,11 +31,15 @@ describe('passwordMinLengthError', () => {
     expect(passwordMinLengthError('')).toBeUndefined();
   });
 
-  it('returns undefined for a password with 6 or more characters', () => {
-    expect(passwordMinLengthError('secret123')).toBeUndefined();
+  it('returns undefined for a password with exactly 8 characters', () => {
+    expect(passwordMinLengthError('abcd1234')).toBeUndefined();
   });
 
-  it('returns an error for a password shorter than 6 characters', () => {
-    expect(passwordMinLengthError('abc12')).toBe('Mínimo de 6 caracteres');
+  it('returns undefined for a password longer than 8 characters', () => {
+    expect(passwordMinLengthError('secret1234')).toBeUndefined();
+  });
+
+  it('returns an error for a password with 7 characters', () => {
+    expect(passwordMinLengthError('abc1234')).toBe('Mínimo de 8 caracteres');
   });
 });

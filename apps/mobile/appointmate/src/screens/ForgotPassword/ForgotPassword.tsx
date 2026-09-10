@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppBar, Button, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
-import { alpha } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation/types';
 import { sendPasswordReset } from '../../services/authService';
@@ -47,9 +46,6 @@ export function ForgotPassword({ navigation }: Props) {
       />
       <KeyboardAvoidingView style={styles.keyboardView} behavior="padding">
         <View style={[styles.container, { backgroundColor: colors.bg }]}>
-          <Text style={[styles.description, { color: alpha(colors.text, 70) }]}>
-            Informe seu e-mail e enviaremos um link para redefinir sua senha.
-          </Text>
           <View style={styles.form}>
             <TextField
               label="E-mail"

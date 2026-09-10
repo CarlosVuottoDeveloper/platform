@@ -64,7 +64,7 @@ export function Register({ navigation }: Props) {
             <TextField
               label="Senha"
               error={passwordError}
-              hint="Mínimo de 6 caracteres"
+              hint="Mínimo de 8 caracteres"
               placeholder="Sua senha"
               secureTextEntry
               secureToggle
