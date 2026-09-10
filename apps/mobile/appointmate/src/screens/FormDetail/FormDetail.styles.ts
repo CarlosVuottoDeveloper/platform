@@ -3,6 +3,7 @@ import { space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1 },
+  statusBadge: { alignSelf: 'center' },
   container: {
     padding: space[6],
     gap: space[4],

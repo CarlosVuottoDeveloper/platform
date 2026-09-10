@@ -7,7 +7,7 @@ import { alpha, fontFamilyMono, semanticColor } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { useAuth } from '../../context/AuthContext';
-import { createForm, getForm, updateForm } from '../../services/formsService';
+import { createForm, getFormRecord, updateForm } from '../../services/formsService';
 import { mapFirestoreError } from '../../utils/firebaseErrors';
 import {
   EMPTY_FORM_VALUES,
@@ -79,6 +79,7 @@ export function FormEntry({ navigation, route }: Props) {
   const toast = useToast();
 
   const [loadingForm, setLoadingForm] = useState(Boolean(formId));
+  const [status, setStatus] = useState<FormStatus>('draft');
   const [saving, setSaving] = useState(false);
 
   const { control, handleSubmit, reset, getValues } = useForm<FormValues>({
@@ -91,10 +92,13 @@ export function FormEntry({ navigation, route }: Props) {
     if (!formId) return;
     let cancelled = false;
 
-    getForm(formId)
-      .then((values) => {
+    getFormRecord(formId)
+      .then((record) => {
         if (cancelled) return;
-        if (values) reset(values);
+        if (record) {
+          reset(record.values);
+          setStatus(record.status);
+        }
         setLoadingForm(false);
       })
       .catch((err) => {
@@ -371,7 +375,7 @@ export function FormEntry({ navigation, route }: Props) {
             style={styles.bottomBarButton}
             variant="secondary"
             onPress={onSaveDraft}
-            disabled={saving}
+            disabled={saving || status === 'submitted'}
             testID="form-entry-save-draft-button"
           >
             Salvar rascunho

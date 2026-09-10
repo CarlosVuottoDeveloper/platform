@@ -131,6 +131,16 @@ export function FormDetail({ navigation, route }: Props) {
     };
   }, [formId]);
 
+  useEffect(
+    () =>
+      navigation.addListener('beforeRemove', (event) => {
+        if (event.data.action.type !== 'GO_BACK') return;
+        event.preventDefault();
+        navigation.popToTop();
+      }),
+    [navigation],
+  );
+
   async function onExportPdf() {
     setExporting(true);
     try {
@@ -153,7 +163,7 @@ export function FormDetail({ navigation, route }: Props) {
     try {
       await deleteForm(formId);
       setDeleteDialogVisible(false);
-      navigation.goBack();
+      navigation.popToTop();
     } catch (err) {
       toast.show({
         tone: 'danger',
@@ -168,10 +178,14 @@ export function FormDetail({ navigation, route }: Props) {
   const appBar = (
     <AppBar
       title="Formulário"
-      onBackPress={() => navigation.goBack()}
+      onBackPress={() => navigation.popToTop()}
       trailing={
         record ? (
-          <Badge tone={record.status === 'submitted' ? 'success' : 'warning'}>
+          <Badge
+            tone={record.status === 'submitted' ? 'success' : 'warning'}
+            style={styles.statusBadge}
+            testID="form-detail-status-badge"
+          >
             {record.status === 'submitted' ? 'Salvo' : 'Rascunho'}
           </Badge>
         ) : undefined
@@ -298,6 +312,7 @@ export function FormDetail({ navigation, route }: Props) {
           variant="primary"
           framed
           onPress={() => navigation.navigate('FormEntry', { formId })}
+          disabled={record.status === 'submitted'}
           testID="form-detail-edit-button"
         >
           Editar

@@ -135,7 +135,7 @@ function MenuItemRow({ item, onSelect }: { item: MenuItem; onSelect: () => void 
         minHeight: 44,
         paddingHorizontal: space[4],
         backgroundColor: item.selected
-          ? accentRamp['200']
+          ? alpha(color.accent, 22)
           : pressed
             ? color.surface2
             : 'transparent',
@@ -143,9 +143,11 @@ function MenuItemRow({ item, onSelect }: { item: MenuItem; onSelect: () => void 
       })}
     >
       <View style={{ width: 16 }}>
-        {item.selected ? <Icon name="Check" size={16} color={color.text} /> : null}
+        {item.selected ? <Icon name="Check" size={16} color={accentRamp['300']} /> : null}
       </View>
-      <Text style={{ fontSize: 14, color: color.text }}>{item.label}</Text>
+      <Text style={{ fontSize: 14, color: item.selected ? accentRamp['300'] : color.text }}>
+        {item.label}
+      </Text>
     </Pressable>
   );
 }

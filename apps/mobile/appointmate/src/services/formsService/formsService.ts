@@ -110,12 +110,6 @@ function toDateOrNull(value: unknown): Date | null {
   return typeof timestamp?.toDate === 'function' ? timestamp.toDate() : null;
 }
 
-export async function getForm(formId: string): Promise<FormValues | null> {
-  const snapshot = await getDoc(doc(db, 'forms', formId));
-  if (!snapshot.exists()) return null;
-  return toFormValues(snapshot.data());
-}
-
 export async function getFormRecord(formId: string): Promise<FormRecord | null> {
   const snapshot = await getDoc(doc(db, 'forms', formId));
   if (!snapshot.exists()) return null;

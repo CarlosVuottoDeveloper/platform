@@ -1,7 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FirebaseError } from 'firebase/app';
 import { fireEvent, render, screen, waitFor } from '../../test-utils';
-import { createForm, getForm, updateForm } from '../../services/formsService';
+import { createForm, getFormRecord, updateForm } from '../../services/formsService';
 import { AuthProvider } from '../../context/AuthContext';
 import { subscribeToAuthChanges, type AuthUser } from '../../services/authService';
 import type { AppStackParamList } from '../../navigation/types';
@@ -10,7 +10,7 @@ import { FormEntry } from './FormEntry';
 jest.mock('../../services/formsService', () => ({
   createForm: jest.fn(),
   updateForm: jest.fn(),
-  getForm: jest.fn(),
+  getFormRecord: jest.fn(),
 }));
 
 jest.mock('../../services/authService', () => ({
@@ -19,7 +19,7 @@ jest.mock('../../services/authService', () => ({
 
 const mockedCreateForm = createForm as jest.Mock;
 const mockedUpdateForm = updateForm as jest.Mock;
-const mockedGetForm = getForm as jest.Mock;
+const mockedGetFormRecord = getFormRecord as jest.Mock;
 const mockedSubscribeToAuthChanges = subscribeToAuthChanges as jest.Mock;
 
 function signedInAs(user: AuthUser | null) {
@@ -84,6 +84,15 @@ const existingValues = {
   todayFocus: 'Ajustar a medicação.',
   consultationNotes: 'Nenhuma nota adicional.',
 };
+
+const draftRecord = {
+  values: existingValues,
+  status: 'draft' as const,
+  createdAt: null,
+  updatedAt: null,
+};
+
+const submittedRecord = { ...draftRecord, status: 'submitted' as const };
 
 function fillAllRequiredFields() {
   fireEvent.changeText(
@@ -352,8 +361,8 @@ describe('FormEntry', () => {
 
   describe('editing an existing form', () => {
     it('does not update state after unmounting while the load is still pending', () => {
-      let resolveGetForm: (value: typeof existingValues) => void = () => {};
-      mockedGetForm.mockImplementation(
+      let resolveGetForm: (value: typeof draftRecord) => void = () => {};
+      mockedGetFormRecord.mockImplementation(
         () =>
           new Promise((resolve) => {
             resolveGetForm = resolve;
@@ -363,12 +372,12 @@ describe('FormEntry', () => {
       const { unmount } = renderFormEntry('form-1');
       unmount();
 
-      expect(() => resolveGetForm(existingValues)).not.toThrow();
+      expect(() => resolveGetForm(draftRecord)).not.toThrow();
     });
 
     it('does not update state after unmounting while the load is still failing', () => {
       let rejectGetForm: (err: Error) => void = () => {};
-      mockedGetForm.mockImplementation(
+      mockedGetFormRecord.mockImplementation(
         () =>
           new Promise((_resolve, reject) => {
             rejectGetForm = reject;
@@ -382,7 +391,7 @@ describe('FormEntry', () => {
     });
 
     it('stops loading without resetting the form when no values are found', async () => {
-      mockedGetForm.mockResolvedValue(null);
+      mockedGetFormRecord.mockResolvedValue(null);
 
       renderFormEntry('form-1');
 
@@ -393,7 +402,7 @@ describe('FormEntry', () => {
     }, 20000);
 
     it('shows a loading state while the existing form is fetched', () => {
-      mockedGetForm.mockReturnValue(new Promise(() => {}));
+      mockedGetFormRecord.mockReturnValue(new Promise(() => {}));
 
       renderFormEntry('form-1');
 
@@ -401,7 +410,7 @@ describe('FormEntry', () => {
     });
 
     it('populates all sections with the loaded values', async () => {
-      mockedGetForm.mockResolvedValue(existingValues);
+      mockedGetFormRecord.mockResolvedValue(draftRecord);
 
       renderFormEntry('form-1');
 
@@ -430,7 +439,7 @@ describe('FormEntry', () => {
     }, 20000);
 
     it('calls updateForm (not createForm) on submit', async () => {
-      mockedGetForm.mockResolvedValue(existingValues);
+      mockedGetFormRecord.mockResolvedValue(draftRecord);
       mockedUpdateForm.mockResolvedValue(undefined);
 
       renderFormEntry('form-1');
@@ -450,8 +459,38 @@ describe('FormEntry', () => {
       }, ASYNC_TIMEOUT);
     }, 20000);
 
+    it('disables "Salvar rascunho" when the form was already submitted', async () => {
+      mockedGetFormRecord.mockResolvedValue(submittedRecord);
+
+      renderFormEntry('form-1');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('form-entry-save-draft-button')).toBeTruthy();
+      }, ASYNC_TIMEOUT);
+
+      expect(
+        screen.getByTestId('form-entry-save-draft-button').props.accessibilityState.disabled,
+      ).toBe(true);
+      fireEvent.press(screen.getByTestId('form-entry-save-draft-button'));
+      expect(mockedUpdateForm).not.toHaveBeenCalled();
+    }, 20000);
+
+    it('keeps "Salvar rascunho" enabled for a draft', async () => {
+      mockedGetFormRecord.mockResolvedValue(draftRecord);
+
+      renderFormEntry('form-1');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('form-entry-save-draft-button')).toBeTruthy();
+      }, ASYNC_TIMEOUT);
+
+      expect(
+        screen.getByTestId('form-entry-save-draft-button').props.accessibilityState.disabled,
+      ).toBe(false);
+    }, 20000);
+
     it('shows an error message when the form fails to load', async () => {
-      mockedGetForm.mockRejectedValue(new Error('not found'));
+      mockedGetFormRecord.mockRejectedValue(new Error('not found'));
 
       renderFormEntry('form-1');
 
