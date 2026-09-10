@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
+import { accentRamp, alpha, color } from '@industry/tokens';
 import { Menu, resolveMenuPosition } from './Menu';
 
 function mockMeasureInWindow(x: number, y: number, width: number, height: number) {
@@ -210,6 +211,25 @@ describe('Menu', () => {
       backgroundColor: expect.any(String),
     });
     expect(getByTestId('menu-item-b').props.style.backgroundColor).toBe('transparent');
+  });
+
+  it('keeps the selected item legible with a translucent accent background and accent text', () => {
+    const { getByTestId, getByText } = render(
+      <Menu
+        trigger={<Text>Ações</Text>}
+        items={[
+          { key: 'a', label: 'Todos', selected: true },
+          { key: 'b', label: 'Últimos 7 dias' },
+        ]}
+        testID="menu"
+      />,
+    );
+
+    fireEvent.press(getByTestId('menu'));
+
+    expect(getByTestId('menu-item-a').props.style.backgroundColor).toBe(alpha(color.accent, 22));
+    expect(getByText('Todos').props.style.color).toBe(accentRamp['300']);
+    expect(getByText('Últimos 7 dias').props.style.color).toBe(color.text);
   });
 
   it('tints an item darker while pressed', () => {

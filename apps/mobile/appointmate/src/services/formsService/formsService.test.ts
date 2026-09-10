@@ -11,14 +11,7 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import {
-  createForm,
-  deleteForm,
-  getForm,
-  getFormRecord,
-  listForms,
-  updateForm,
-} from './formsService';
+import { createForm, deleteForm, getFormRecord, listForms, updateForm } from './formsService';
 import type { FormValues } from '../../domain/form';
 
 jest.mock('firebase/firestore', () => ({
@@ -174,59 +167,6 @@ describe('formsService', () => {
       const [, payload] = mockedUpdateDoc.mock.calls[0];
       expect(payload).not.toHaveProperty('userId');
       expect(payload).not.toHaveProperty('createdAt');
-    });
-  });
-
-  describe('getForm', () => {
-    it('returns null when the document does not exist', async () => {
-      mockedDoc.mockReturnValue({});
-      mockedGetDoc.mockResolvedValue({ exists: () => false });
-
-      const result = await getForm('missing-form');
-
-      expect(result).toBeNull();
-    });
-
-    it('maps a Firestore document back into FormValues, wrapping lists in {text}', async () => {
-      mockedDoc.mockReturnValue({});
-      mockedGetDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => sampleFirestoreData,
-      });
-
-      const result = await getForm('form-1');
-
-      expect(result).toEqual(sampleValues);
-    });
-
-    it('fills in safe defaults for missing fields', async () => {
-      mockedDoc.mockReturnValue({});
-      mockedGetDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => ({}),
-      });
-
-      const result = await getForm('form-1');
-
-      expect(result).toEqual({
-        appointmentDate: '',
-        lastAppointmentDate: '',
-        overallMood: null,
-        overallSummary: '',
-        sleep: '',
-        energy: '',
-        appetite: '',
-        concentration: '',
-        medications: [],
-        medicationAdherence: '',
-        medicationEffects: '',
-        whatWentWell: '',
-        whatHasBeenHard: '',
-        context: '',
-        questions: [],
-        todayFocus: '',
-        consultationNotes: '',
-      });
     });
   });
 

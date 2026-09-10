@@ -2,6 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { FirebaseError } from 'firebase/app';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen, waitFor } from '../../test-utils';
 import { deleteForm, getFormRecord } from '../../services/formsService';
 import type { AppStackParamList } from '../../navigation/types';
@@ -31,7 +32,23 @@ const mockNavigation = {
   navigate: jest.fn(),
   goBack: jest.fn(),
   replace: jest.fn(),
+  popToTop: jest.fn(),
+  addListener: jest.fn(() => jest.fn()),
 } as unknown as Props['navigation'];
+
+const mockedAddListener = mockNavigation.addListener as jest.Mock;
+
+type BeforeRemoveEvent = { data: { action: { type: string } }; preventDefault: jest.Mock };
+
+function fireBeforeRemove(actionType: string): BeforeRemoveEvent {
+  const call = mockedAddListener.mock.calls.find(([event]) => event === 'beforeRemove');
+  const event: BeforeRemoveEvent = {
+    data: { action: { type: actionType } },
+    preventDefault: jest.fn(),
+  };
+  call![1](event);
+  return event;
+}
 
 function makeRoute(formId: string): Props['route'] {
   return { key: 'FormDetail', name: 'FormDetail', params: { formId } } as unknown as Props['route'];
@@ -221,7 +238,7 @@ describe('FormDetail', () => {
     }, ASYNC_TIMEOUT);
   }, 20000);
 
-  it('navigates back when the AppBar back button is pressed', async () => {
+  it('pops the stack back to Home when the AppBar back button is pressed', async () => {
     mockedGetFormRecord.mockResolvedValue(filledRecord);
 
     render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
@@ -232,11 +249,93 @@ describe('FormDetail', () => {
 
     fireEvent.press(screen.getByLabelText('Voltar'));
 
-    expect(mockNavigation.goBack).toHaveBeenCalled();
+    expect(mockNavigation.popToTop).toHaveBeenCalled();
+    expect(mockNavigation.goBack).not.toHaveBeenCalled();
   }, 20000);
 
-  it('navigates to FormEntry in edit mode when "Editar" is pressed', async () => {
+  it('redirects the hardware back gesture to Home instead of the previous screen', () => {
+    mockedGetFormRecord.mockReturnValue(new Promise(() => {}));
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    const event = fireBeforeRemove('GO_BACK');
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(mockNavigation.popToTop).toHaveBeenCalled();
+  });
+
+  it('lets its own pop-to-top removal through without intercepting it', () => {
+    mockedGetFormRecord.mockReturnValue(new Promise(() => {}));
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    const event = fireBeforeRemove('POP_TO_TOP');
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(mockNavigation.popToTop).not.toHaveBeenCalled();
+  });
+
+  it('unsubscribes the beforeRemove listener on unmount', () => {
+    const unsubscribe = jest.fn();
+    mockedAddListener.mockReturnValueOnce(unsubscribe);
+    mockedGetFormRecord.mockReturnValue(new Promise(() => {}));
+
+    const { unmount } = render(
+      <FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />,
+    );
+    unmount();
+
+    expect(unsubscribe).toHaveBeenCalled();
+  });
+
+  it('centers the status badge with the AppBar title', async () => {
     mockedGetFormRecord.mockResolvedValue(filledRecord);
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('form-detail-status-badge')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+
+    expect(
+      StyleSheet.flatten(screen.getByTestId('form-detail-status-badge').props.style),
+    ).toMatchObject({ alignSelf: 'center' });
+  }, 20000);
+
+  it('disables "Editar" for a submitted form', async () => {
+    mockedGetFormRecord.mockResolvedValue(filledRecord);
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('form-detail-edit-button')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+
+    expect(screen.getByTestId('form-detail-edit-button').props.accessibilityState.disabled).toBe(
+      true,
+    );
+    fireEvent.press(screen.getByTestId('form-detail-edit-button'));
+    expect(mockNavigation.navigate).not.toHaveBeenCalled();
+  }, 20000);
+
+  it('disables "Exportar PDF" for a draft', async () => {
+    mockedGetFormRecord.mockResolvedValue(emptyRecord);
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('form-detail-export-pdf-button')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+
+    expect(
+      screen.getByTestId('form-detail-export-pdf-button').props.accessibilityState.disabled,
+    ).toBe(true);
+    fireEvent.press(screen.getByTestId('form-detail-export-pdf-button'));
+    expect(mockedPrintToFileAsync).not.toHaveBeenCalled();
+  }, 20000);
+
+  it('navigates to FormEntry in edit mode when "Editar" is pressed on a draft', async () => {
+    mockedGetFormRecord.mockResolvedValue(emptyRecord);
 
     render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
 
@@ -345,7 +444,7 @@ describe('FormDetail', () => {
       expect(mockedDeleteForm).not.toHaveBeenCalled();
     }, 20000);
 
-    it('deletes the form and navigates back when the confirmation is accepted', async () => {
+    it('deletes the form and pops the stack back to Home when the confirmation is accepted', async () => {
       mockedGetFormRecord.mockResolvedValue(filledRecord);
       mockedDeleteForm.mockResolvedValue(undefined);
 
@@ -362,7 +461,7 @@ describe('FormDetail', () => {
         expect(mockedDeleteForm).toHaveBeenCalledWith('form-1');
       }, ASYNC_TIMEOUT);
       await waitFor(() => {
-        expect(mockNavigation.goBack).toHaveBeenCalled();
+        expect(mockNavigation.popToTop).toHaveBeenCalled();
       }, ASYNC_TIMEOUT);
     }, 20000);
 
@@ -384,7 +483,7 @@ describe('FormDetail', () => {
           screen.getByText('Não foi possível excluir o formulário. Tente novamente.'),
         ).toBeTruthy();
       }, ASYNC_TIMEOUT);
-      expect(mockNavigation.goBack).not.toHaveBeenCalled();
+      expect(mockNavigation.popToTop).not.toHaveBeenCalled();
     }, 20000);
   });
 });

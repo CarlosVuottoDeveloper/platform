@@ -1,5 +1,6 @@
 import { RefreshControl } from 'react-native';
 import { FirebaseError } from 'firebase/app';
+import { space } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fireEvent, render, screen, waitFor, within } from '../../test-utils';
 import { AuthProvider } from '../../context/AuthContext';
@@ -81,6 +82,29 @@ describe('Home', () => {
 
     expect(screen.getByTestId('home-loading')).toBeTruthy();
   });
+
+  it('shows only skeleton cards while loading, without a spinner or caption', () => {
+    mockedListForms.mockReturnValue(new Promise(() => {}));
+
+    renderHome();
+
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(screen.queryByText('Carregando formulários')).toBeNull();
+  });
+
+  it('adds breathing room above the first form card', async () => {
+    mockedListForms.mockResolvedValue([formA]);
+
+    renderHome();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('home-list')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+
+    expect(screen.getByTestId('home-list').props.contentContainerStyle).toMatchObject({
+      paddingTop: space[3],
+    });
+  }, 20000);
 
   it('shows a full-screen error when the initial load fails', async () => {
     mockedListForms.mockRejectedValue(new Error('network error'));

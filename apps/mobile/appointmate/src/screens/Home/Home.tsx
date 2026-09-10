@@ -11,7 +11,6 @@ import {
   IconButton,
   Menu,
   Skeleton,
-  Spinner,
   useTheme,
   useToast,
 } from '@industry/mobile';
@@ -159,12 +158,6 @@ export function Home({ navigation }: Props) {
       <SafeAreaView edges={['top']} style={styles.screen}>
         {appBar}
         <View testID="home-loading" style={styles.loadingContainer}>
-          <View style={styles.loadingRow}>
-            <Spinner />
-            <Text style={[styles.loadingCaption, { color: alpha(colors.text, 70) }]}>
-              Carregando formulários
-            </Text>
-          </View>
           {[0, 1, 2].map((index) => (
             <Card key={index} framed style={styles.skeletonCard}>
               <Skeleton lines={3} />
