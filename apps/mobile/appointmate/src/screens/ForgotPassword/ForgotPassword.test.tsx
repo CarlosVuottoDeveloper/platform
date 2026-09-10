@@ -44,12 +44,19 @@ describe('ForgotPassword', () => {
     expect(mockedSendPasswordReset).not.toHaveBeenCalled();
   });
 
+  it('goes straight to the e-mail field, without an intro paragraph', () => {
+    render(<ForgotPassword navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.queryByText(/Informe seu e-mail/)).toBeNull();
+    expect(screen.getByTestId('forgot-password-email-input')).toBeTruthy();
+  });
+
   it('shows an inline error for an invalid email', () => {
     render(<ForgotPassword navigation={mockNavigation} route={mockRoute} />);
 
     fireEvent.changeText(screen.getByTestId('forgot-password-email-input'), 'not-an-email');
 
-    expect(screen.getByText('E-mail inválido')).toBeTruthy();
+    expect(screen.getByText('Formato de e-mail inválido')).toBeTruthy();
   });
 
   it('does not call sendPasswordReset when the email is invalid', () => {
