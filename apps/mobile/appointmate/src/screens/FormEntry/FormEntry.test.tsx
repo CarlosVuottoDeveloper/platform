@@ -359,6 +359,12 @@ describe('FormEntry', () => {
     expect(mockedCreateForm).not.toHaveBeenCalled();
   });
 
+  it('asks for a recap of the last month in both narrative sections', () => {
+    renderFormEntry();
+
+    expect(screen.getAllByText('Conte como foi no último mês')).toHaveLength(2);
+  });
+
   describe('editing an existing form', () => {
     it('does not update state after unmounting while the load is still pending', () => {
       let resolveGetForm: (value: typeof draftRecord) => void = () => {};

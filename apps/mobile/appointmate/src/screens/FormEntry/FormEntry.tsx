@@ -309,7 +309,7 @@ export function FormEntry({ navigation, route }: Props) {
           <TextareaField
             control={control}
             name="whatWentWell"
-            label="O que foi bem ou melhorou"
+            label="Conte como foi no último mês"
             testID="form-entry-what-went-well-input"
           />
 
@@ -317,7 +317,7 @@ export function FormEntry({ navigation, route }: Props) {
           <TextareaField
             control={control}
             name="whatHasBeenHard"
-            label="O que tem sido difícil"
+            label="Conte como foi no último mês"
             testID="form-entry-what-has-been-hard-input"
           />
 
