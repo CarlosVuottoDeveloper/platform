@@ -5,8 +5,8 @@ import { Button, Spinner, TextField, useTheme, useToast } from '@industry/mobile
 import { accentRamp, alpha } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation/types';
-import { login } from '../../services/authService';
-import { mapFirebaseAuthError } from '../../utils/firebaseErrors';
+import { login, loginWithGoogle } from '../../services/authService';
+import { mapFirebaseAuthError, mapGoogleSignInError } from '../../utils/firebaseErrors';
 import { styles } from './Login.styles';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
@@ -25,6 +25,17 @@ export function Login({ navigation }: Props) {
       await login(email, password);
     } catch (err: unknown) {
       toast.show({ tone: 'danger', title: mapFirebaseAuthError(err) });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (err: unknown) {
+      toast.show({ tone: 'danger', title: mapGoogleSignInError(err) });
     } finally {
       setLoading(false);
     }
@@ -69,6 +80,20 @@ export function Login({ navigation }: Props) {
               testID="login-submit-button"
             >
               Entrar
+            </Button>
+            <View style={styles.orRow}>
+              <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
+              <Text style={[styles.orLabel, { color: alpha(colors.text, 60) }]}>ou</Text>
+              <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
+            </View>
+            <Button
+              variant="secondary"
+              block
+              onPress={handleGoogleLogin}
+              disabled={loading}
+              testID="login-google-button"
+            >
+              Continuar com Google
             </Button>
             <Button
               variant="ghost"

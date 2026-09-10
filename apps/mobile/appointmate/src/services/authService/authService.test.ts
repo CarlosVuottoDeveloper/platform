@@ -1,14 +1,26 @@
 import {
+  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { login, logout, register, sendPasswordReset, subscribeToAuthChanges } from './authService';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import {
+  login,
+  loginWithGoogle,
+  logout,
+  register,
+  sendPasswordReset,
+  subscribeToAuthChanges,
+} from './authService';
 
 jest.mock('firebase/auth', () => ({
+  GoogleAuthProvider: { credential: jest.fn() },
+  signInWithCredential: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
   createUserWithEmailAndPassword: jest.fn(),
   updateProfile: jest.fn(),
@@ -27,6 +39,8 @@ const mockedUpdateProfile = updateProfile as jest.Mock;
 const mockedSendPasswordResetEmail = sendPasswordResetEmail as jest.Mock;
 const mockedOnAuthStateChanged = onAuthStateChanged as jest.Mock;
 const mockedSignOut = signOut as jest.Mock;
+const mockedSignInWithCredential = signInWithCredential as jest.Mock;
+const mockedGoogleCredential = GoogleAuthProvider.credential as jest.Mock;
 
 describe('authService', () => {
   afterEach(() => {
@@ -120,6 +134,89 @@ describe('authService', () => {
     });
   });
 
+  describe('loginWithGoogle', () => {
+    it('signs in to Firebase with the credential built from the Google idToken', async () => {
+      mockedGoogleCredential.mockReturnValue('google-credential');
+      mockedSignInWithCredential.mockResolvedValue({
+        user: { uid: 'abc123', email: 'user@example.com' },
+      });
+
+      await loginWithGoogle();
+
+      expect(mockedGoogleCredential).toHaveBeenCalledWith('mockIdToken');
+      expect(mockedSignInWithCredential).toHaveBeenCalledWith(
+        expect.anything(),
+        'google-credential',
+      );
+    });
+
+    it('returns the authenticated user uid and email', async () => {
+      mockedSignInWithCredential.mockResolvedValue({
+        user: { uid: 'abc123', email: 'user@example.com' },
+      });
+
+      const result = await loginWithGoogle();
+
+      expect(result).toEqual({ uid: 'abc123', email: 'user@example.com' });
+    });
+
+    it('falls back to the Google account email when the firebase user has no email', async () => {
+      mockedSignInWithCredential.mockResolvedValue({ user: { uid: 'abc123', email: null } });
+
+      const result = await loginWithGoogle();
+
+      expect(result?.email).toBe('mockEmail');
+    });
+
+    it('returns null without touching Firebase when the user cancels the Google prompt', async () => {
+      jest.spyOn(GoogleSignin, 'signIn').mockResolvedValueOnce({ type: 'cancelled', data: null });
+
+      const result = await loginWithGoogle();
+
+      expect(result).toBeNull();
+      expect(mockedSignInWithCredential).not.toHaveBeenCalled();
+    });
+
+    it('throws when Google returns no idToken', async () => {
+      jest.spyOn(GoogleSignin, 'signIn').mockResolvedValueOnce({
+        type: 'success',
+        data: {
+          idToken: null,
+          serverAuthCode: null,
+          scopes: [],
+          user: {
+            id: 'mockId',
+            name: null,
+            email: 'user@example.com',
+            photo: null,
+            familyName: null,
+            givenName: null,
+          },
+        },
+      });
+
+      await expect(loginWithGoogle()).rejects.toThrow('idToken');
+      expect(mockedSignInWithCredential).not.toHaveBeenCalled();
+    });
+
+    it('propagates errors thrown by the Play Services check', async () => {
+      const error = Object.assign(new Error('play services'), {
+        code: 'mock_PLAY_SERVICES_NOT_AVAILABLE',
+      });
+      jest.spyOn(GoogleSignin, 'hasPlayServices').mockRejectedValueOnce(error);
+
+      await expect(loginWithGoogle()).rejects.toThrow(error);
+      expect(mockedSignInWithCredential).not.toHaveBeenCalled();
+    });
+
+    it('propagates errors thrown by signInWithCredential', async () => {
+      const error = new Error('auth/account-exists-with-different-credential');
+      mockedSignInWithCredential.mockRejectedValue(error);
+
+      await expect(loginWithGoogle()).rejects.toThrow(error);
+    });
+  });
+
   describe('sendPasswordReset', () => {
     it('calls sendPasswordResetEmail with the given email', async () => {
       mockedSendPasswordResetEmail.mockResolvedValue(undefined);
@@ -194,6 +291,15 @@ describe('authService', () => {
       await logout();
 
       expect(mockedSignOut).toHaveBeenCalledWith(expect.anything());
+    });
+
+    it('also signs out of Google so the next login prompts for an account', async () => {
+      mockedSignOut.mockResolvedValue(undefined);
+      const googleSignOut = jest.spyOn(GoogleSignin, 'signOut');
+
+      await logout();
+
+      expect(googleSignOut).toHaveBeenCalled();
     });
 
     it('propagates errors thrown by signOut', async () => {
