@@ -318,6 +318,22 @@ describe('FormDetail', () => {
     expect(mockNavigation.navigate).not.toHaveBeenCalled();
   }, 20000);
 
+  it('disables "Exportar PDF" for a draft', async () => {
+    mockedGetFormRecord.mockResolvedValue(emptyRecord);
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('form-detail-export-pdf-button')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+
+    expect(
+      screen.getByTestId('form-detail-export-pdf-button').props.accessibilityState.disabled,
+    ).toBe(true);
+    fireEvent.press(screen.getByTestId('form-detail-export-pdf-button'));
+    expect(mockedPrintToFileAsync).not.toHaveBeenCalled();
+  }, 20000);
+
   it('navigates to FormEntry in edit mode when "Editar" is pressed on a draft', async () => {
     mockedGetFormRecord.mockResolvedValue(emptyRecord);
 

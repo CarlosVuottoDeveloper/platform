@@ -321,7 +321,7 @@ export function FormDetail({ navigation, route }: Props) {
           style={styles.bottomBarSecondary}
           variant="secondary"
           onPress={onExportPdf}
-          disabled={exporting}
+          disabled={exporting || record.status === 'draft'}
           testID="form-detail-export-pdf-button"
         >
           Exportar PDF
