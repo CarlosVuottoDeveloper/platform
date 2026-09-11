@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - ".changeset/**"
+  workflow_dispatch:
 
 jobs:
   version:
@@ -33,3 +34,4 @@ jobs:
           commit: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: 0
