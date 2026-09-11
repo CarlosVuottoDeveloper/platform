@@ -149,7 +149,7 @@ describe('Login', () => {
   it('explains that Google both signs in and creates the account', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Entra ou cria sua conta, conforme o caso')).toBeTruthy();
+    expect(screen.getByText('Entra ou cria sua conta')).toBeTruthy();
   });
 
   it('separates the e-mail form with an "ou com e-mail" divider', () => {
