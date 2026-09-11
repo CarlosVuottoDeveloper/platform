@@ -68,7 +68,7 @@ export function Login({ navigation }: Props) {
               <Text style={[styles.googleLabel, { color: colors.bg }]}>Continuar com Google</Text>
             </Button>
             <Text style={[styles.googleCaption, { color: alpha(colors.text, 60) }]}>
-              Entra ou cria sua conta, conforme o caso
+              Entra ou cria sua conta
             </Text>
             <View style={styles.orRow}>
               <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
