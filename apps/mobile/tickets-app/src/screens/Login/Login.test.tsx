@@ -2,7 +2,8 @@ import { FirebaseError } from 'firebase/app';
 import { Platform } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fireEvent, render, screen, waitFor } from '../../test-utils';
-import { login } from '../../services/authService';
+import { login, loginWithGoogle } from '../../services/authService';
+import { useAuthStore } from '../../store/useAuthStore';
 import type { User } from '../../domain/user';
 import type { AuthStackParamList } from '../../navigation/types';
 import { Login } from './Login';
@@ -19,9 +20,11 @@ jest.mock('../../services/firebase', () => ({ auth: {}, db: {} }));
 jest.mock('../../services/authService', () => ({
   ...jest.requireActual('../../services/authService'),
   login: jest.fn(),
+  loginWithGoogle: jest.fn(),
 }));
 
 const mockedLogin = login as jest.Mock;
+const mockedLoginWithGoogle = loginWithGoogle as jest.Mock;
 
 type LoginProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -41,6 +44,7 @@ const mockUser: User = {
 describe('Login', () => {
   afterEach(() => {
     jest.clearAllMocks();
+    useAuthStore.setState({ user: null, isAuthenticated: false });
   });
 
   it('renders email and password fields', () => {
@@ -134,4 +138,68 @@ describe('Login', () => {
 
     Platform.OS = originalOS;
   });
+
+  it('renders the Google sign-in button with a caption about opening a workspace', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('Continuar com Google')).toBeTruthy();
+    expect(screen.getByText('Entra ou abre um workspace novo')).toBeTruthy();
+  });
+
+  it('separates the e-mail form with an "ou com e-mail" divider', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('ou com e-mail')).toBeTruthy();
+  });
+
+  it('places the Google button before the e-mail fields', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    const order = screen
+      .getByTestId('login-form')
+      .props.children.map((child: { props?: { testID?: string } } | null) => child?.props?.testID);
+    expect(order.indexOf('login-google-button')).toBeLessThan(order.indexOf('login-email-input'));
+  });
+
+  it('stores the user returned by authService.loginWithGoogle', async () => {
+    mockedLoginWithGoogle.mockResolvedValue(mockUser);
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(useAuthStore.getState().user).toEqual(mockUser);
+    }, ASYNC_TIMEOUT);
+  }, 40000);
+
+  it('stays quiet and signed out when the user cancels the Google prompt', async () => {
+    mockedLoginWithGoogle.mockResolvedValue(null);
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(mockedLoginWithGoogle).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('progressbar')).toBeNull();
+    }, ASYNC_TIMEOUT);
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    expect(screen.queryByText(/erro/i)).toBeNull();
+  }, 40000);
+
+  it('shows a friendly error message when the Google sign-in fails', async () => {
+    mockedLoginWithGoogle.mockRejectedValue(
+      new FirebaseError('auth/account-exists-with-different-credential', ''),
+    );
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Continuar com Google'));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Este e-mail já está cadastrado com outro método de login.'),
+      ).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+  }, 40000);
 });

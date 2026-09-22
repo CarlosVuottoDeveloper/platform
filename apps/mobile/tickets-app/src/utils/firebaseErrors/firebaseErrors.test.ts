@@ -1,5 +1,6 @@
 import { FirebaseError } from 'firebase/app';
-import { mapFirebaseAuthError } from './firebaseErrors';
+import { statusCodes } from '@react-native-google-signin/google-signin';
+import { mapFirebaseAuthError, mapGoogleSignInError } from './firebaseErrors';
 
 describe('mapFirebaseAuthError', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -49,11 +50,41 @@ describe('mapFirebaseAuthError', () => {
     expect(mapFirebaseAuthError(err)).toBe('Ocorreu um erro. Tente novamente.');
   });
 
+  it('maps auth/account-exists-with-different-credential to a linked-account message', () => {
+    const err = new FirebaseError('auth/account-exists-with-different-credential', '');
+    expect(mapFirebaseAuthError(err)).toBe(
+      'Este e-mail já está cadastrado com outro método de login.',
+    );
+  });
+
   it('maps non-firebase Error to unexpected error message', () => {
     expect(mapFirebaseAuthError(new Error('plain error'))).toBe('Ocorreu um erro inesperado.');
   });
 
   it('maps null to unexpected error message', () => {
     expect(mapFirebaseAuthError(null)).toBe('Ocorreu um erro inesperado.');
+  });
+});
+
+describe('mapGoogleSignInError', () => {
+  it('maps a missing Play Services error to an install/update message', () => {
+    const err = Object.assign(new Error(''), { code: statusCodes.PLAY_SERVICES_NOT_AVAILABLE });
+    expect(mapGoogleSignInError(err)).toBe(
+      'Google Play Services indisponível. Atualize-o e tente novamente.',
+    );
+  });
+
+  it('maps a sign-in already in progress error to a wait message', () => {
+    const err = Object.assign(new Error(''), { code: statusCodes.IN_PROGRESS });
+    expect(mapGoogleSignInError(err)).toBe('Login com Google já em andamento. Aguarde.');
+  });
+
+  it('falls back to the firebase auth mapping for firebase errors', () => {
+    const err = new FirebaseError('auth/network-request-failed', '');
+    expect(mapGoogleSignInError(err)).toBe('Sem conexão. Verifique sua internet.');
+  });
+
+  it('falls back to the firebase auth mapping for unknown errors', () => {
+    expect(mapGoogleSignInError(new Error('plain error'))).toBe('Ocorreu um erro inesperado.');
   });
 });

@@ -20,7 +20,7 @@ module.exports = {
   },
   // Transform RN, navigation, and expo packages (they ship JSX/Flow/TS source)
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|react-native-reanimated|react-native-worklets|react-native-safe-area-context|react-native-screens|react-native-svg|lucide-react-native|@react-navigation|expo|expo-status-bar|@expo)/)',
+    'node_modules/(?!(react-native|@react-native|react-native-reanimated|react-native-worklets|react-native-safe-area-context|react-native-screens|react-native-svg|lucide-react-native|@react-navigation|expo|expo-status-bar|@expo|@react-native-google-signin)/)',
   ],
   moduleNameMapper: {
     '^react$': sharedReact,
@@ -31,5 +31,8 @@ module.exports = {
       '<rootDir>/__mocks__/react-native-animated-props.js',
     '^react-native/Libraries/ReactNative/RendererProxy$': '<rootDir>/__mocks__/renderer-proxy.js',
   },
-  setupFiles: ['<rootDir>/jest.setup.js'],
+  setupFiles: [
+    '<rootDir>/jest.setup.js',
+    '<rootDir>/node_modules/@react-native-google-signin/google-signin/jest/build/jest/setup.js',
+  ],
 };

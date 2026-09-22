@@ -59,13 +59,24 @@ screens/  ──▶  hooks/  ──▶  services/  ──▶  domain/
 # da raiz do monorepo
 yarn workspace @app/tickets start
 
-yarn workspace @app/tickets test        # 238 testes
+yarn workspace @app/tickets test        # 258 testes
 yarn workspace @app/tickets test:rules  # regras contra o emulador
 yarn workspace @app/tickets lint        # --max-warnings 0
 yarn workspace @app/tickets check-types
 ```
 
-Precisa de um `.env` local com credenciais do Firebase — veja o `.env.example`.
+Precisa de um `.env` local com credenciais do Firebase e o _Web client ID_ OAuth do login com Google — veja o `.env.example`.
+
+**O app não roda mais no Expo Go.** O login com Google exige código nativo, então o desenvolvimento usa um _development build_ (`expo-dev-client`):
+
+```sh
+yarn workspace @app/tickets build:dev   # gera o APK de desenvolvimento no EAS
+yarn workspace @app/tickets start       # Metro, conectado ao dev build instalado
+```
+
+O primeiro login com Google de uma conta sem `users/{uid}` **abre um workspace novo**, exatamente como "Criar conta". Quem foi convidado por um admin entra no workspace certo desde que use o mesmo e-mail do convite.
+
+Para o login com Google funcionar no Android, o app `com.vt.ticketsapp` do projeto Firebase precisa ter os SHA-1 do keystore do EAS **e** da chave de assinatura do Google Play, e o provedor Google habilitado em Authentication → Sign-in method. iOS ainda não está configurado para esse fluxo.
 
 ## Build e publicação
 

@@ -1,4 +1,5 @@
 import { FirebaseError } from 'firebase/app';
+import { isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
 
 export function mapFirebaseAuthError(err: unknown): string {
   if (err instanceof FirebaseError) {
@@ -9,6 +10,8 @@ export function mapFirebaseAuthError(err: unknown): string {
         return 'E-mail ou senha incorretos.';
       case 'auth/email-already-in-use':
         return 'Este e-mail já está cadastrado.';
+      case 'auth/account-exists-with-different-credential':
+        return 'Este e-mail já está cadastrado com outro método de login.';
       case 'auth/weak-password':
         return 'A senha deve ter pelo menos 6 caracteres.';
       case 'auth/invalid-email':
@@ -22,4 +25,16 @@ export function mapFirebaseAuthError(err: unknown): string {
     }
   }
   return 'Ocorreu um erro inesperado.';
+}
+
+export function mapGoogleSignInError(err: unknown): string {
+  if (isErrorWithCode(err)) {
+    switch (err.code) {
+      case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+        return 'Google Play Services indisponível. Atualize-o e tente novamente.';
+      case statusCodes.IN_PROGRESS:
+        return 'Login com Google já em andamento. Aguarde.';
+    }
+  }
+  return mapFirebaseAuthError(err);
 }
