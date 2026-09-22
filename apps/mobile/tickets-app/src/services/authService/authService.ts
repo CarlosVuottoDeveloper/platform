@@ -1,9 +1,12 @@
 import {
+  GoogleAuthProvider,
+  signInWithCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut,
 } from 'firebase/auth';
+import { GoogleSignin, isCancelledResponse } from '@react-native-google-signin/google-signin';
 import {
   collection,
   doc,
@@ -18,8 +21,10 @@ import {
 import { initializeApp, deleteApp, FirebaseError } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { auth, db, firebaseConfig } from '../firebase';
-import { mapFirebaseAuthError } from '../../utils/firebaseErrors';
+import { mapFirebaseAuthError, mapGoogleSignInError } from '../../utils/firebaseErrors';
 import type { User, UserRole } from '../../domain/user';
+
+GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID });
 
 export async function login(email: string, password: string): Promise<User> {
   const { user } = await signInWithEmailAndPassword(auth, email, password);
@@ -34,24 +39,55 @@ export async function login(email: string, password: string): Promise<User> {
   };
 }
 
-export async function register(name: string, email: string, password: string): Promise<User> {
-  const { user } = await createUserWithEmailAndPassword(auth, email, password);
-
+async function foundWorkspace(uid: string, email: string, name: string): Promise<User> {
   const workspaceId = doc(collection(db, 'workspaces')).id;
 
-  await setDoc(doc(db, 'users', user.uid), {
+  await setDoc(doc(db, 'users', uid), {
     email,
     role: 'admin',
-    name: name.trim(),
+    name,
     workspace_id: workspaceId,
   });
 
   await setDoc(doc(db, 'workspaces', workspaceId), {
     createdAt: serverTimestamp(),
-    owner_id: user.uid,
+    owner_id: uid,
   });
 
-  return { uid: user.uid, email, name: name.trim(), role: 'admin', workspaceId };
+  return { uid, email, name, role: 'admin', workspaceId };
+}
+
+export async function register(name: string, email: string, password: string): Promise<User> {
+  const { user } = await createUserWithEmailAndPassword(auth, email, password);
+  return foundWorkspace(user.uid, email, name.trim());
+}
+
+export async function loginWithGoogle(): Promise<User | null> {
+  await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  const response = await GoogleSignin.signIn();
+  if (isCancelledResponse(response)) return null;
+
+  const { idToken, user: googleUser } = response.data;
+  if (!idToken) {
+    throw new Error('Google Sign-In returned no idToken; check EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID');
+  }
+
+  const { user } = await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
+  const email = user.email ?? googleUser.email;
+
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists()) {
+    return foundWorkspace(user.uid, email, googleUser.name?.trim() || email);
+  }
+
+  const data = snap.data();
+  return {
+    uid: user.uid,
+    email,
+    name: (data.name ?? email) as string,
+    role: (data.role ?? 'standard') as UserRole,
+    workspaceId: (data.workspace_id ?? '') as string,
+  };
 }
 
 export async function createUser(
@@ -91,6 +127,7 @@ export async function sendPasswordReset(email: string): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
+  await GoogleSignin.signOut();
   await signOut(auth);
 }
 
@@ -118,4 +155,4 @@ export function subscribeToUsers(
   );
 }
 
-export { mapFirebaseAuthError };
+export { mapFirebaseAuthError, mapGoogleSignInError };
