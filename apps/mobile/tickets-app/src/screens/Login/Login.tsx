@@ -113,17 +113,16 @@ export function Login({ navigation }: Props) {
               <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
             </View>
             <Button
-              variant="primary"
+              variant="secondary"
               block
-              framed
               onPress={handleGoogleLogin}
               disabled={loading}
               testID="login-google-button"
             >
-              <View style={[styles.googleMark, { backgroundColor: colors.bg }]}>
-                <Text style={[styles.googleMarkLetter, { color: colors.text }]}>G</Text>
+              <View style={[styles.googleMark, { backgroundColor: colors.text }]}>
+                <Text style={[styles.googleMarkLetter, { color: colors.bg }]}>G</Text>
               </View>
-              <Text style={[styles.googleLabel, { color: colors.bg }]}>Continuar com Google</Text>
+              <Text style={[styles.googleLabel, { color: colors.text }]}>Continuar com Google</Text>
             </Button>
           </View>
           <View style={styles.footerRow}>
