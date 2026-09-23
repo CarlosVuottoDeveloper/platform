@@ -142,7 +142,7 @@ describe('Login', () => {
   it('renders the Google sign-in button without a caption', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Google')).toBeTruthy();
+    expect(screen.getByText('Continuar com Google')).toBeTruthy();
     expect(screen.queryByText(/workspace novo/)).toBeNull();
   });
 
@@ -162,10 +162,11 @@ describe('Login', () => {
     expect(order.indexOf('login-submit-button')).toBeLessThan(order.indexOf('login-google-button'));
   });
 
-  it('shows a centered title inviting the user to sign in', () => {
+  it('shows the app name as the centered title', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Entrar na sua conta')).toBeTruthy();
+    expect(screen.getByText('tickets')).toBeTruthy();
+    expect(screen.queryByText('Entrar na sua conta')).toBeNull();
     expect(screen.getByText('Gestão de chamados')).toBeTruthy();
   });
 
@@ -181,7 +182,7 @@ describe('Login', () => {
     mockedLoginWithGoogle.mockResolvedValue(mockUser);
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(useAuthStore.getState().user).toEqual(mockUser);
@@ -192,7 +193,7 @@ describe('Login', () => {
     mockedLoginWithGoogle.mockResolvedValue(null);
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(mockedLoginWithGoogle).toHaveBeenCalledTimes(1);
@@ -210,7 +211,7 @@ describe('Login', () => {
     );
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(
