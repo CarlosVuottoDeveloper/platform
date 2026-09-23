@@ -139,26 +139,43 @@ describe('Login', () => {
     Platform.OS = originalOS;
   });
 
-  it('renders the Google sign-in button with a caption about opening a workspace', () => {
+  it('renders the Google sign-in button without a caption', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
     expect(screen.getByText('Continuar com Google')).toBeTruthy();
-    expect(screen.getByText('Entra ou abre um workspace novo')).toBeTruthy();
+    expect(screen.queryByText(/workspace novo/)).toBeNull();
   });
 
-  it('separates the e-mail form with an "ou com e-mail" divider', () => {
+  it('separates the e-mail form from the Google button with an "ou" divider', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('ou com e-mail')).toBeTruthy();
+    expect(screen.getByText('ou')).toBeTruthy();
   });
 
-  it('places the Google button before the e-mail fields', () => {
+  it('places the e-mail fields, then "Entrar", then the Google button', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
     const order = screen
       .getByTestId('login-form')
       .props.children.map((child: { props?: { testID?: string } } | null) => child?.props?.testID);
-    expect(order.indexOf('login-google-button')).toBeLessThan(order.indexOf('login-email-input'));
+    expect(order.indexOf('login-email-input')).toBeLessThan(order.indexOf('login-submit-button'));
+    expect(order.indexOf('login-submit-button')).toBeLessThan(order.indexOf('login-google-button'));
+  });
+
+  it('shows the app name as the centered title', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('tickets')).toBeTruthy();
+    expect(screen.queryByText('Entrar na sua conta')).toBeNull();
+    expect(screen.getByText('Gestão de chamados')).toBeTruthy();
+  });
+
+  it('offers sign-up as a link in the footer', () => {
+    render(<Login navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('Não tem conta?')).toBeTruthy();
+    expect(screen.getByText('Criar conta')).toBeTruthy();
+    expect(screen.queryByText('Criar conta abre um workspace novo')).toBeNull();
   });
 
   it('stores the user returned by authService.loginWithGoogle', async () => {
