@@ -140,22 +140,24 @@ describe('Login', () => {
     }, ASYNC_TIMEOUT);
   }, 40000);
 
-  it('renders the Google sign-in button', () => {
+  it('renders the Google sign-in button without a caption', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Continuar com Google')).toBeTruthy();
+    expect(screen.getByText('Google')).toBeTruthy();
+    expect(screen.queryByText(/cria sua conta/)).toBeNull();
   });
 
-  it('explains that Google both signs in and creates the account', () => {
+  it('separates the e-mail form from the Google button with an "ou" divider', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Entra ou cria sua conta')).toBeTruthy();
+    expect(screen.getByText('ou')).toBeTruthy();
   });
 
-  it('separates the e-mail form with an "ou com e-mail" divider', () => {
+  it('shows a centered title inviting the user to sign in', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('ou com e-mail')).toBeTruthy();
+    expect(screen.getByText('Entrar na sua conta')).toBeTruthy();
+    expect(screen.getByText('Acompanhamento de consultas')).toBeTruthy();
   });
 
   it('offers e-mail sign-up as a link for first-time users', () => {
@@ -166,23 +168,21 @@ describe('Login', () => {
     expect(screen.queryByText('Criar conta')).toBeNull();
   });
 
-  it('places the Google button before the e-mail fields', () => {
+  it('places the e-mail fields, then "Entrar", then the Google button', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    const google = screen.getByTestId('login-google-button');
-    const email = screen.getByTestId('login-email-input');
-    const form = screen.getByTestId('login-form');
-    const order = form.props.children.map(
-      (child: { props: { testID?: string } }) => child?.props?.testID,
-    );
-    expect(order.indexOf(google.props.testID)).toBeLessThan(order.indexOf(email.props.testID));
+    const order = screen
+      .getByTestId('login-form')
+      .props.children.map((child: { props?: { testID?: string } } | null) => child?.props?.testID);
+    expect(order.indexOf('login-email-input')).toBeLessThan(order.indexOf('login-submit-button'));
+    expect(order.indexOf('login-submit-button')).toBeLessThan(order.indexOf('login-google-button'));
   });
 
   it('calls authService.loginWithGoogle when the Google button is pressed', async () => {
     mockedLoginWithGoogle.mockResolvedValue({ uid: 'abc123', email: 'user@example.com' });
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Continuar com Google'));
+    fireEvent.press(screen.getByText('Google'));
 
     await waitFor(() => {
       expect(mockedLoginWithGoogle).toHaveBeenCalledTimes(1);
@@ -199,7 +199,7 @@ describe('Login', () => {
     );
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Continuar com Google'));
+    fireEvent.press(screen.getByText('Google'));
 
     await waitFor(() => {
       expect(screen.getByRole('progressbar')).toBeTruthy();
@@ -216,7 +216,7 @@ describe('Login', () => {
     mockedLoginWithGoogle.mockResolvedValue(null);
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Continuar com Google'));
+    fireEvent.press(screen.getByText('Google'));
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).toBeNull();
@@ -230,7 +230,7 @@ describe('Login', () => {
     );
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Continuar com Google'));
+    fireEvent.press(screen.getByText('Google'));
 
     await waitFor(() => {
       expect(
