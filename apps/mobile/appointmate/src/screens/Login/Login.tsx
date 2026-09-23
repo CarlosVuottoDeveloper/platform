@@ -48,7 +48,7 @@ export function Login({ navigation }: Props) {
       <KeyboardAvoidingView style={styles.keyboardView} behavior="padding">
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={[styles.appTitle, { color: colors.text }]}>Entrar na sua conta</Text>
+            <Text style={[styles.appTitle, { color: colors.text }]}>AppointMate</Text>
             <Text style={[styles.kicker, { color: accentRamp['300'] }]}>
               Acompanhamento de consultas
             </Text>
@@ -104,16 +104,17 @@ export function Login({ navigation }: Props) {
               <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
             </View>
             <Button
-              variant="secondary"
+              variant="primary"
               block
+              framed
               onPress={handleGoogleLogin}
               disabled={loading}
               testID="login-google-button"
             >
-              <View style={[styles.googleMark, { backgroundColor: colors.text }]}>
-                <Text style={[styles.googleMarkLetter, { color: colors.bg }]}>G</Text>
+              <View style={[styles.googleMark, { backgroundColor: colors.bg }]}>
+                <Text style={[styles.googleMarkLetter, { color: colors.text }]}>G</Text>
               </View>
-              <Text style={[styles.googleLabel, { color: colors.text }]}>Google</Text>
+              <Text style={[styles.googleLabel, { color: colors.bg }]}>Continuar com Google</Text>
             </Button>
           </View>
           <View style={styles.footerRow}>

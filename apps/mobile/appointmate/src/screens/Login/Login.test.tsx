@@ -143,7 +143,7 @@ describe('Login', () => {
   it('renders the Google sign-in button without a caption', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Google')).toBeTruthy();
+    expect(screen.getByText('Continuar com Google')).toBeTruthy();
     expect(screen.queryByText(/cria sua conta/)).toBeNull();
   });
 
@@ -153,10 +153,11 @@ describe('Login', () => {
     expect(screen.getByText('ou')).toBeTruthy();
   });
 
-  it('shows a centered title inviting the user to sign in', () => {
+  it('shows the app name as the centered title', () => {
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText('Entrar na sua conta')).toBeTruthy();
+    expect(screen.getByText('AppointMate')).toBeTruthy();
+    expect(screen.queryByText('Entrar na sua conta')).toBeNull();
     expect(screen.getByText('Acompanhamento de consultas')).toBeTruthy();
   });
 
@@ -182,7 +183,7 @@ describe('Login', () => {
     mockedLoginWithGoogle.mockResolvedValue({ uid: 'abc123', email: 'user@example.com' });
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(mockedLoginWithGoogle).toHaveBeenCalledTimes(1);
@@ -199,7 +200,7 @@ describe('Login', () => {
     );
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(screen.getByRole('progressbar')).toBeTruthy();
@@ -216,7 +217,7 @@ describe('Login', () => {
     mockedLoginWithGoogle.mockResolvedValue(null);
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).toBeNull();
@@ -230,7 +231,7 @@ describe('Login', () => {
     );
     render(<Login navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText('Google'));
+    fireEvent.press(screen.getByText('Continuar com Google'));
 
     await waitFor(() => {
       expect(

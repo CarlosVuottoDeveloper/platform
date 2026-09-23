@@ -14,10 +14,9 @@ export const styles = StyleSheet.create({
   appTitle: {
     fontFamily: fontFamily.heading,
     fontWeight: fontWeight.heading,
-    fontSize: 30,
+    fontSize: 38,
     letterSpacing: letterSpacing.heading,
     textAlign: 'center',
-    textTransform: 'uppercase',
   },
   kicker: {
     fontSize: 11,
