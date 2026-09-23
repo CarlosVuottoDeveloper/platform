@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
 import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
@@ -59,40 +59,11 @@ export function Login({ navigation }: Props) {
       >
         <View style={[styles.container, { backgroundColor: colors.bg }]}>
           <View style={styles.header}>
+            <Text style={[styles.appTitle, { color: colors.text }]}>Entrar na sua conta</Text>
             <Text style={[styles.kicker, { color: accentRamp['300'] }]}>Gestão de chamados</Text>
-            <Text style={[styles.appTitle, { color: colors.text }]}>tickets</Text>
           </View>
           <View style={styles.form} testID="login-form">
-            <Button
-              variant="primary"
-              block
-              framed
-              onPress={handleGoogleLogin}
-              disabled={loading}
-              testID="login-google-button"
-            >
-              <View style={[styles.googleMark, { backgroundColor: colors.bg }]}>
-                <Text style={[styles.googleMarkLetter, { color: colors.text }]}>G</Text>
-              </View>
-              <Text style={[styles.googleLabel, { color: colors.bg }]}>Continuar com Google</Text>
-            </Button>
-            <Text style={[styles.googleCaption, { color: alpha(colors.text, 60) }]}>
-              Entra ou abre um workspace novo
-            </Text>
-            <View style={styles.orRow}>
-              <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
-              <Text
-                style={[
-                  styles.orLabel,
-                  { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
-                ]}
-              >
-                ou com e-mail
-              </Text>
-              <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
-            </View>
             <TextField
-              label="E-mail"
               placeholder="email@exemplo.com"
               value={email}
               onChangeText={setEmail}
@@ -101,29 +72,71 @@ export function Login({ navigation }: Props) {
               testID="login-email-input"
             />
             <TextField
-              label="Senha"
               placeholder="Sua senha"
               secureTextEntry
               secureToggle
               value={password}
               onChangeText={setPassword}
+              testID="login-password-input"
             />
+            <View style={styles.helperRow}>
+              <Pressable
+                accessibilityRole="link"
+                hitSlop={8}
+                onPress={() => navigation.navigate('ForgotPassword')}
+                testID="login-forgot-password-button"
+              >
+                <Text style={[styles.link, { color: accentRamp['300'] }]}>Esqueceu a senha?</Text>
+              </Pressable>
+            </View>
             {loading ? <Spinner /> : null}
-            <Button variant="secondary" block onPress={handleLogin} disabled={loading}>
+            <Button
+              variant="primary"
+              block
+              framed
+              onPress={handleLogin}
+              disabled={loading}
+              testID="login-submit-button"
+            >
               Entrar
             </Button>
-            <Button variant="ghost" block onPress={() => navigation.navigate('ForgotPassword')}>
-              Esqueceu a senha?
+            <View style={styles.orRow}>
+              <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
+              <Text
+                style={[
+                  styles.orLabel,
+                  { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
+                ]}
+              >
+                ou
+              </Text>
+              <View style={[styles.orDivider, { backgroundColor: colors.divider }]} />
+            </View>
+            <Button
+              variant="secondary"
+              block
+              onPress={handleGoogleLogin}
+              disabled={loading}
+              testID="login-google-button"
+            >
+              <View style={[styles.googleMark, { backgroundColor: colors.text }]}>
+                <Text style={[styles.googleMarkLetter, { color: colors.bg }]}>G</Text>
+              </View>
+              <Text style={[styles.googleLabel, { color: colors.text }]}>Google</Text>
             </Button>
           </View>
-          <View style={styles.footer}>
-            <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+          <View style={styles.footerRow}>
             <Text style={[styles.footerHint, { color: alpha(colors.text, 60) }]}>
-              Criar conta abre um workspace novo
+              Não tem conta?
             </Text>
-            <Button variant="secondary" block onPress={() => navigation.navigate('Register')}>
-              Criar conta
-            </Button>
+            <Pressable
+              accessibilityRole="link"
+              hitSlop={8}
+              onPress={() => navigation.navigate('Register')}
+              testID="login-create-account-button"
+            >
+              <Text style={[styles.link, { color: accentRamp['300'] }]}>Criar conta</Text>
+            </Pressable>
           </View>
         </View>
       </KeyboardAvoidingView>
