@@ -1,15 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  AppBar,
-  Button,
-  SegmentedControl,
-  Spinner,
-  TextField,
-  useTheme,
-  useToast,
-} from '@industry/mobile';
+import { AppBar, Button, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
 import { accentRamp, alpha } from '@industry/tokens';
 import { createUser } from '../../services/authService';
 import { passwordMinLengthError } from '../../domain/validation';
@@ -22,7 +14,7 @@ import { styles } from './CreateUser.styles';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CreateUser'>;
 
-const ROLE_OPTIONS = [
+const ROLE_OPTIONS: { label: string; value: UserRole }[] = [
   { label: 'Padrão', value: 'standard' },
   { label: 'Administrador', value: 'admin' },
 ];
@@ -111,11 +103,23 @@ export function CreateUser({ navigation }: Props) {
         />
 
         <SectionLabel>Perfil</SectionLabel>
-        <SegmentedControl
-          options={ROLE_OPTIONS}
-          value={role}
-          onValueChange={(v) => setRole(v as UserRole)}
-        />
+        <View style={styles.roleRow}>
+          {ROLE_OPTIONS.map((option) => {
+            const selected = role === option.value;
+            return (
+              <Button
+                key={option.value}
+                style={styles.roleButton}
+                variant={selected ? 'primary' : 'secondary'}
+                framed={selected}
+                accessibilityState={{ selected }}
+                onPress={() => setRole(option.value)}
+              >
+                {option.label}
+              </Button>
+            );
+          })}
+        </View>
         <Text style={[styles.roleHint, { color: alpha(colors.text, 60) }]}>
           Padrão vê apenas os chamados que criou ou que lhe foram designados. Administrador vê o
           workspace todo e pode editar, excluir e criar usuários.

@@ -12,6 +12,8 @@ export const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   sectionHairline: { height: 1 },
+  roleRow: { flexDirection: 'row', gap: space[3] },
+  roleButton: { flex: 1 },
   roleHint: { fontSize: 13, lineHeight: 19 },
   adminTag: {
     borderWidth: 1,
