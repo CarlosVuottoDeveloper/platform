@@ -219,26 +219,27 @@ export function Dashboard({ navigation }: Props) {
             style={[styles.chartCard, { borderColor: colors.divider }]}
             onPress={() => navigation.navigate('TicketList', {})}
           >
-            <View style={styles.chartDonutWrapper}>
-              <PieChart
-                size={140}
-                slices={ALL_STATUSES.map((s) => ({
-                  label: STATUS_LABELS[s],
-                  value: tickets.filter((t) => t.status === s).length,
-                  color: STATUS_VIZ_COLOR[s],
-                }))}
-              />
-              <View style={styles.chartTotal} pointerEvents="none">
+            <PieChart
+              size={118}
+              legendPlacement="right"
+              legendValue="percent"
+              centerLabel={
                 <Text
                   style={[
                     styles.chartTotalText,
                     { fontFamily: monoFontFamily, color: colors.text },
                   ]}
+                  testID="dashboard-chart-total"
                 >
                   {total}
                 </Text>
-              </View>
-            </View>
+              }
+              slices={ALL_STATUSES.map((s) => ({
+                label: STATUS_LABELS[s],
+                value: tickets.filter((t) => t.status === s).length,
+                color: STATUS_VIZ_COLOR[s],
+              }))}
+            />
           </Pressable>
         </View>
         <View style={styles.sectionPad}>
