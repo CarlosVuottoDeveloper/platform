@@ -1,4 +1,4 @@
-import { Card } from '@industry/mobile';
+import { Card, PieChart } from '@industry/mobile';
 import { color } from '@industry/tokens';
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -240,6 +240,28 @@ describe('Dashboard', () => {
     fireEvent.press(screen.getByText('Chamado 1'));
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('TicketDetails', { ticketId: 't1' });
+  });
+
+  it('renders the donut at 118px with the legend beside it, percentages only and the total in the middle', () => {
+    mockUseTicketList.mockReturnValue(
+      mockTicketListReturn({
+        tickets: [
+          makeTicket({ id: 't1', status: 'open' }),
+          makeTicket({ id: 't2', status: 'open' }),
+          makeTicket({ id: 't3', status: 'done' }),
+        ],
+      }),
+    );
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    const chart = screen.UNSAFE_getByType(PieChart);
+    expect(chart.props.size).toBe(118);
+    expect(chart.props.legendPlacement).toBe('right');
+    expect(chart.props.legendValue).toBe('percent');
+    expect(screen.getByText('67%')).toBeTruthy();
+    expect(screen.queryByText('2 · 67%')).toBeNull();
+    expect(screen.getByTestId('dashboard-chart-total').props.children).toBe(3);
   });
 
   it('navigates to the unfiltered TicketList on pie chart press', () => {

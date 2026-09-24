@@ -74,7 +74,12 @@ export { FAB } from './FAB';
 export type { FABProps, FABSize } from './FAB';
 
 export { PieChart, defaultValueFormatter } from './PieChart';
-export type { PieChartProps, PieChartSlice } from './PieChart';
+export type {
+  PieChartLegendPlacement,
+  PieChartLegendValue,
+  PieChartProps,
+  PieChartSlice,
+} from './PieChart';
 
 export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonVariant, IconButtonSize } from './IconButton';

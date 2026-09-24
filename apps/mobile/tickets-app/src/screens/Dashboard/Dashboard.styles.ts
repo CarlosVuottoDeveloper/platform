@@ -17,17 +17,6 @@ export const styles = StyleSheet.create({
   chartCard: {
     borderWidth: 1,
     padding: space[4],
-    alignItems: 'center',
-  },
-  chartDonutWrapper: { position: 'relative', alignSelf: 'center' },
-  chartTotal: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 140,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   chartTotalText: { fontSize: 19 },
   sectionLabelRow: {

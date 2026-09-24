@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
+import type { ReactNode } from 'react';
 import Svg, { Circle, G } from 'react-native-svg';
 import { alpha, color, fontFamily, fontFamilyMono, fontWeight, space } from '@industry/tokens';
 
@@ -12,11 +13,21 @@ export interface PieChartSlice {
   color: string;
 }
 
+export type PieChartLegendPlacement = 'bottom' | 'right';
+export type PieChartLegendValue = 'valueAndPercent' | 'percent';
+
 export interface PieChartProps {
   slices: PieChartSlice[];
   size?: number;
   valueFormatter?: (value: number) => string;
+  /** Where the legend sits relative to the donut. */
+  legendPlacement?: PieChartLegendPlacement;
+  /** What each legend row shows on the right: the formatted value with its share, or the share alone. */
+  legendValue?: PieChartLegendValue;
+  /** Rendered centered over the donut hole, e.g. the total. */
+  centerLabel?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 const VIEW = 200;
@@ -48,13 +59,25 @@ export function PieChart({
   slices,
   size = 200,
   valueFormatter = defaultValueFormatter,
+  legendPlacement = 'bottom',
+  legendValue = 'valueAndPercent',
+  centerLabel,
   style,
+  testID,
 }: PieChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const total = slices.reduce((sum, s) => sum + s.value, 0);
+  const sideBySide = legendPlacement === 'right';
 
   return (
-    <View style={[{ gap: space[6] }, style]}>
+    <View
+      testID={testID}
+      style={[
+        sideBySide ? { flexDirection: 'row', alignItems: 'center' } : undefined,
+        { gap: space[6] },
+        style,
+      ]}
+    >
       <View style={{ alignSelf: 'center' }}>
         <Svg
           viewBox={`0 0 ${VIEW} ${VIEW}`}
@@ -94,9 +117,25 @@ export function PieChart({
             )}
           </G>
         </Svg>
+        {centerLabel ? (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: size,
+              height: size,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {centerLabel}
+          </View>
+        ) : null}
       </View>
 
-      <View style={{ gap: space[2] }}>
+      <View style={{ gap: space[2], flex: sideBySide ? 1 : undefined }}>
         {slices.map((slice, i) => {
           const pct = total === 0 ? 0 : Math.round((slice.value / total) * 100);
           const active = activeIndex === i;
@@ -132,7 +171,7 @@ export function PieChart({
                   color: alpha(color.text, 50),
                 }}
               >
-                {valueFormatter(slice.value)} · {pct}%
+                {legendValue === 'percent' ? `${pct}%` : `${valueFormatter(slice.value)} · ${pct}%`}
               </Text>
             </Pressable>
           );
