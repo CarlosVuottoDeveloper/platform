@@ -8,7 +8,6 @@ interface Props {
   creatorName: string;
   createdAt: Date | null;
   assigneeName: string | null;
-  editing: boolean;
 }
 
 function MetaCell({
@@ -32,7 +31,7 @@ function MetaCell({
   );
 }
 
-export function TicketMetaRow({ creatorName, createdAt, assigneeName, editing }: Props) {
+export function TicketMetaRow({ creatorName, createdAt, assigneeName }: Props) {
   const { colors } = useTheme();
   const labelColor = alpha(colors.text, 50);
   const valueColor = colors.text;
@@ -58,17 +57,15 @@ export function TicketMetaRow({ creatorName, createdAt, assigneeName, editing }:
           />
         )}
       </View>
-      {!editing && assigneeName && (
-        <View style={styles.row}>
-          <MetaCell
-            label="Responsável"
-            value={assigneeName}
-            labelColor={labelColor}
-            valueColor={valueColor}
-            bg={bg}
-          />
-        </View>
-      )}
+      <View style={styles.row}>
+        <MetaCell
+          label="Responsável"
+          value={assigneeName ?? 'não designado'}
+          labelColor={labelColor}
+          valueColor={valueColor}
+          bg={bg}
+        />
+      </View>
     </View>
   );
 }

@@ -56,7 +56,7 @@ describe('Register', () => {
 
     expect(screen.getByPlaceholderText('Seu nome completo')).toBeTruthy();
     expect(screen.getByPlaceholderText('email@exemplo.com')).toBeTruthy();
-    expect(screen.getByPlaceholderText('Mínimo 6 caracteres')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Sua senha')).toBeTruthy();
     expect(screen.getByText('Cadastrar')).toBeTruthy();
 
     await waitFor(() => {
@@ -67,9 +67,9 @@ describe('Register', () => {
   it('shows password validation error for short password', async () => {
     render(<Register navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), '123');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), '123');
 
-    expect(screen.getByText('Mínimo de 6 caracteres')).toBeTruthy();
+    expect(screen.getByText('Mínimo de 8 caracteres')).toBeTruthy();
 
     await waitFor(() => {
       expect(mockedGetItem).toHaveBeenCalledWith('first_user_registered');
@@ -114,7 +114,7 @@ describe('Register', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Seu nome completo'), 'Jane Doe');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'jane@example.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), '123');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), '123');
 
     expect(screen.getByText('Cadastrar')).toBeDisabled();
 
@@ -129,7 +129,7 @@ describe('Register', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Seu nome completo'), 'Jane Doe');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'jane@example.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret123');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), 'secret123');
 
     expect(screen.getByText('Cadastrar')).toBeEnabled();
 
@@ -137,6 +137,32 @@ describe('Register', () => {
 
     await waitFor(() => {
       expect(mockedRegister).toHaveBeenCalledWith('Jane Doe', 'jane@example.com', 'secret123');
+    });
+  });
+
+  it('keeps submit disabled for a 7-character password', async () => {
+    render(<Register navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.changeText(screen.getByPlaceholderText('Seu nome completo'), 'Jane Doe');
+    fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'jane@example.com');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), 'abc1234');
+
+    await waitFor(() => {
+      expect(screen.getByText('Cadastrar')).toBeDisabled();
+    });
+  });
+
+  it('remembers that a user was registered so the first-access banner stops showing', async () => {
+    mockedRegister.mockResolvedValue(mockUser);
+    render(<Register navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.changeText(screen.getByPlaceholderText('Seu nome completo'), 'Jane Doe');
+    fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'jane@example.com');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), 'secret123');
+    fireEvent.press(screen.getByText('Cadastrar'));
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith('first_user_registered', 'true');
     });
   });
 
@@ -152,7 +178,7 @@ describe('Register', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Seu nome completo'), 'Jane Doe');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'jane@example.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret123');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), 'secret123');
     fireEvent.press(screen.getByText('Cadastrar'));
 
     await waitFor(() => {
@@ -172,7 +198,7 @@ describe('Register', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Seu nome completo'), 'Jane Doe');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'jane@example.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret123');
+    fireEvent.changeText(screen.getByPlaceholderText('Sua senha'), 'secret123');
     fireEvent.press(screen.getByText('Cadastrar'));
 
     await waitFor(() => {

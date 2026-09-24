@@ -22,9 +22,9 @@ export const styles = StyleSheet.create({
   },
   scopeCount: { fontSize: 13 },
   scopeTag: {
-    borderWidth: 1,
     paddingHorizontal: space[3],
     paddingVertical: space[1],
   },
+  scopeTagOutline: { borderWidth: 1 },
   scopeTagText: { fontSize: 13 },
 });

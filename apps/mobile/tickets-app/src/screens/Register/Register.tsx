@@ -35,6 +35,7 @@ export function Register({ navigation }: Props) {
     setLoading(true);
     try {
       const user = await register(name, email, password);
+      await AsyncStorage.setItem('first_user_registered', 'true');
       setUser(user);
     } catch (err: unknown) {
       toast.show({ tone: 'danger', title: mapFirebaseAuthError(err) });
@@ -85,8 +86,8 @@ export function Register({ navigation }: Props) {
             <TextField
               label="Senha"
               error={passwordError}
-              hint="Mínimo de 6 caracteres"
-              placeholder="Mínimo 6 caracteres"
+              hint="Mínimo de 8 caracteres"
+              placeholder="Sua senha"
               secureTextEntry
               secureToggle
               value={password}
@@ -97,7 +98,7 @@ export function Register({ navigation }: Props) {
               variant="primary"
               framed
               onPress={handleRegister}
-              disabled={!name.trim() || !email.trim() || password.length < 6 || loading}
+              disabled={!name.trim() || !email.trim() || password.length < 8 || loading}
             >
               Cadastrar
             </Button>

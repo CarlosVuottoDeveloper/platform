@@ -1,4 +1,6 @@
+import { color } from '@industry/tokens';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { ActivityIndicator } from 'react-native';
 import { render, screen, fireEvent } from '../../test-utils';
@@ -125,9 +127,9 @@ describe('Dashboard', () => {
 
     render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText(`${STATUS_LABELS.open} 2`)).toBeTruthy();
-    expect(screen.getByText(`${STATUS_LABELS.in_progress} 1`)).toBeTruthy();
-    expect(screen.getByText(`${STATUS_LABELS.done} 1`)).toBeTruthy();
+    expect(screen.getByText(`${STATUS_LABELS.open} · 2`)).toBeTruthy();
+    expect(screen.getByText(`${STATUS_LABELS.in_progress} · 1`)).toBeTruthy();
+    expect(screen.getByText(`${STATUS_LABELS.done} · 1`)).toBeTruthy();
   });
 
   it('navigates to TicketList filtered by status on stat card press', () => {
@@ -137,7 +139,7 @@ describe('Dashboard', () => {
 
     render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
 
-    fireEvent.press(screen.getByText(`${STATUS_LABELS.open} 1`));
+    fireEvent.press(screen.getByText(`${STATUS_LABELS.open} · 1`));
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('TicketList', { status: 'open' });
   });
@@ -152,6 +154,29 @@ describe('Dashboard', () => {
     fireEvent.press(screen.UNSAFE_getByProps({ accessibilityLabel: 'New ticket' }));
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('NewTicket');
+  });
+
+  it('anchors the FAB to the bottom edge when there are tickets', () => {
+    mockUseTicketList.mockReturnValue(
+      mockTicketListReturn({ tickets: [makeTicket({ id: 't1' })] }),
+    );
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    const fab = screen.UNSAFE_getByProps({ accessibilityLabel: 'New ticket' });
+    const resolved =
+      typeof fab.props.style === 'function' ? fab.props.style({ pressed: false }) : fab.props.style;
+    expect(StyleSheet.flatten(resolved).bottom).toBeGreaterThan(0);
+  });
+
+  it('uses a secondary "Cancelar" in the logout sheet', () => {
+    mockUseTicketList.mockReturnValue(mockTicketListReturn({ tickets: [] }));
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByLabelText('Sair'));
+
+    expect(StyleSheet.flatten(screen.getByText('Cancelar').props.style).color).toBe(color.text);
   });
 
   it('navigates to NewTicket on FAB press from the empty state', () => {

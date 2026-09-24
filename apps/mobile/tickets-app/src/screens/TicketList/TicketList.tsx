@@ -5,7 +5,7 @@ import { AppBar, Button, EmptyState, Icon, Spinner, useTheme, useToast } from '@
 import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
 import { useTicketList } from '../../hooks/useTicketList';
 import { useAuthStore } from '../../store/useAuthStore';
-import { STATUS_LABELS } from '../../constants/ticketStatus';
+import { STATUS_LABELS, STATUS_PLURAL_LABELS } from '../../constants/ticketStatus';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { styles } from './TicketList.styles';
@@ -46,7 +46,7 @@ export function TicketList({ route, navigation }: Props) {
     );
   }
 
-  const statusLabelLower = status ? STATUS_LABELS[status].toLowerCase() : null;
+  const statusPlural = status ? STATUS_PLURAL_LABELS[status] : null;
 
   return (
     <SafeAreaView edges={['top']} style={styles.flex}>
@@ -55,7 +55,14 @@ export function TicketList({ route, navigation }: Props) {
         <Text style={[styles.scopeCount, { fontFamily: monoFontFamily, color: colors.text }]}>
           {tickets.length} {tickets.length === 1 ? 'chamado' : 'chamados'}
         </Text>
-        <View style={[styles.scopeTag, { borderColor: isAdmin ? colors.accent : colors.divider }]}>
+        <View
+          style={
+            isAdmin
+              ? [styles.scopeTag, styles.scopeTagOutline, { borderColor: colors.accent }]
+              : [styles.scopeTag, { backgroundColor: colors.surface2 }]
+          }
+          testID="ticket-list-scope-tag"
+        >
           <Text
             style={[
               styles.scopeTagText,
@@ -74,7 +81,6 @@ export function TicketList({ route, navigation }: Props) {
             <View style={styles.ticketItem}>
               <TicketCard
                 title={item.title}
-                status={item.status}
                 priority={item.priority}
                 creatorName={item.creatorName}
                 createdAt={item.createdAt}
@@ -86,11 +92,11 @@ export function TicketList({ route, navigation }: Props) {
           ListEmptyComponent={
             <View style={styles.center}>
               <EmptyState
-                icon={<Icon name="Inbox" size={30} color={accentRamp['400']} />}
+                icon={<Icon name="Plus" size={30} color={accentRamp['400']} />}
                 title="Nada com este status"
                 body={
-                  statusLabelLower
-                    ? `Você não tem chamados ${statusLabelLower}. O filtro vem da Dashboard e pode ser trocado voltando para lá.`
+                  statusPlural
+                    ? `Você não tem chamados ${statusPlural}. O filtro vem da Dashboard e pode ser trocado voltando para lá.`
                     : 'Nenhum ticket encontrado.'
                 }
                 action={

@@ -2,7 +2,6 @@ import { Pressable, Text, View } from 'react-native';
 import { Badge, Card, useTheme } from '@industry/mobile';
 import { alpha, space } from '@industry/tokens';
 import { formatDate } from '../../../../domain/ticket';
-import type { TicketStatus } from '../../../../constants/ticketStatus';
 import {
   PRIORITY_LABELS,
   PRIORITY_TONES,
@@ -13,7 +12,6 @@ import { styles } from './TicketCard.styles';
 
 interface Props {
   title: string;
-  status: TicketStatus;
   priority: TicketPriority;
   creatorName: string;
   createdAt: Date | null;
@@ -23,7 +21,6 @@ interface Props {
 
 export function TicketCard({
   title,
-  status: _status,
   priority,
   creatorName,
   createdAt,

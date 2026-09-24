@@ -27,7 +27,7 @@ describe('mapFirebaseAuthError', () => {
 
   it('maps auth/weak-password to password strength message', () => {
     const err = new FirebaseError('auth/weak-password', '');
-    expect(mapFirebaseAuthError(err)).toBe('A senha deve ter pelo menos 6 caracteres.');
+    expect(mapFirebaseAuthError(err)).toBe('A senha deve ter pelo menos 8 caracteres.');
   });
 
   it('maps auth/invalid-email to invalid email message', () => {

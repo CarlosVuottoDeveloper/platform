@@ -72,18 +72,27 @@ describe('CreateUser', () => {
 
     expect(screen.getByPlaceholderText('Nome completo')).toBeTruthy();
     expect(screen.getByPlaceholderText('email@exemplo.com')).toBeTruthy();
-    expect(screen.getByPlaceholderText('Mínimo 6 caracteres')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Defina a senha provisória')).toBeTruthy();
     expect(screen.getByText('Perfil')).toBeTruthy();
     expect(screen.getAllByText('Criar usuário')).toHaveLength(2);
+  });
+
+  it('labels the access fields as in the reference', () => {
+    mockCurrentUser = adminUser;
+    renderCreateUser();
+
+    expect(screen.getByText('E-mail')).toBeTruthy();
+    expect(screen.getByText('Senha provisória')).toBeTruthy();
+    expect(screen.queryByText('Email')).toBeNull();
   });
 
   it('shows password validation error for short password', () => {
     mockCurrentUser = adminUser;
     renderCreateUser();
 
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), '123');
+    fireEvent.changeText(screen.getByPlaceholderText('Defina a senha provisória'), '123');
 
-    expect(screen.getByText('Mínimo de 6 caracteres')).toBeTruthy();
+    expect(screen.getByText('Mínimo de 8 caracteres')).toBeTruthy();
   });
 
   it('disables submit button when fields are invalid', () => {
@@ -122,7 +131,7 @@ describe('CreateUser', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Nome completo'), 'Alice');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'alice@test.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret1');
+    fireEvent.changeText(screen.getByPlaceholderText('Defina a senha provisória'), 'secret123');
     mockCreateUser.mockResolvedValue(undefined);
 
     await act(async () => {
@@ -132,7 +141,7 @@ describe('CreateUser', () => {
     expect(mockCreateUser).toHaveBeenCalledWith(
       'Alice',
       'alice@test.com',
-      'secret1',
+      'secret123',
       'admin',
       adminUser,
     );
@@ -145,7 +154,7 @@ describe('CreateUser', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Nome completo'), 'Alice');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'alice@test.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret1');
+    fireEvent.changeText(screen.getByPlaceholderText('Defina a senha provisória'), 'secret123');
 
     await act(async () => {
       fireEvent.press(screen.getAllByText('Criar usuário').at(-1)!);
@@ -161,7 +170,7 @@ describe('CreateUser', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Nome completo'), 'Alice');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'alice@test.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret1');
+    fireEvent.changeText(screen.getByPlaceholderText('Defina a senha provisória'), 'secret123');
 
     await act(async () => {
       fireEvent.press(screen.getAllByText('Criar usuário').at(-1)!);
@@ -183,7 +192,7 @@ describe('CreateUser', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Nome completo'), 'Alice');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'alice@test.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret1');
+    fireEvent.changeText(screen.getByPlaceholderText('Defina a senha provisória'), 'secret123');
     fireEvent.press(screen.getAllByText('Criar usuário').at(-1)!);
 
     await waitFor(() => {
@@ -203,7 +212,7 @@ describe('CreateUser', () => {
 
     fireEvent.changeText(screen.getByPlaceholderText('Nome completo'), 'Alice');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'alice@test.com');
-    fireEvent.changeText(screen.getByPlaceholderText('Mínimo 6 caracteres'), 'secret1');
+    fireEvent.changeText(screen.getByPlaceholderText('Defina a senha provisória'), 'secret123');
 
     await act(async () => {
       fireEvent.press(screen.getAllByText('Criar usuário').at(-1)!);
@@ -212,7 +221,7 @@ describe('CreateUser', () => {
     expect(mockCreateUser).toHaveBeenCalledWith(
       'Alice',
       'alice@test.com',
-      'secret1',
+      'secret123',
       'standard',
       adminUser,
     );

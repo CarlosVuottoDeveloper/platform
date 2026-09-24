@@ -18,6 +18,16 @@ describe('ticketPriority', () => {
     });
   });
 
+  it('PRIORITY_LABELS agree in gender with "prioridade"', () => {
+    expect(PRIORITY_LABELS).toEqual({
+      very_low: 'Muito baixa',
+      low: 'Baixa',
+      medium: 'Média',
+      high: 'Alta',
+      very_high: 'Muito alta',
+    });
+  });
+
   it('PRIORITY_TONES has a color for every priority', () => {
     ALL_PRIORITIES.forEach((priority) => {
       expect(PRIORITY_TONES[priority]).toBeTruthy();

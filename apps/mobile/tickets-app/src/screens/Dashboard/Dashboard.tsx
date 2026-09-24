@@ -49,7 +49,7 @@ function StatusStatCard({
   return (
     <View style={styles.statCardWrapper}>
       <Pressable onPress={onPress}>
-        <Badge tone={STATUS_TONES[status]}>{`${STATUS_LABELS[status]} ${count}`}</Badge>
+        <Badge tone={STATUS_TONES[status]}>{`${STATUS_LABELS[status]} · ${count}`}</Badge>
       </Pressable>
     </View>
   );
@@ -143,7 +143,7 @@ export function Dashboard({ navigation }: Props) {
       title="Sair da conta"
       actions={
         <>
-          <Button key="cancel" variant="ghost" onPress={() => setLogoutOpen(false)}>
+          <Button key="cancel" variant="secondary" onPress={() => setLogoutOpen(false)}>
             Cancelar
           </Button>
           <Button key="confirm" variant="danger" onPress={logout}>
@@ -270,7 +270,7 @@ export function Dashboard({ navigation }: Props) {
         </View>
         <FAB
           onPress={() => navigation.navigate('NewTicket')}
-          style={styles.fab}
+          style={[styles.fab, { bottom: space[8] + insets.bottom }]}
           label="New ticket"
         />
       </View>

@@ -1,3 +1,5 @@
+import { StyleSheet } from 'react-native';
+import { color } from '@industry/tokens';
 import React from 'react';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { ActivityIndicator } from 'react-native';
@@ -90,6 +92,44 @@ describe('TicketList', () => {
     render(<TicketList navigation={mockNavigation} route={mockRoute} />);
 
     expect(screen.getByText('Nenhum ticket encontrado.')).toBeTruthy();
+    expect(screen.UNSAFE_getByProps({ name: 'Plus' })).toBeTruthy();
+  });
+
+  it('pluralizes the status in the empty-state body', () => {
+    mockUseTicketList.mockReturnValue(mockTicketListReturn({ tickets: [] }));
+
+    render(
+      <TicketList
+        navigation={mockNavigation}
+        route={{ ...mockRoute, params: { status: 'done' } } as typeof mockRoute}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        'Você não tem chamados concluídos. O filtro vem da Dashboard e pode ser trocado voltando para lá.',
+      ),
+    ).toBeTruthy();
+  });
+
+  it('goes back to the Dashboard from the empty-state action', () => {
+    mockUseTicketList.mockReturnValue(mockTicketListReturn({ tickets: [] }));
+
+    render(<TicketList navigation={mockNavigation} route={mockRoute} />);
+
+    fireEvent.press(screen.getByText('Voltar ao painel'));
+
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('Dashboard');
+  });
+
+  it('renders the standard scope as a filled neutral tag', () => {
+    mockUseTicketList.mockReturnValue(mockTicketListReturn({ tickets: [] }));
+
+    render(<TicketList navigation={mockNavigation} route={mockRoute} />);
+
+    const tag = StyleSheet.flatten(screen.getByTestId('ticket-list-scope-tag').props.style);
+    expect(tag.backgroundColor).toBe(color.surface2);
+    expect(tag.borderWidth).toBeFalsy();
   });
 
   it('navigates back when the AppBar back button is pressed', () => {
