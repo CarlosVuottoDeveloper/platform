@@ -1,3 +1,4 @@
+import { StyleSheet, Text } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { PieChart, defaultValueFormatter, resolveSliceDash } from './PieChart';
 
@@ -69,5 +70,29 @@ describe('PieChart', () => {
   it('accepts a custom valueFormatter', () => {
     render(<PieChart slices={SLICES} valueFormatter={(v) => `#${v}`} />);
     expect(screen.getByText('#3 · 30%')).toBeTruthy();
+  });
+
+  it('stacks the legend below the chart by default', () => {
+    render(<PieChart slices={SLICES} testID="chart" />);
+    expect(
+      StyleSheet.flatten(screen.getByTestId('chart').props.style).flexDirection,
+    ).toBeUndefined();
+  });
+
+  it('places the legend beside the chart when legendPlacement is "right"', () => {
+    render(<PieChart slices={SLICES} legendPlacement="right" testID="chart" />);
+    expect(StyleSheet.flatten(screen.getByTestId('chart').props.style).flexDirection).toBe('row');
+  });
+
+  it('shows only the percentage when legendValue is "percent"', () => {
+    render(<PieChart slices={SLICES} legendValue="percent" />);
+    expect(screen.getByText('30%')).toBeTruthy();
+    expect(screen.queryByText('3 · 30%')).toBeNull();
+    expect(screen.getByLabelText('Aberto: 3, 30%')).toBeTruthy();
+  });
+
+  it('renders a centerLabel over the donut', () => {
+    render(<PieChart slices={SLICES} centerLabel={<Text>10</Text>} />);
+    expect(screen.getByText('10')).toBeTruthy();
   });
 });

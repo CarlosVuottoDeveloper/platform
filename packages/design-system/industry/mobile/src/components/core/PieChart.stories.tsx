@@ -1,6 +1,6 @@
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { Meta, StoryObj } from '@storybook/react';
-import { viz } from '@industry/tokens';
+import { color, viz } from '@industry/tokens';
 import { PieChart } from './PieChart';
 
 const meta: Meta<typeof PieChart> = {
@@ -19,6 +19,24 @@ export const Default: Story = {
         slices={[
           { label: 'Aberto', value: 8, color: viz['1'] },
           { label: 'Em Progresso', value: 3, color: viz['4'] },
+          { label: 'Concluído', value: 14, color: viz['3'] },
+        ]}
+      />
+    </View>
+  ),
+};
+
+export const SideLegend: Story = {
+  render: () => (
+    <View style={{ padding: 16 }}>
+      <PieChart
+        size={118}
+        legendPlacement="right"
+        legendValue="percent"
+        centerLabel={<Text style={{ fontSize: 19, color: color.text }}>25</Text>}
+        slices={[
+          { label: 'Aberto', value: 8, color: viz['1'] },
+          { label: 'Em andamento', value: 3, color: viz['4'] },
           { label: 'Concluído', value: 14, color: viz['3'] },
         ]}
       />
