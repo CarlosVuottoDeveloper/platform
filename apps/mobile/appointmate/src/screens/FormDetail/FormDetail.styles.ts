@@ -24,12 +24,7 @@ export const styles = StyleSheet.create({
   summaryGrid: {
     gap: 1,
   },
-  summaryRow: {
-    flexDirection: 'row',
-    gap: 1,
-  },
   summaryCell: {
-    flex: 1,
     padding: space[4],
     gap: space[1],
   },

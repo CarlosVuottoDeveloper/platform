@@ -261,15 +261,14 @@ export function FormDetail({ navigation, route }: Props) {
           />
         ) : (
           <>
-            <View style={[styles.summaryGrid, { backgroundColor: colors.divider }]}>
-              <View style={styles.summaryRow}>
-                <SummaryCell label="Humor" value={moodLabel} testID="form-detail-overall-mood" />
-                <SummaryCell label="Sono" value={values.sleep} />
-              </View>
-              <View style={styles.summaryRow}>
-                <SummaryCell label="Energia" value={values.energy} />
-                <SummaryCell label="Apetite" value={values.appetite} />
-              </View>
+            <View
+              style={[styles.summaryGrid, { backgroundColor: colors.divider }]}
+              testID="form-detail-summary-grid"
+            >
+              <SummaryCell label="Humor" value={moodLabel} testID="form-detail-overall-mood" />
+              <SummaryCell label="Sono" value={values.sleep} />
+              <SummaryCell label="Energia" value={values.energy} />
+              <SummaryCell label="Apetite" value={values.appetite} />
             </View>
 
             <Field label="Última consulta foi em" value={values.lastAppointmentDate} />
