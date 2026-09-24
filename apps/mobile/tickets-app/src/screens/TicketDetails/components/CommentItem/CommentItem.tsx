@@ -1,7 +1,7 @@
 import { Platform, View, Text } from 'react-native';
 import { Button, useTheme } from '@industry/mobile';
 import { alpha, fontFamilyMono } from '@industry/tokens';
-import { formatDate } from '../../../../domain/ticket';
+import { formatDateTimeShort } from '../../../../domain/ticket';
 import type { Comment } from '../../../../domain/ticket';
 import { styles } from './CommentItem.styles';
 
@@ -14,10 +14,10 @@ interface Props {
 }
 
 function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? '';
-  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : '';
-  return (first + last).toUpperCase();
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0] ?? '';
+  const last = parts.length > 1 ? parts[parts.length - 1] : undefined;
+  return `${first.charAt(0)}${last?.charAt(0) ?? ''}`.toUpperCase();
 }
 
 export function CommentItem({ comment, canDelete, onDeletePress }: Props) {
@@ -40,7 +40,7 @@ export function CommentItem({ comment, canDelete, onDeletePress }: Props) {
               { fontFamily: monoFontFamily, color: alpha(colors.text, 45) },
             ]}
           >
-            {formatDate(comment.createdAt)}
+            {formatDateTimeShort(comment.createdAt)}
           </Text>
         </View>
         <Text style={[styles.commentText, { color: alpha(colors.text, 78) }]}>{comment.text}</Text>

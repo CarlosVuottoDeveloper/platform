@@ -1,16 +1,41 @@
-import { describe, it, expect } from '@jest/globals';
-import { formatDate } from './ticket';
+import { formatDateLong, formatDateTimeShort, formatDayMonth } from './ticket';
 
-describe('formatDate', () => {
-  it('formats a Date to pt-BR locale string', () => {
-    const date = new Date(2024, 0, 15, 14, 30);
-    const result = formatDate(date);
-    expect(result).toContain('15');
-    expect(result).toContain('01');
-    expect(result).toContain('2024');
+const date = new Date(2026, 2, 12, 9, 20);
+
+describe('formatDayMonth', () => {
+  it('formats as day and abbreviated month', () => {
+    expect(formatDayMonth(date)).toBe('12 mar');
   });
 
-  it('returns empty string for a null date', () => {
-    expect(formatDate(null)).toBe('');
+  it('pads single-digit days', () => {
+    expect(formatDayMonth(new Date(2026, 0, 5))).toBe('05 jan');
+  });
+
+  it('returns an empty string for a null date', () => {
+    expect(formatDayMonth(null)).toBe('');
+  });
+});
+
+describe('formatDateLong', () => {
+  it('formats as day, abbreviated month and year', () => {
+    expect(formatDateLong(date)).toBe('12 mar 2026');
+  });
+
+  it('returns an empty string for a null date', () => {
+    expect(formatDateLong(null)).toBe('');
+  });
+});
+
+describe('formatDateTimeShort', () => {
+  it('formats as day, abbreviated month and 24h time', () => {
+    expect(formatDateTimeShort(date)).toBe('12 mar · 09:20');
+  });
+
+  it('pads the hour and covers December', () => {
+    expect(formatDateTimeShort(new Date(2026, 11, 31, 23, 5))).toBe('31 dez · 23:05');
+  });
+
+  it('returns an empty string for a null date', () => {
+    expect(formatDateTimeShort(null)).toBe('');
   });
 });

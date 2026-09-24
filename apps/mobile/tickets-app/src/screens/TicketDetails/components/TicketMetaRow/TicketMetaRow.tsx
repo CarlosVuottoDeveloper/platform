@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native';
 import { useTheme } from '@industry/mobile';
 import { alpha } from '@industry/tokens';
-import { formatDate } from '../../../../domain/ticket';
+import { formatDateLong } from '../../../../domain/ticket';
 import { styles } from './TicketMetaRow.styles';
 
 interface Props {
@@ -50,7 +50,7 @@ export function TicketMetaRow({ creatorName, createdAt, assigneeName }: Props) {
         {createdAt && (
           <MetaCell
             label="Abertura"
-            value={formatDate(createdAt)}
+            value={formatDateLong(createdAt)}
             labelColor={labelColor}
             valueColor={valueColor}
             bg={bg}
