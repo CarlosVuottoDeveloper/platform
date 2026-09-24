@@ -24,13 +24,13 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     paddingHorizontal: space[6],
   },
+  sectionLabelBlock: { gap: space[2], paddingHorizontal: space[6], marginTop: space[2] },
   sectionLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: space[6],
-    marginTop: space[2],
   },
+  sectionHairline: { height: 1 },
   sectionLabel: {
     fontSize: 11,
     letterSpacing: 1.1,

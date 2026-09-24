@@ -5,6 +5,7 @@ import {
   AppBar,
   Badge,
   Button,
+  IconButton,
   Select,
   Sheet,
   Spinner,
@@ -33,6 +34,7 @@ import { TicketMetaRow } from './components/TicketMetaRow';
 import { TicketOptionField } from './components/TicketOptionField';
 import { CommentItem } from './components/CommentItem';
 import { CommentInput } from './components/CommentInput';
+import { BottomBar } from '../../components/BottomBar';
 import { styles } from './TicketDetails.styles';
 
 const monoFontFamily = Platform.select(fontFamilyMono);
@@ -41,18 +43,24 @@ const UNASSIGNED_LABEL = 'não designado';
 function SectionLabel({ children, trailing }: { children: string; trailing?: string }) {
   const { colors } = useTheme();
   return (
-    <View style={styles.sectionLabelRow}>
-      <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>{children}</Text>
-      {trailing ? (
-        <Text
-          style={[
-            styles.sectionLabelCount,
-            { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
-          ]}
-        >
-          {trailing}
-        </Text>
-      ) : null}
+    <View style={styles.sectionLabelBlock}>
+      <View style={styles.sectionLabelRow}>
+        <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>{children}</Text>
+        {trailing ? (
+          <Text
+            style={[
+              styles.sectionLabelCount,
+              { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
+            ]}
+          >
+            {trailing}
+          </Text>
+        ) : null}
+      </View>
+      <View
+        style={[styles.sectionHairline, { backgroundColor: colors.divider }]}
+        testID="ticket-details-section-hairline"
+      />
     </View>
   );
 }
@@ -111,13 +119,12 @@ export function TicketDetails({ route, navigation }: Props) {
     [users, editMode.draftAssigneeId],
   );
 
+  const isAdmin = user?.role === 'admin';
   const actions: AppBarAction[] = [];
-  if (user?.role === 'admin') {
-    actions.push({
-      icon: editMode.editing ? 'Check' : 'Pencil',
-      label: editMode.editing ? 'Confirmar edição' : 'Editar chamado',
-      onPress: editMode.onEditPress,
-    });
+  if (isAdmin && !editMode.editing) {
+    actions.push({ icon: 'Pencil', label: 'Editar chamado', onPress: editMode.onEditPress });
+  }
+  if (isAdmin) {
     actions.push({
       icon: 'Trash2',
       label: 'Apagar chamado',
@@ -129,6 +136,16 @@ export function TicketDetails({ route, navigation }: Props) {
     <AppBar
       title={editMode.editing ? 'Editando' : 'Chamado'}
       onBackPress={() => navigation.goBack()}
+      trailing={
+        isAdmin && editMode.editing ? (
+          <IconButton
+            icon="Check"
+            variant="solid"
+            label="Confirmar edição"
+            onPress={editMode.onEditPress}
+          />
+        ) : undefined
+      }
       actions={actions}
     />
   );
@@ -252,20 +269,11 @@ export function TicketDetails({ route, navigation }: Props) {
                 <View style={styles.paddedRow} key={c.id}>
                   <CommentItem
                     comment={c}
-                    canDelete={user?.uid === c.authorId || user?.role === 'admin'}
+                    canDelete={user?.uid === c.authorId || isAdmin}
                     onDeletePress={() => commentDeletion.handleRequestDeleteComment(c.id)}
                   />
                 </View>
               ))}
-
-              <View style={styles.paddedRow}>
-                <CommentInput
-                  value={commentForm.commentText}
-                  onChangeText={commentForm.setCommentText}
-                  onSubmit={commentForm.handleAddComment}
-                  disabled={!commentForm.commentText.trim() || commentForm.sendingComment}
-                />
-              </View>
             </>
           )}
 
@@ -352,6 +360,16 @@ export function TicketDetails({ route, navigation }: Props) {
             <Text style={{ color: colors.text }}>Esta ação não pode ser desfeita.</Text>
           </Sheet>
         </ScrollView>
+        {!editMode.editing && (
+          <BottomBar testID="ticket-details-comment-bar">
+            <CommentInput
+              value={commentForm.commentText}
+              onChangeText={commentForm.setCommentText}
+              onSubmit={commentForm.handleAddComment}
+              disabled={!commentForm.commentText.trim() || commentForm.sendingComment}
+            />
+          </BottomBar>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

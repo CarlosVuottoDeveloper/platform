@@ -1,5 +1,5 @@
 import { Platform, View, Text } from 'react-native';
-import { Button, useTheme } from '@industry/mobile';
+import { IconButton, useTheme } from '@industry/mobile';
 import { alpha, fontFamilyMono } from '@industry/tokens';
 import { formatDateTimeShort } from '../../../../domain/ticket';
 import type { Comment } from '../../../../domain/ticket';
@@ -44,12 +44,16 @@ export function CommentItem({ comment, canDelete, onDeletePress }: Props) {
           </Text>
         </View>
         <Text style={[styles.commentText, { color: alpha(colors.text, 78) }]}>{comment.text}</Text>
-        {canDelete && (
-          <Button style={styles.deleteButton} variant="ghost" onPress={onDeletePress}>
-            Apagar
-          </Button>
-        )}
       </View>
+      {canDelete && (
+        <IconButton
+          icon="X"
+          variant="danger"
+          label="Apagar comentário"
+          onPress={onDeletePress}
+          style={styles.deleteButton}
+        />
+      )}
     </View>
   );
 }
