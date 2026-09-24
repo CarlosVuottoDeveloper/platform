@@ -18,7 +18,7 @@ import {
 import { accentRamp, alpha, fontFamilyMono, space, viz } from '@industry/tokens';
 import { useTicketList } from '../../hooks/useTicketList';
 import { useAuthStore } from '../../store/useAuthStore';
-import { formatDayMonth } from '../../domain/ticket';
+import { formatDayMonth, truncateTitle } from '../../domain/ticket';
 import type { Ticket } from '../../domain/ticket';
 import type { TicketStatus } from '../../constants/ticketStatus';
 import { ALL_STATUSES, STATUS_LABELS, STATUS_TONES } from '../../constants/ticketStatus';
@@ -69,7 +69,9 @@ function RecentTicketsCard({
         <Pressable key={t.id} onPress={() => onPressTicket(t.id)}>
           <Card framed style={styles.recentItem}>
             <View style={styles.recentHeader}>
-              <Text style={[styles.recentTitle, { color: colors.text }]}>{t.title}</Text>
+              <Text style={[styles.recentTitle, { color: colors.text }]}>
+                {truncateTitle(t.title)}
+              </Text>
               <Badge tone={PRIORITY_TONES[t.priority]} solid={isPriorityMaximum(t.priority)}>
                 {PRIORITY_LABELS[t.priority]}
               </Badge>

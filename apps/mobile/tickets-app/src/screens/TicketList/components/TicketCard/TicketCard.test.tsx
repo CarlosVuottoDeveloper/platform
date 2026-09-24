@@ -56,4 +56,10 @@ describe('TicketCard', () => {
     render(<TicketCard {...baseProps} assigneeName={null} />);
     expect(screen.getByText('Responsável: não designado')).toBeTruthy();
   });
+
+  it('truncates titles longer than 100 characters with an ellipsis', () => {
+    render(<TicketCard {...baseProps} title={`${'a'.repeat(100)}b`} />);
+
+    expect(screen.getByText(`${'a'.repeat(100)}…`)).toBeTruthy();
+  });
 });

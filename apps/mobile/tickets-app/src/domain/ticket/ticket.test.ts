@@ -1,4 +1,10 @@
-import { formatDateLong, formatDateTimeShort, formatDayMonth } from './ticket';
+import {
+  TICKET_TITLE_MAX_LENGTH,
+  formatDateLong,
+  formatDateTimeShort,
+  formatDayMonth,
+  truncateTitle,
+} from './ticket';
 
 const date = new Date(2026, 2, 12, 9, 20);
 
@@ -37,5 +43,29 @@ describe('formatDateTimeShort', () => {
 
   it('returns an empty string for a null date', () => {
     expect(formatDateTimeShort(null)).toBe('');
+  });
+});
+
+describe('truncateTitle', () => {
+  it('caps titles at 100 characters', () => {
+    expect(TICKET_TITLE_MAX_LENGTH).toBe(100);
+  });
+
+  it('returns titles within the limit untouched', () => {
+    const title = 'x'.repeat(TICKET_TITLE_MAX_LENGTH);
+
+    expect(truncateTitle(title)).toBe(title);
+  });
+
+  it('cuts longer titles at the limit and appends an ellipsis', () => {
+    const title = `${'x'.repeat(TICKET_TITLE_MAX_LENGTH)}extra`;
+
+    expect(truncateTitle(title)).toBe(`${'x'.repeat(TICKET_TITLE_MAX_LENGTH)}…`);
+  });
+
+  it('drops trailing whitespace before the ellipsis', () => {
+    const title = `${'x'.repeat(TICKET_TITLE_MAX_LENGTH - 2)}  extra`;
+
+    expect(truncateTitle(title)).toBe(`${'x'.repeat(TICKET_TITLE_MAX_LENGTH - 2)}…`);
   });
 });

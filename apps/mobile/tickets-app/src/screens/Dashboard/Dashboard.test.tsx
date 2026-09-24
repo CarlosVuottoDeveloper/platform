@@ -357,4 +357,14 @@ describe('Dashboard', () => {
       1,
     );
   });
+
+  it('truncates long recent ticket titles with an ellipsis', () => {
+    mockUseTicketList.mockReturnValue(
+      mockTicketListReturn({ tickets: [makeTicket({ title: `${'a'.repeat(100)}b` })] }),
+    );
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText(`${'a'.repeat(100)}…`)).toBeTruthy();
+  });
 });

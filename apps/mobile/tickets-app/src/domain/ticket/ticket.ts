@@ -55,3 +55,10 @@ export function formatDateTimeShort(date: Date | null): string {
   if (!date) return '';
   return `${formatDayMonth(date)} · ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+export const TICKET_TITLE_MAX_LENGTH = 100;
+
+export function truncateTitle(title: string): string {
+  if (title.length <= TICKET_TITLE_MAX_LENGTH) return title;
+  return `${title.slice(0, TICKET_TITLE_MAX_LENGTH).trimEnd()}…`;
+}
