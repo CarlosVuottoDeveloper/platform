@@ -122,12 +122,24 @@ describe('CreateUser', () => {
     expect(goBack).toHaveBeenCalledTimes(1);
   });
 
+  it('offers the two roles as side-by-side buttons with the current one selected', () => {
+    mockCurrentUser = adminUser;
+    renderCreateUser();
+
+    expect(screen.getByRole('button', { name: 'Padrão', selected: true })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Administrador', selected: false })).toBeTruthy();
+
+    fireEvent.press(screen.getByText('Administrador'));
+
+    expect(screen.getByRole('button', { name: 'Padrão', selected: false })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Administrador', selected: true })).toBeTruthy();
+  });
+
   it('updates the selected role', async () => {
     mockCurrentUser = adminUser;
     renderCreateUser();
 
-    fireEvent.press(screen.getByText('Padrão'));
-    fireEvent.press(await screen.findByText('Administrador'));
+    fireEvent.press(screen.getByText('Administrador'));
 
     fireEvent.changeText(screen.getByPlaceholderText('Nome completo'), 'Alice');
     fireEvent.changeText(screen.getByPlaceholderText('email@exemplo.com'), 'alice@test.com');
