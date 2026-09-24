@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet } from 'react-native';
 import { color } from '@industry/tokens';
 import React from 'react';
 import { beforeEach, describe, expect, it } from '@jest/globals';
@@ -410,5 +410,13 @@ describe('TicketDetails', () => {
     await waitFor(() => {
       expect(mockDeleteComment).toHaveBeenCalledWith('c1');
     });
+  });
+
+  it('lets the keyboard avoiding view measure the keyboard itself, without a vertical offset', () => {
+    render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
+
+    expect(
+      screen.UNSAFE_getByType(KeyboardAvoidingView).props.keyboardVerticalOffset,
+    ).toBeUndefined();
   });
 });

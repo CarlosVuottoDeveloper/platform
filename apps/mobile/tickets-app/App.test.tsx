@@ -1,19 +1,11 @@
 import { act, render, screen } from '@testing-library/react-native';
 import { Alert, Text } from 'react-native';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { subscribeToAuthUser } from './src/services/authService';
+import type { User } from './src/domain/user';
 import App from './App';
 
 jest.mock('./src/services/firebase', () => ({ auth: {}, db: {} }));
-
-jest.mock('firebase/auth', () => ({
-  onAuthStateChanged: jest.fn(),
-}));
-
-jest.mock('firebase/firestore', () => ({
-  doc: jest.fn(),
-  getDoc: jest.fn(),
-}));
+jest.mock('./src/services/authService');
 
 function MockAuthStack() {
   return <Text>Login</Text>;
@@ -29,13 +21,27 @@ function MockAppStack() {
 jest.mock('./src/navigation/AuthStack', () => ({ AuthStack: MockAuthStack }));
 jest.mock('./src/navigation/AppStack', () => ({ AppStack: MockAppStack }));
 
-const mockOnAuthStateChanged = onAuthStateChanged as jest.Mock;
-const mockGetDoc = getDoc as jest.Mock;
+const mockSubscribeToAuthUser = subscribeToAuthUser as jest.Mock;
 
-function fireAuthChange(user: { uid: string; email: string | null } | null) {
-  const callback = mockOnAuthStateChanged.mock.calls[0]?.[1];
+const ana: User = {
+  uid: 'user-1',
+  email: 'ana@test.com',
+  name: 'Ana',
+  role: 'standard',
+  workspaceId: 'ws-1',
+};
+
+function publishAuthUser(user: User | null) {
+  const onChange = mockSubscribeToAuthUser.mock.calls[0]?.[0];
   return act(async () => {
-    await callback?.(user);
+    onChange?.(user);
+  });
+}
+
+function publishAuthError() {
+  const onError = mockSubscribeToAuthUser.mock.calls[0]?.[1];
+  return act(async () => {
+    onError?.();
   });
 }
 
@@ -59,7 +65,7 @@ function renderApp() {
 describe('App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockOnAuthStateChanged.mockImplementation(() => jest.fn());
+    mockSubscribeToAuthUser.mockImplementation(() => jest.fn());
     jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   });
 
@@ -72,39 +78,26 @@ describe('App', () => {
   it('renders the auth stack when there is no signed-in user', async () => {
     const { safeUnmount } = renderApp();
 
-    await fireAuthChange(null);
+    await publishAuthUser(null);
 
     expect(screen.getByText('Login')).toBeTruthy();
     safeUnmount();
   });
 
-  it('renders the app stack once the user profile loads', async () => {
-    mockGetDoc.mockResolvedValue({
-      data: () => ({ role: 'standard', name: 'Ana', workspace_id: 'ws-1' }),
-    });
-
+  it('renders the app stack once the user profile is published', async () => {
     const { safeUnmount } = renderApp();
-    await fireAuthChange({ uid: 'user-1', email: 'ana@test.com' });
+
+    await publishAuthUser(ana);
 
     expect(screen.getByText('Dashboard')).toBeTruthy();
     expect(screen.queryByText('Login')).toBeNull();
     safeUnmount();
   });
 
-  it('falls back to defaults when the user document has no data', async () => {
-    mockGetDoc.mockResolvedValue({ data: () => undefined });
-
+  it('alerts and stays on the auth stack when the profile fetch fails', async () => {
     const { safeUnmount } = renderApp();
 
-    await expect(fireAuthChange({ uid: 'user-1', email: 'ana@test.com' })).resolves.not.toThrow();
-    safeUnmount();
-  });
-
-  it('alerts and signs the user out locally when the profile fetch fails', async () => {
-    mockGetDoc.mockRejectedValue(new Error('network down'));
-
-    const { safeUnmount } = renderApp();
-    await fireAuthChange({ uid: 'user-1', email: 'ana@test.com' });
+    await publishAuthError();
 
     expect(Alert.alert).toHaveBeenCalledWith(
       'Erro de conexão',
@@ -116,30 +109,11 @@ describe('App', () => {
 
   it('unsubscribes from the auth listener on unmount', () => {
     const unsubscribe = jest.fn();
-    mockOnAuthStateChanged.mockImplementation(() => unsubscribe);
+    mockSubscribeToAuthUser.mockImplementation(() => unsubscribe);
 
     const { safeUnmount } = renderApp();
     safeUnmount();
 
     expect(unsubscribe).toHaveBeenCalled();
-  });
-
-  it('falls back to an empty name and email when neither the document nor the auth user has one', async () => {
-    mockGetDoc.mockResolvedValue({ data: () => ({ role: 'standard' }) });
-
-    const { safeUnmount } = renderApp();
-
-    await expect(fireAuthChange({ uid: 'user-1', email: null })).resolves.not.toThrow();
-    safeUnmount();
-  });
-
-  it('reads the user document keyed by uid', async () => {
-    mockGetDoc.mockResolvedValue({ data: () => ({ role: 'standard', name: 'Ana' }) });
-
-    const { safeUnmount } = renderApp();
-    await fireAuthChange({ uid: 'user-1', email: 'ana@test.com' });
-
-    expect(doc).toHaveBeenCalledWith({}, 'users', 'user-1');
-    safeUnmount();
   });
 });

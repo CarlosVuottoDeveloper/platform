@@ -165,7 +165,7 @@ export function Dashboard({ navigation }: Props) {
     return (
       <SafeAreaView edges={['top']} style={styles.flex}>
         {appBar}
-        <View style={[styles.container, { backgroundColor: colors.bg }]}>
+        <View style={[styles.flex, { backgroundColor: colors.bg }]} testID="dashboard-empty-state">
           <View style={styles.center}>
             <EmptyState
               style={styles.emptyState}

@@ -347,4 +347,14 @@ describe('Dashboard', () => {
 
     expect(mockLogout).toHaveBeenCalled();
   });
+
+  it('fills the screen behind the empty state so the FAB anchors to the bottom edge', () => {
+    mockUseTicketList.mockReturnValue(mockTicketListReturn({ tickets: [] }));
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    expect(StyleSheet.flatten(screen.getByTestId('dashboard-empty-state').props.style).flex).toBe(
+      1,
+    );
+  });
 });

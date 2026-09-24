@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppBar, Button, Select, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
 import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
@@ -73,63 +73,68 @@ export function NewTicket({ navigation }: Props) {
   return (
     <SafeAreaView edges={['top']} style={styles.flex}>
       <AppBar title="Novo chamado" onBackPress={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <SectionLabel>Classificação</SectionLabel>
-        <Select
-          label="Prioridade"
-          value={priority}
-          onValueChange={(v) => setPriority(v as TicketPriority)}
-          options={ALL_PRIORITIES.map((p) => ({ label: PRIORITY_LABELS[p], value: p }))}
-        />
-        <Select
-          label="Responsável"
-          value={assigneeId}
-          onValueChange={(v) => setAssigneeId(v)}
-          disabled={!isAdmin}
-          hint={isAdmin ? undefined : 'Somente administradores designam responsável'}
-          options={[
-            { label: 'Não designado', value: '' },
-            ...users.map((u) => ({ label: u.name, value: u.uid })),
-          ]}
-        />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <SectionLabel>Classificação</SectionLabel>
+          <Select
+            label="Prioridade"
+            value={priority}
+            onValueChange={(v) => setPriority(v as TicketPriority)}
+            options={ALL_PRIORITIES.map((p) => ({ label: PRIORITY_LABELS[p], value: p }))}
+          />
+          <Select
+            label="Responsável"
+            value={assigneeId}
+            onValueChange={(v) => setAssigneeId(v)}
+            disabled={!isAdmin}
+            hint={isAdmin ? undefined : 'Somente administradores designam responsável'}
+            options={[
+              { label: 'Não designado', value: '' },
+              ...users.map((u) => ({ label: u.name, value: u.uid })),
+            ]}
+          />
 
-        <SectionLabel>Descrição</SectionLabel>
-        <TextField
-          label="Título"
-          placeholder="Título do chamado"
-          value={title}
-          onChangeText={setTitle}
-          maxLength={100}
-        />
-        <TextField
-          label="Detalhes"
-          placeholder="Descreva o problema..."
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={5}
-        />
+          <SectionLabel>Descrição</SectionLabel>
+          <TextField
+            label="Título"
+            placeholder="Título do chamado"
+            value={title}
+            onChangeText={setTitle}
+            maxLength={100}
+          />
+          <TextField
+            label="Detalhes"
+            placeholder="Descreva o problema..."
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            numberOfLines={5}
+          />
 
-        <Text
-          style={[styles.metaLine, { fontFamily: monoFontFamily, color: alpha(colors.text, 50) }]}
-        >
-          status: open · criador: sessão atual · workspace: implícito
-        </Text>
+          <Text
+            style={[styles.metaLine, { fontFamily: monoFontFamily, color: alpha(colors.text, 50) }]}
+          >
+            status: open · criador: sessão atual · workspace: implícito
+          </Text>
 
-        {loading ? <Spinner /> : null}
-      </ScrollView>
-      <BottomBar>
-        <Button
-          style={styles.submitButton}
-          variant="primary"
-          framed
-          block
-          onPress={handleSave}
-          disabled={!title.trim() || loading}
-        >
-          Salvar chamado
-        </Button>
-      </BottomBar>
+          {loading ? <Spinner /> : null}
+        </ScrollView>
+        <BottomBar>
+          <Button
+            style={styles.submitButton}
+            variant="primary"
+            framed
+            block
+            onPress={handleSave}
+            disabled={!title.trim() || loading}
+          >
+            Salvar chamado
+          </Button>
+        </BottomBar>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
