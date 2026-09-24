@@ -126,7 +126,7 @@ export function NewTicket({ navigation }: Props) {
           onPress={handleSave}
           disabled={!title.trim() || loading}
         >
-          Salvar Ticket
+          Salvar chamado
         </Button>
       </BottomBar>
     </SafeAreaView>

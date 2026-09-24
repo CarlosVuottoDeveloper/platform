@@ -7,7 +7,6 @@ const onPress = jest.fn();
 
 const baseProps = {
   title: 'Fix login bug',
-  status: 'open' as const,
   priority: 'high' as const,
   creatorName: 'Alice',
   createdAt: new Date(2024, 0, 15, 14, 30),
@@ -24,7 +23,7 @@ describe('TicketCard', () => {
 
   it('renders the priority label', () => {
     render(<TicketCard {...baseProps} />);
-    expect(screen.getByText('Alto')).toBeTruthy();
+    expect(screen.getByText('Alta')).toBeTruthy();
   });
 
   it('renders the creator name in meta text', () => {

@@ -93,7 +93,7 @@ describe('NewTicket', () => {
   it('disables save button when title is empty', () => {
     renderNewTicket();
 
-    fireEvent.press(screen.getByText('Salvar Ticket'));
+    fireEvent.press(screen.getByText('Salvar chamado'));
 
     expect(mockCreateTicket).not.toHaveBeenCalled();
   });
@@ -110,12 +110,12 @@ describe('NewTicket', () => {
     mockCreateTicket.mockResolvedValue(undefined);
     renderNewTicket();
 
-    fireEvent.press(screen.getByText('Médio'));
-    fireEvent.press(await screen.findByText('Alto'));
+    fireEvent.press(screen.getByText('Média'));
+    fireEvent.press(await screen.findByText('Alta'));
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
 
     await act(async () => {
-      fireEvent.press(screen.getByText('Salvar Ticket'));
+      fireEvent.press(screen.getByText('Salvar chamado'));
     });
 
     expect(mockCreateTicket).toHaveBeenCalledWith(
@@ -129,7 +129,7 @@ describe('NewTicket', () => {
     renderNewTicket();
 
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
-    fireEvent.press(screen.getByText('Salvar Ticket'));
+    fireEvent.press(screen.getByText('Salvar chamado'));
 
     expect(mockCreateTicket).not.toHaveBeenCalled();
   });
@@ -141,7 +141,7 @@ describe('NewTicket', () => {
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
 
     await act(async () => {
-      fireEvent.press(screen.getByText('Salvar Ticket'));
+      fireEvent.press(screen.getByText('Salvar chamado'));
     });
 
     expect(screen.getByText('Falha de rede')).toBeTruthy();
@@ -154,7 +154,7 @@ describe('NewTicket', () => {
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
 
     await act(async () => {
-      fireEvent.press(screen.getByText('Salvar Ticket'));
+      fireEvent.press(screen.getByText('Salvar chamado'));
     });
 
     expect(mockCreateTicket).toHaveBeenCalledWith(
@@ -177,7 +177,7 @@ describe('NewTicket', () => {
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
 
     await act(async () => {
-      fireEvent.press(screen.getByText('Salvar Ticket'));
+      fireEvent.press(screen.getByText('Salvar chamado'));
     });
 
     expect(screen.getByText('Falha ao criar o chamado.')).toBeTruthy();
@@ -194,7 +194,7 @@ describe('NewTicket', () => {
     renderNewTicket();
 
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
-    fireEvent.press(screen.getByText('Salvar Ticket'));
+    fireEvent.press(screen.getByText('Salvar chamado'));
 
     await waitFor(() => {
       expect(screen.getByRole('progressbar')).toBeTruthy();
@@ -215,7 +215,7 @@ describe('NewTicket', () => {
     fireEvent.changeText(screen.getByPlaceholderText('Título do chamado'), 'Impressora quebrada');
 
     await act(async () => {
-      fireEvent.press(screen.getByText('Salvar Ticket'));
+      fireEvent.press(screen.getByText('Salvar chamado'));
     });
 
     expect(mockCreateTicket).toHaveBeenCalledWith(

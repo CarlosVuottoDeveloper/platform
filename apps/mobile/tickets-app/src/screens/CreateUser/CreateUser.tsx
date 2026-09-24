@@ -54,7 +54,7 @@ export function CreateUser({ navigation }: Props) {
 
   const passwordError = passwordMinLengthError(password);
 
-  const isValid = name.trim() !== '' && email.trim() !== '' && password.length >= 6;
+  const isValid = name.trim() !== '' && email.trim() !== '' && password.length >= 8;
 
   async function handleCreate() {
     setLoading(true);
@@ -92,16 +92,18 @@ export function CreateUser({ navigation }: Props) {
         <SectionLabel>Dados de acesso</SectionLabel>
         <TextField label="Nome" placeholder="Nome completo" value={name} onChangeText={setName} />
         <TextField
-          label="Email"
+          label="E-mail"
           placeholder="email@exemplo.com"
           value={email}
           onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
         <TextField
-          label="Senha"
+          label="Senha provisória"
           error={passwordError}
-          hint="Mínimo de 6 caracteres"
-          placeholder="Mínimo 6 caracteres"
+          hint="Mínimo de 8 caracteres"
+          placeholder="Defina a senha provisória"
           secureTextEntry
           secureToggle
           value={password}

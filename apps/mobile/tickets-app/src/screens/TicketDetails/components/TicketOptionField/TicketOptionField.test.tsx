@@ -95,7 +95,7 @@ describe('TicketOptionField — priority', () => {
         tones={PRIORITY_TONES}
       />,
     );
-    expect(screen.getByText('Médio')).toBeTruthy();
+    expect(screen.getByText('Média')).toBeTruthy();
   });
 
   it('renders all priority buttons when editing=true', () => {
@@ -110,11 +110,11 @@ describe('TicketOptionField — priority', () => {
         tones={PRIORITY_TONES}
       />,
     );
-    expect(screen.getByText('Muito Baixo')).toBeTruthy();
-    expect(screen.getByText('Baixo')).toBeTruthy();
-    expect(screen.getByText('Médio')).toBeTruthy();
-    expect(screen.getByText('Alto')).toBeTruthy();
-    expect(screen.getByText('Muito Alto')).toBeTruthy();
+    expect(screen.getByText('Muito baixa')).toBeTruthy();
+    expect(screen.getByText('Baixa')).toBeTruthy();
+    expect(screen.getByText('Média')).toBeTruthy();
+    expect(screen.getByText('Alta')).toBeTruthy();
+    expect(screen.getByText('Muito alta')).toBeTruthy();
   });
 
   it('renders all option buttons when draft differs from value', () => {
@@ -129,9 +129,9 @@ describe('TicketOptionField — priority', () => {
         tones={PRIORITY_TONES}
       />,
     );
-    expect(screen.getByText('Médio')).toBeTruthy();
-    expect(screen.getByText('Alto')).toBeTruthy();
-    expect(screen.getByText('Muito Alto')).toBeTruthy();
+    expect(screen.getByText('Média')).toBeTruthy();
+    expect(screen.getByText('Alta')).toBeTruthy();
+    expect(screen.getByText('Muito alta')).toBeTruthy();
   });
 
   it('calls onChangeDraft when an option button is pressed', () => {
@@ -146,7 +146,7 @@ describe('TicketOptionField — priority', () => {
         tones={PRIORITY_TONES}
       />,
     );
-    fireEvent.press(screen.getByText('Alto'));
+    fireEvent.press(screen.getByText('Alta'));
     expect(onChangeDraft).toHaveBeenCalledWith('high');
   });
 });

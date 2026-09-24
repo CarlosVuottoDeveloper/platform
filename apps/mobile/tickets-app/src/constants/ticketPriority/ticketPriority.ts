@@ -5,11 +5,11 @@ export type TicketPriority = 'very_low' | 'low' | 'medium' | 'high' | 'very_high
 export const ALL_PRIORITIES: TicketPriority[] = ['very_low', 'low', 'medium', 'high', 'very_high'];
 
 export const PRIORITY_LABELS: Record<TicketPriority, string> = {
-  very_low: 'Muito Baixo',
-  low: 'Baixo',
-  medium: 'Médio',
-  high: 'Alto',
-  very_high: 'Muito Alto',
+  very_low: 'Muito baixa',
+  low: 'Baixa',
+  medium: 'Média',
+  high: 'Alta',
+  very_high: 'Muito alta',
 };
 
 // Priority is a distinct axis from ticket status (see STATUS_TONES) — only

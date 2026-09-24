@@ -193,7 +193,6 @@ export function TicketDetails({ route, navigation }: Props) {
               creatorName={ticket.creatorName}
               createdAt={ticket.createdAt}
               assigneeName={ticket.assigneeName}
-              editing={editMode.editing}
             />
           )}
 
@@ -276,7 +275,7 @@ export function TicketDetails({ route, navigation }: Props) {
             title="Salvar alterações"
             actions={
               <>
-                <Button key="cancel" variant="ghost" onPress={editMode.handleCancelSave}>
+                <Button key="cancel" variant="secondary" onPress={editMode.handleCancelSave}>
                   Cancelar
                 </Button>
                 <Button key="confirm" variant="primary" onPress={editMode.handleConfirmSave}>
@@ -313,7 +312,7 @@ export function TicketDetails({ route, navigation }: Props) {
               <>
                 <Button
                   key="cancel"
-                  variant="ghost"
+                  variant="secondary"
                   onPress={() => deletion.setDeleteVisible(false)}
                 >
                   Cancelar
@@ -335,7 +334,7 @@ export function TicketDetails({ route, navigation }: Props) {
               <>
                 <Button
                   key="cancel"
-                  variant="ghost"
+                  variant="secondary"
                   onPress={commentDeletion.handleCancelDeleteComment}
                 >
                   Cancelar

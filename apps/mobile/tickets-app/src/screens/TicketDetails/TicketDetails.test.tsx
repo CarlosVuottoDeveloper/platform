@@ -190,11 +190,41 @@ describe('TicketDetails', () => {
 
     render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
 
-    expect(screen.queryByText('Responsável')).toBeNull();
+    expect(screen.getByText('não designado')).toBeTruthy();
+    expect(screen.queryByLabelText('Confirmar edição')).toBeNull();
 
     fireEvent.press(screen.getByLabelText('Editar chamado'));
 
-    expect(screen.getByText('Responsável')).toBeTruthy();
+    expect(screen.getByLabelText('Confirmar edição')).toBeTruthy();
+    expect(screen.getByText('Status')).toBeTruthy();
+  });
+
+  it('navigates back when the AppBar back button is pressed', () => {
+    setUser(adminUser);
+    mockUseTicketDetails.mockReturnValue(mockTicketDetailsReturn({ comments: [] }));
+
+    render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
+
+    fireEvent.press(screen.getByLabelText('Voltar'));
+
+    expect(mockNavigation.goBack).toHaveBeenCalled();
+  });
+
+  it('summarizes the pending changes as "from → to" rows before saving', () => {
+    setUser(adminUser);
+    mockUseTicketDetails.mockReturnValue(
+      mockTicketDetailsReturn({ ticket: makeTicket({ status: 'open', priority: 'medium' }) }),
+    );
+
+    render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
+
+    fireEvent.press(screen.getByLabelText('Editar chamado'));
+    fireEvent.press(screen.getByText('Concluído'));
+    fireEvent.press(screen.getByLabelText('Confirmar edição'));
+
+    expect(screen.getByText('Salvar alterações')).toBeTruthy();
+    expect(screen.getByText('Aberto → Concluído')).toBeTruthy();
+    expect(screen.getByText('Média → Média')).toBeTruthy();
   });
 
   it('admin can delete ticket via header button', async () => {
