@@ -1,7 +1,7 @@
 import { Card, PieChart } from '@industry/mobile';
 import { color } from '@industry/tokens';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { ActivityIndicator } from 'react-native';
 import { render, screen, fireEvent } from '../../test-utils';
@@ -174,6 +174,18 @@ describe('Dashboard', () => {
     const framedCards = screen.UNSAFE_getAllByType(Card).filter((card) => card.props.framed);
     expect(framedCards).toHaveLength(3);
     expect(screen.queryByText('Chamado 4')).toBeNull();
+  });
+
+  it('scrolls the populated dashboard and keeps the FAB outside the scroll content', () => {
+    mockUseTicketList.mockReturnValue(
+      mockTicketListReturn({ tickets: [makeTicket({ id: 't1', title: 'Chamado 1' })] }),
+    );
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    const scroll = screen.UNSAFE_getByType(ScrollView);
+    expect(scroll.findAllByProps({ children: 'Chamado 1' }).length).toBeGreaterThan(0);
+    expect(scroll.findAllByProps({ accessibilityLabel: 'New ticket' })).toHaveLength(0);
   });
 
   it('anchors the FAB to the bottom edge when there are tickets', () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Platform, View, Text, Pressable, FlatList } from 'react-native';
+import { Platform, View, Text, Pressable, FlatList, ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AppBar,
@@ -195,73 +195,75 @@ export function Dashboard({ navigation }: Props) {
   return (
     <SafeAreaView edges={['top']} style={styles.flex}>
       {appBar}
-      <View style={[styles.container, { backgroundColor: colors.bg }]}>
-        <View>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={ALL_STATUSES}
-            renderItem={({ item: s }) => (
-              <StatusStatCard
-                key={s}
-                status={s}
-                count={tickets.filter((t) => t.status === s).length}
-                onPress={() => navigation.navigate('TicketList', { status: s })}
-              />
-            )}
-            ListHeaderComponent={<View style={styles.listHeaderSpacer} />}
-            ListFooterComponent={<View style={styles.listFooterSpacer} />}
-          />
-        </View>
-        <View style={styles.sectionPad}>
-          <Pressable
-            accessibilityLabel="Ver todos os chamados"
-            style={[styles.chartCard, { borderColor: colors.divider }]}
-            onPress={() => navigation.navigate('TicketList', {})}
-          >
-            <PieChart
-              size={118}
-              legendPlacement="right"
-              legendValue="percent"
-              centerLabel={
-                <Text
-                  style={[
-                    styles.chartTotalText,
-                    { fontFamily: monoFontFamily, color: colors.text },
-                  ]}
-                  testID="dashboard-chart-total"
-                >
-                  {total}
-                </Text>
-              }
-              slices={ALL_STATUSES.map((s) => ({
-                label: STATUS_LABELS[s],
-                value: tickets.filter((t) => t.status === s).length,
-                color: STATUS_VIZ_COLOR[s],
-              }))}
+      <View style={[styles.flex, { backgroundColor: colors.bg }]}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <View>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={ALL_STATUSES}
+              renderItem={({ item: s }) => (
+                <StatusStatCard
+                  key={s}
+                  status={s}
+                  count={tickets.filter((t) => t.status === s).length}
+                  onPress={() => navigation.navigate('TicketList', { status: s })}
+                />
+              )}
+              ListHeaderComponent={<View style={styles.listHeaderSpacer} />}
+              ListFooterComponent={<View style={styles.listFooterSpacer} />}
             />
-          </Pressable>
-        </View>
-        <View style={styles.sectionPad}>
-          <View style={styles.sectionLabelRow}>
-            <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>
-              Chamados recentes
-            </Text>
-            <Text
-              style={[
-                styles.sectionLabelCount,
-                { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
-              ]}
-            >
-              {Math.min(total, 3)}
-            </Text>
           </View>
-          <View style={[styles.sectionHairline, { backgroundColor: colors.divider }]} />
-          <RecentTicketsCard
-            tickets={tickets}
-            onPressTicket={(id) => navigation.navigate('TicketDetails', { ticketId: id })}
-          />
-        </View>
+          <View style={styles.sectionPad}>
+            <Pressable
+              accessibilityLabel="Ver todos os chamados"
+              style={[styles.chartCard, { borderColor: colors.divider }]}
+              onPress={() => navigation.navigate('TicketList', {})}
+            >
+              <PieChart
+                size={118}
+                legendPlacement="right"
+                legendValue="percent"
+                centerLabel={
+                  <Text
+                    style={[
+                      styles.chartTotalText,
+                      { fontFamily: monoFontFamily, color: colors.text },
+                    ]}
+                    testID="dashboard-chart-total"
+                  >
+                    {total}
+                  </Text>
+                }
+                slices={ALL_STATUSES.map((s) => ({
+                  label: STATUS_LABELS[s],
+                  value: tickets.filter((t) => t.status === s).length,
+                  color: STATUS_VIZ_COLOR[s],
+                }))}
+              />
+            </Pressable>
+          </View>
+          <View style={styles.sectionPad}>
+            <View style={styles.sectionLabelRow}>
+              <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>
+                Chamados recentes
+              </Text>
+              <Text
+                style={[
+                  styles.sectionLabelCount,
+                  { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
+                ]}
+              >
+                {Math.min(total, 3)}
+              </Text>
+            </View>
+            <View style={[styles.sectionHairline, { backgroundColor: colors.divider }]} />
+            <RecentTicketsCard
+              tickets={tickets}
+              onPressTicket={(id) => navigation.navigate('TicketDetails', { ticketId: id })}
+            />
+          </View>
+        </ScrollView>
         <FAB
           onPress={() => navigation.navigate('NewTicket')}
           style={[styles.fab, { bottom: space[8] + insets.bottom }]}
