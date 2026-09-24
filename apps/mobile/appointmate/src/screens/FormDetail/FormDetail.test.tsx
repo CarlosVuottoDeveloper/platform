@@ -288,6 +288,24 @@ describe('FormDetail', () => {
     expect(unsubscribe).toHaveBeenCalled();
   });
 
+  it('stacks the summary cells one below the other', async () => {
+    mockedGetFormRecord.mockResolvedValue(filledRecord);
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('form-detail-summary-grid')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+
+    const grid = screen.getByTestId('form-detail-summary-grid');
+    expect(grid.props.children).toHaveLength(4);
+    expect(StyleSheet.flatten(grid.props.style).flexDirection).toBeUndefined();
+    expect(screen.getByText('Humor')).toBeTruthy();
+    expect(screen.getByText('Sono')).toBeTruthy();
+    expect(screen.getByText('Energia')).toBeTruthy();
+    expect(screen.getByText('Apetite')).toBeTruthy();
+  }, 20000);
+
   it('centers the status badge with the AppBar title', async () => {
     mockedGetFormRecord.mockResolvedValue(filledRecord);
 
