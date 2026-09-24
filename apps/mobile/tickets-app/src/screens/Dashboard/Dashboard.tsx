@@ -18,7 +18,7 @@ import {
 import { accentRamp, alpha, fontFamilyMono, space, viz } from '@industry/tokens';
 import { useTicketList } from '../../hooks/useTicketList';
 import { useAuthStore } from '../../store/useAuthStore';
-import { formatDate } from '../../domain/ticket';
+import { formatDayMonth } from '../../domain/ticket';
 import type { Ticket } from '../../domain/ticket';
 import type { TicketStatus } from '../../constants/ticketStatus';
 import { ALL_STATUSES, STATUS_LABELS, STATUS_TONES } from '../../constants/ticketStatus';
@@ -84,7 +84,7 @@ function RecentTicketsCard({
           </View>
           <Text style={[styles.recentMeta, { color: alpha(colors.text, 70) }]}>
             {t.creatorName}
-            {t.createdAt ? ` · ${formatDate(t.createdAt)}` : ''} ·{' '}
+            {t.createdAt ? ` · ${formatDayMonth(t.createdAt)}` : ''} ·{' '}
             {t.assigneeName ?? 'não designado'}
           </Text>
         </Pressable>

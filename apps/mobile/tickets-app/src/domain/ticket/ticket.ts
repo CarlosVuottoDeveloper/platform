@@ -22,13 +22,36 @@ export interface Comment {
   createdAt: Date | null;
 }
 
-export function formatDate(date: Date | null): string {
+const MONTH_ABBREVIATIONS = [
+  'jan',
+  'fev',
+  'mar',
+  'abr',
+  'mai',
+  'jun',
+  'jul',
+  'ago',
+  'set',
+  'out',
+  'nov',
+  'dez',
+] as const;
+
+function pad(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+export function formatDayMonth(date: Date | null): string {
   if (!date) return '';
-  return date.toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return `${pad(date.getDate())} ${MONTH_ABBREVIATIONS[date.getMonth()]}`;
+}
+
+export function formatDateLong(date: Date | null): string {
+  if (!date) return '';
+  return `${formatDayMonth(date)} ${date.getFullYear()}`;
+}
+
+export function formatDateTimeShort(date: Date | null): string {
+  if (!date) return '';
+  return `${formatDayMonth(date)} · ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }

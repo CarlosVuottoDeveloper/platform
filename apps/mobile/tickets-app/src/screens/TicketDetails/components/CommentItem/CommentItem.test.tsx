@@ -17,6 +17,50 @@ const onDeletePress = jest.fn();
 describe('CommentItem', () => {
   beforeEach(async () => jest.clearAllMocks());
 
+  it('uses the first and last initials when the author has several names', () => {
+    render(
+      <CommentItem
+        comment={{ ...mockComment, authorName: 'Ana Maria Lima' }}
+        canDelete={false}
+        onDeletePress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('AL')).toBeTruthy();
+  });
+
+  it('uses a single initial when the author has only one name', () => {
+    render(
+      <CommentItem
+        comment={{ ...mockComment, authorName: 'Madonna' }}
+        canDelete={false}
+        onDeletePress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('M')).toBeTruthy();
+  });
+
+  it('renders no initials when the author name is empty', () => {
+    render(
+      <CommentItem
+        comment={{ ...mockComment, authorName: '   ' }}
+        canDelete={false}
+        onDeletePress={jest.fn()}
+      />,
+    );
+    expect(screen.queryByText(/^[A-Z]{1,2}$/)).toBeNull();
+  });
+
+  it('renders the timestamp as day, abbreviated month and time', () => {
+    render(
+      <CommentItem
+        comment={{ ...mockComment, createdAt: new Date(2026, 2, 12, 9, 20) }}
+        canDelete={false}
+        onDeletePress={jest.fn()}
+      />,
+    );
+    expect(screen.getByText('12 mar · 09:20')).toBeTruthy();
+  });
+
   it('renders author name', () => {
     render(<CommentItem comment={mockComment} canDelete={false} onDeletePress={onDeletePress} />);
     expect(screen.getByText('Alice')).toBeTruthy();

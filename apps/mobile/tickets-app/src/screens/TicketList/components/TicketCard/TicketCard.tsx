@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { Badge, Card, useTheme } from '@industry/mobile';
 import { alpha, space } from '@industry/tokens';
-import { formatDate } from '../../../../domain/ticket';
+import { formatDateLong } from '../../../../domain/ticket';
 import {
   PRIORITY_LABELS,
   PRIORITY_TONES,
@@ -39,7 +39,7 @@ export function TicketCard({
         </View>
         <Text style={[styles.meta, { color: alpha(colors.text, 50) }]}>
           Aberto por {creatorName}
-          {createdAt ? ` · ${formatDate(createdAt)}` : ''}
+          {createdAt ? ` · ${formatDateLong(createdAt)}` : ''}
         </Text>
         <Text style={[styles.meta, { color: alpha(colors.text, 50) }]}>
           Responsável: {assigneeName ?? 'não designado'}

@@ -26,6 +26,11 @@ describe('TicketCard', () => {
     expect(screen.getByText('Alta')).toBeTruthy();
   });
 
+  it('renders the opening date as day, abbreviated month and year', () => {
+    render(<TicketCard {...baseProps} />);
+    expect(screen.getByText('Aberto por Alice · 15 jan 2024')).toBeTruthy();
+  });
+
   it('renders the creator name in meta text', () => {
     render(<TicketCard {...baseProps} />);
     expect(screen.getByText(/Alice/)).toBeTruthy();

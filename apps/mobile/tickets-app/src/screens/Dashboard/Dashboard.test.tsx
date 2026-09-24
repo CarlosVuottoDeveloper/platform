@@ -6,7 +6,7 @@ import { ActivityIndicator } from 'react-native';
 import { render, screen, fireEvent } from '../../test-utils';
 import { useTicketList } from '../../hooks/useTicketList';
 import { STATUS_LABELS } from '../../constants/ticketStatus';
-import { formatDate } from '../../domain/ticket';
+import { formatDayMonth } from '../../domain/ticket';
 import type { Ticket } from '../../domain/ticket';
 import type { User } from '../../domain/user';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -197,7 +197,7 @@ describe('Dashboard', () => {
 
     render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
 
-    expect(screen.getByText(`Alice · ${formatDate(createdAt)} · não designado`)).toBeTruthy();
+    expect(screen.getByText(`Alice · ${formatDayMonth(createdAt)} · não designado`)).toBeTruthy();
   });
 
   it('navigates to NewTicket from the empty state action button', () => {
