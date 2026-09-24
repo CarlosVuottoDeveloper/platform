@@ -26,7 +26,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.vuotto.appointmate",
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png"
