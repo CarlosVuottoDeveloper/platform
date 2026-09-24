@@ -99,6 +99,7 @@ export function NewTicket({ navigation }: Props) {
           placeholder="Título do chamado"
           value={title}
           onChangeText={setTitle}
+          maxLength={100}
         />
         <TextField
           label="Detalhes"

@@ -67,6 +67,12 @@ describe('NewTicket', () => {
     );
   });
 
+  it('limits the title to 100 characters', () => {
+    renderNewTicket();
+
+    expect(screen.getByPlaceholderText('Título do chamado').props.maxLength).toBe(100);
+  });
+
   it('renders title, description and priority fields', () => {
     renderNewTicket();
 

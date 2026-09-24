@@ -4,9 +4,9 @@ import { space } from '@industry/tokens';
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: {
-    flex: 1,
     gap: space[4],
     paddingTop: space[4],
+    paddingBottom: space[8] + 56 + space[6],
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   fab: { position: 'absolute', right: space[6] },
