@@ -419,4 +419,14 @@ describe('TicketDetails', () => {
       screen.UNSAFE_getByType(KeyboardAvoidingView).props.keyboardVerticalOffset,
     ).toBeUndefined();
   });
+
+  it('truncates a long ticket title with an ellipsis', () => {
+    mockUseTicketDetails.mockReturnValue(
+      mockTicketDetailsReturn({ ticket: makeTicket({ title: `${'a'.repeat(100)}b` }) }),
+    );
+
+    render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
+
+    expect(screen.getByText(`${'a'.repeat(100)}…`)).toBeTruthy();
+  });
 });

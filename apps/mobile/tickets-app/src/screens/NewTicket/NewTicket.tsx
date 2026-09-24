@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppBar, Button, Select, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
 import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
+import { TICKET_TITLE_MAX_LENGTH } from '../../domain/ticket';
 import { createTicket } from '../../services/ticketService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUserList } from '../../hooks/useUserList';
@@ -103,7 +104,7 @@ export function NewTicket({ navigation }: Props) {
             placeholder="Título do chamado"
             value={title}
             onChangeText={setTitle}
-            maxLength={100}
+            maxLength={TICKET_TITLE_MAX_LENGTH}
           />
           <TextField
             label="Detalhes"

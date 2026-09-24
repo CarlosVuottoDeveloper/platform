@@ -14,6 +14,7 @@ import {
   type AppBarAction,
 } from '@industry/mobile';
 import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
+import { truncateTitle } from '../../domain/ticket';
 import { useTicketDetails } from '../../hooks/useTicketDetails';
 import { useUserList } from '../../hooks/useUserList';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -195,7 +196,7 @@ export function TicketDetails({ route, navigation }: Props) {
           <Text
             style={[editMode.editing ? styles.titleEditing : styles.title, { color: colors.text }]}
           >
-            {ticket.title}
+            {truncateTitle(ticket.title)}
           </Text>
 
           {!editMode.editing && (

@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { Badge, Card, useTheme } from '@industry/mobile';
 import { alpha, space } from '@industry/tokens';
-import { formatDateLong } from '../../../../domain/ticket';
+import { formatDateLong, truncateTitle } from '../../../../domain/ticket';
 import {
   PRIORITY_LABELS,
   PRIORITY_TONES,
@@ -32,7 +32,7 @@ export function TicketCard({
     <Pressable onPress={onPress}>
       <Card framed style={{ gap: space[1] }}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{truncateTitle(title)}</Text>
           <Badge tone={PRIORITY_TONES[priority]} solid={isPriorityMaximum(priority)}>
             {PRIORITY_LABELS[priority]}
           </Badge>
