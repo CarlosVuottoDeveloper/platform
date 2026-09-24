@@ -77,19 +77,20 @@ describe('CommentItem', () => {
     expect(dateEl).toBeTruthy();
   });
 
-  it('shows Apagar button when canDelete=true', () => {
+  it('shows a delete icon button when canDelete=true', () => {
     render(<CommentItem comment={mockComment} canDelete={true} onDeletePress={onDeletePress} />);
-    expect(screen.getByText('Apagar')).toBeTruthy();
-  });
-
-  it('hides Apagar button when canDelete=false', () => {
-    render(<CommentItem comment={mockComment} canDelete={false} onDeletePress={onDeletePress} />);
+    expect(screen.getByLabelText('Apagar comentário')).toBeTruthy();
     expect(screen.queryByText('Apagar')).toBeNull();
   });
 
-  it('calls onDeletePress when Apagar is pressed', () => {
+  it('hides the delete icon button when canDelete=false', () => {
+    render(<CommentItem comment={mockComment} canDelete={false} onDeletePress={onDeletePress} />);
+    expect(screen.queryByLabelText('Apagar comentário')).toBeNull();
+  });
+
+  it('calls onDeletePress when the delete icon is pressed', () => {
     render(<CommentItem comment={mockComment} canDelete={true} onDeletePress={onDeletePress} />);
-    fireEvent.press(screen.getByText('Apagar'));
+    fireEvent.press(screen.getByLabelText('Apagar comentário'));
     expect(onDeletePress).toHaveBeenCalledTimes(1);
   });
 });

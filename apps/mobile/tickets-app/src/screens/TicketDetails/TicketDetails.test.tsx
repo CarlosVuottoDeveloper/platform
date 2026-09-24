@@ -1,3 +1,5 @@
+import { ScrollView, StyleSheet } from 'react-native';
+import { color } from '@industry/tokens';
 import React from 'react';
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import { ActivityIndicator } from 'react-native';
@@ -199,6 +201,31 @@ describe('TicketDetails', () => {
     expect(screen.getByText('Status')).toBeTruthy();
   });
 
+  it('renders the confirm action as a solid icon button and hairlines under each section', () => {
+    setUser(adminUser);
+    mockUseTicketDetails.mockReturnValue(mockTicketDetailsReturn({ comments: [] }));
+
+    render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
+
+    fireEvent.press(screen.getByLabelText('Editar chamado'));
+
+    const confirm = screen.getByLabelText('Confirmar edição');
+    expect(StyleSheet.flatten(confirm.props.style).backgroundColor).toBe(color.accent);
+    expect(screen.getAllByTestId('ticket-details-section-hairline')).toHaveLength(3);
+  });
+
+  it('keeps the comment bar out of the scroll content', () => {
+    setUser(adminUser);
+    mockUseTicketDetails.mockReturnValue(mockTicketDetailsReturn({ comments: [] }));
+
+    render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
+
+    expect(screen.getByTestId('ticket-details-comment-bar')).toBeTruthy();
+    expect(
+      screen.UNSAFE_getByType(ScrollView).findAllByProps({ testID: 'ticket-details-comment-bar' }),
+    ).toHaveLength(0);
+  });
+
   it('navigates back when the AppBar back button is pressed', () => {
     setUser(adminUser);
     mockUseTicketDetails.mockReturnValue(mockTicketDetailsReturn({ comments: [] }));
@@ -272,10 +299,10 @@ describe('TicketDetails', () => {
     render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
 
     fireEvent.changeText(
-      screen.getByPlaceholderText('Escreva um comentário...'),
+      screen.getByPlaceholderText('Escrever um comentário'),
       'Novo comentário de teste',
     );
-    fireEvent.press(screen.getByText('Enviar'));
+    fireEvent.press(screen.getByLabelText('Enviar comentário'));
 
     await waitFor(() => {
       expect(mockAddComment).toHaveBeenCalledWith('Novo comentário de teste');
@@ -370,7 +397,7 @@ describe('TicketDetails', () => {
 
     render(<TicketDetails navigation={mockNavigation} route={makeRoute('t1')} />);
 
-    fireEvent.press(screen.getByText('Apagar'));
+    fireEvent.press(screen.getByLabelText('Apagar comentário'));
 
     expect(screen.getByText('Apagar comentário')).toBeTruthy();
     expect(mockDeleteComment).not.toHaveBeenCalled();

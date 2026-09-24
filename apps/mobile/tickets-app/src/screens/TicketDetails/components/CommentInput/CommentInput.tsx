@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Button, TextField } from '@industry/mobile';
+import { IconButton, TextField } from '@industry/mobile';
 import { styles } from './CommentInput.styles';
 
 interface Props {
@@ -12,19 +12,23 @@ interface Props {
 
 export function CommentInput({ value, onChangeText, onSubmit, disabled, onFocus }: Props) {
   return (
-    <View style={styles.wrapper}>
+    <View style={styles.row}>
       <TextField
-        label="Novo comentário"
-        placeholder="Escreva um comentário..."
+        style={styles.input}
+        placeholder="Escrever um comentário"
         value={value}
         onChangeText={onChangeText}
         onFocus={onFocus}
-        multiline
-        numberOfLines={3}
+        returnKeyType="send"
+        onSubmitEditing={disabled ? undefined : onSubmit}
       />
-      <Button onPress={onSubmit} disabled={disabled}>
-        Enviar
-      </Button>
+      <IconButton
+        icon="ArrowRight"
+        variant="solid"
+        label="Enviar comentário"
+        onPress={onSubmit}
+        disabled={disabled}
+      />
     </View>
   );
 }

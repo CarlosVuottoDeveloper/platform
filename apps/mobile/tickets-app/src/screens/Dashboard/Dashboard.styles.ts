@@ -42,11 +42,8 @@ export const styles = StyleSheet.create({
   },
   sectionLabelCount: { fontSize: 12 },
   sectionHairline: { height: 1, marginTop: space[2], marginBottom: space[3] },
-  recentItem: {
-    paddingVertical: space[3],
-    borderBottomWidth: 1,
-    gap: space[1],
-  },
+  recentList: { gap: space[3] },
+  recentItem: { gap: space[1] },
   recentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

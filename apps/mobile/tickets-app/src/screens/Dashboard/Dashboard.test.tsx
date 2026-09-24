@@ -1,3 +1,4 @@
+import { Card } from '@industry/mobile';
 import { color } from '@industry/tokens';
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -154,6 +155,25 @@ describe('Dashboard', () => {
     fireEvent.press(screen.UNSAFE_getByProps({ accessibilityLabel: 'New ticket' }));
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('NewTicket');
+  });
+
+  it('renders each recent ticket in its own framed card', () => {
+    mockUseTicketList.mockReturnValue(
+      mockTicketListReturn({
+        tickets: [
+          makeTicket({ id: 't1', title: 'Chamado 1' }),
+          makeTicket({ id: 't2', title: 'Chamado 2' }),
+          makeTicket({ id: 't3', title: 'Chamado 3' }),
+          makeTicket({ id: 't4', title: 'Chamado 4' }),
+        ],
+      }),
+    );
+
+    render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
+
+    const framedCards = screen.UNSAFE_getAllByType(Card).filter((card) => card.props.framed);
+    expect(framedCards).toHaveLength(3);
+    expect(screen.queryByText('Chamado 4')).toBeNull();
   });
 
   it('anchors the FAB to the bottom edge when there are tickets', () => {
