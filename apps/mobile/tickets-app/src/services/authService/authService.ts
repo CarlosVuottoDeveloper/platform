@@ -3,6 +3,7 @@ import {
   signInWithCredential,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
   sendPasswordResetEmail,
   signOut,
 } from 'firebase/auth';
@@ -16,6 +17,7 @@ import {
   serverTimestamp,
   setDoc,
   where,
+  type DocumentData,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { initializeApp, deleteApp, FirebaseError } from 'firebase/app';
@@ -26,17 +28,44 @@ import type { User, UserRole } from '../../domain/user';
 
 GoogleSignin.configure({ webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID });
 
+function toUser(uid: string, email: string, data: DocumentData): User {
+  return {
+    uid,
+    email,
+    name: (data.name ?? email) as string,
+    role: (data.role ?? 'standard') as UserRole,
+    workspaceId: (data.workspace_id ?? '') as string,
+  };
+}
+
+export async function getUserProfile(uid: string, email: string): Promise<User | null> {
+  const snap = await getDoc(doc(db, 'users', uid));
+  if (!snap.exists()) return null;
+  return toUser(uid, email, snap.data());
+}
+
+export function subscribeToAuthUser(
+  onChange: (user: User | null) => void,
+  onError: () => void,
+): Unsubscribe {
+  return onAuthStateChanged(auth, async (firebaseUser) => {
+    if (!firebaseUser) {
+      onChange(null);
+      return;
+    }
+    try {
+      onChange(await getUserProfile(firebaseUser.uid, firebaseUser.email ?? ''));
+    } catch {
+      onError();
+    }
+  });
+}
+
 export async function login(email: string, password: string): Promise<User> {
   const { user } = await signInWithEmailAndPassword(auth, email, password);
-  const snap = await getDoc(doc(db, 'users', user.uid));
-  const data = snap.data();
-  return {
-    uid: user.uid,
-    email: user.email ?? email,
-    name: (data?.name ?? user.email ?? email) as string,
-    role: (data?.role ?? 'standard') as UserRole,
-    workspaceId: (data?.workspace_id ?? '') as string,
-  };
+  const profile = await getUserProfile(user.uid, user.email ?? email);
+  if (!profile) throw new Error('Perfil não encontrado. Fale com o administrador do workspace.');
+  return profile;
 }
 
 async function foundWorkspace(uid: string, email: string, name: string): Promise<User> {
@@ -75,19 +104,8 @@ export async function loginWithGoogle(): Promise<User | null> {
   const { user } = await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
   const email = user.email ?? googleUser.email;
 
-  const snap = await getDoc(doc(db, 'users', user.uid));
-  if (!snap.exists()) {
-    return foundWorkspace(user.uid, email, googleUser.name?.trim() || email);
-  }
-
-  const data = snap.data();
-  return {
-    uid: user.uid,
-    email,
-    name: (data.name ?? email) as string,
-    role: (data.role ?? 'standard') as UserRole,
-    workspaceId: (data.workspace_id ?? '') as string,
-  };
+  const profile = await getUserProfile(user.uid, email);
+  return profile ?? foundWorkspace(user.uid, email, googleUser.name?.trim() || email);
 }
 
 export async function createUser(

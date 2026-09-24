@@ -6,15 +6,18 @@ import {
   sendPasswordResetEmail,
   signOut,
   getAuth,
+  onAuthStateChanged,
 } from 'firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { collection, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
 import { initializeApp, deleteApp, FirebaseError } from 'firebase/app';
 import { auth as authMock, db as dbMock, firebaseConfig as firebaseConfigMock } from '../firebase';
 import {
+  getUserProfile,
   login,
   loginWithGoogle,
   register,
+  subscribeToAuthUser,
   createUser,
   logout,
   sendPasswordReset,
@@ -37,6 +40,7 @@ jest.mock('firebase/auth', () => ({
   sendPasswordResetEmail: jest.fn(),
   signOut: jest.fn(),
   getAuth: jest.fn(),
+  onAuthStateChanged: jest.fn(),
 }));
 
 jest.mock('firebase/firestore', () => ({
@@ -66,6 +70,7 @@ const mockSignOut = signOut as jest.Mock;
 const mockSignInWithCredential = signInWithCredential as jest.Mock;
 const mockGoogleCredential = GoogleAuthProvider.credential as jest.Mock;
 const mockGetAuth = getAuth as jest.Mock;
+const mockOnAuthStateChanged = onAuthStateChanged as jest.Mock;
 
 const mockCollection = collection as jest.Mock;
 const mockDoc = doc as jest.Mock;
@@ -86,6 +91,7 @@ describe('login', () => {
   it('signs in with firebase and returns a User built from the users/{uid} document', async () => {
     mockSignIn.mockResolvedValue({ user: { uid: 'u1', email: 'user@test.com' } });
     mockGetDoc.mockResolvedValue({
+      exists: () => true,
       data: () => ({ name: 'Alice', role: 'admin', workspace_id: 'ws-1' }),
     });
 
@@ -102,24 +108,18 @@ describe('login', () => {
     });
   });
 
-  it('falls back to defaults when the users document has no data', async () => {
+  it('rejects when the account has no users/{uid} profile instead of returning an empty workspace', async () => {
     mockSignIn.mockResolvedValue({ user: { uid: 'u2', email: 'user2@test.com' } });
-    mockGetDoc.mockResolvedValue({ data: () => undefined });
+    mockGetDoc.mockResolvedValue({ exists: () => false, data: () => undefined });
 
-    const result = await login('user2@test.com', 'secret');
-
-    expect(result).toEqual({
-      uid: 'u2',
-      email: 'user2@test.com',
-      name: 'user2@test.com',
-      role: 'standard',
-      workspaceId: '',
-    });
+    await expect(login('user2@test.com', 'secret')).rejects.toThrow(
+      'Perfil não encontrado. Fale com o administrador do workspace.',
+    );
   });
 
   it('falls back to the provided login email when the firebase user has none', async () => {
     mockSignIn.mockResolvedValue({ user: { uid: 'u3', email: null } });
-    mockGetDoc.mockResolvedValue({ data: () => undefined });
+    mockGetDoc.mockResolvedValue({ exists: () => true, data: () => ({}) });
 
     const result = await login('typed@test.com', 'secret');
 
@@ -482,6 +482,129 @@ describe('subscribeToUsers', () => {
       { uid: 'u1', email: 'a@test.com', name: 'A', role: 'admin', workspaceId: 'ws-1' },
       { uid: 'u2', email: '', name: '', role: 'standard', workspaceId: '' },
     ]);
+  });
+});
+
+describe('getUserProfile', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('maps the users/{uid} document to a User', async () => {
+    mockGetDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ name: 'Alice', role: 'admin', workspace_id: 'ws-1' }),
+    });
+
+    const result = await getUserProfile('u1', 'alice@test.com');
+
+    expect(mockDoc).toHaveBeenCalledWith(dbMock, 'users', 'u1');
+    expect(result).toEqual({
+      uid: 'u1',
+      email: 'alice@test.com',
+      name: 'Alice',
+      role: 'admin',
+      workspaceId: 'ws-1',
+    });
+  });
+
+  it('falls back to the e-mail as name and to the standard role when fields are missing', async () => {
+    mockGetDoc.mockResolvedValue({ exists: () => true, data: () => ({ workspace_id: 'ws-1' }) });
+
+    const result = await getUserProfile('u1', 'alice@test.com');
+
+    expect(result).toEqual({
+      uid: 'u1',
+      email: 'alice@test.com',
+      name: 'alice@test.com',
+      role: 'standard',
+      workspaceId: 'ws-1',
+    });
+  });
+
+  it('returns null when the account has no profile document yet', async () => {
+    mockGetDoc.mockResolvedValue({ exists: () => false, data: () => undefined });
+
+    await expect(getUserProfile('u1', 'alice@test.com')).resolves.toBeNull();
+  });
+});
+
+describe('subscribeToAuthUser', () => {
+  const onChange = jest.fn();
+  const onError = jest.fn();
+
+  function fireAuthChange(firebaseUser: { uid: string; email: string | null } | null) {
+    const listener = mockOnAuthStateChanged.mock.calls[0]?.[1];
+    return listener(firebaseUser);
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockOnAuthStateChanged.mockReturnValue(jest.fn());
+  });
+
+  it('listens to the shared auth instance and returns its unsubscribe', () => {
+    const unsubscribe = jest.fn();
+    mockOnAuthStateChanged.mockReturnValue(unsubscribe);
+
+    expect(subscribeToAuthUser(onChange, onError)).toBe(unsubscribe);
+    expect(mockOnAuthStateChanged).toHaveBeenCalledWith(authMock, expect.any(Function));
+  });
+
+  it('publishes null when there is no signed-in user', async () => {
+    subscribeToAuthUser(onChange, onError);
+
+    await fireAuthChange(null);
+
+    expect(onChange).toHaveBeenCalledWith(null);
+    expect(mockGetDoc).not.toHaveBeenCalled();
+  });
+
+  it('publishes the profile of the signed-in user', async () => {
+    mockGetDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ name: 'Ana', role: 'standard', workspace_id: 'ws-1' }),
+    });
+    subscribeToAuthUser(onChange, onError);
+
+    await fireAuthChange({ uid: 'u1', email: 'ana@test.com' });
+
+    expect(onChange).toHaveBeenCalledWith({
+      uid: 'u1',
+      email: 'ana@test.com',
+      name: 'Ana',
+      role: 'standard',
+      workspaceId: 'ws-1',
+    });
+  });
+
+  it('publishes null while the signed-in account still has no profile document', async () => {
+    mockGetDoc.mockResolvedValue({ exists: () => false, data: () => undefined });
+    subscribeToAuthUser(onChange, onError);
+
+    await fireAuthChange({ uid: 'u-new', email: 'new@test.com' });
+
+    expect(onChange).toHaveBeenCalledWith(null);
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it('uses an empty e-mail when the auth user has none', async () => {
+    mockGetDoc.mockResolvedValue({ exists: () => true, data: () => ({ workspace_id: 'ws-1' }) });
+    subscribeToAuthUser(onChange, onError);
+
+    await fireAuthChange({ uid: 'u1', email: null });
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ email: '', name: '' }));
+  });
+
+  it('reports an error instead of publishing when the profile fetch fails', async () => {
+    mockGetDoc.mockRejectedValue(new Error('network down'));
+    subscribeToAuthUser(onChange, onError);
+
+    await fireAuthChange({ uid: 'u1', email: 'ana@test.com' });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -1,4 +1,5 @@
 import { act, waitFor } from '@testing-library/react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { render, screen, fireEvent } from '../../test-utils';
 import { createTicket } from '../../services/ticketService';
@@ -7,6 +8,14 @@ import type { User } from '../../domain/user';
 import type { AppStackParamList } from '../../navigation/types';
 import { NewTicket } from './NewTicket';
 
+jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter', () =>
+  jest.fn().mockImplementation(() => ({
+    addListener: jest.fn(() => ({ remove: jest.fn() })),
+    removeListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+    emit: jest.fn(),
+  })),
+);
 jest.mock('../../services/ticketService');
 jest.mock('../../services/authService');
 jest.mock('../../services/firebase', () => ({ auth: {}, db: {} }));
@@ -235,5 +244,14 @@ describe('NewTicket', () => {
       adminUser,
     );
     expect(goBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the form above the keyboard with a keyboard avoiding view', () => {
+    renderNewTicket();
+
+    const avoidingView = screen.UNSAFE_getByType(KeyboardAvoidingView);
+
+    expect(avoidingView.props.behavior).toBe(Platform.OS === 'ios' ? 'padding' : 'height');
+    expect(avoidingView.props.keyboardVerticalOffset).toBeUndefined();
   });
 });
