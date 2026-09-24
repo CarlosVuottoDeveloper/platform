@@ -16,5 +16,5 @@ export const styles = StyleSheet.create({
   commentAuthor: { fontSize: 14, fontWeight: '500' },
   commentDate: { fontSize: 10 },
   commentText: { fontSize: fontSize.body },
-  deleteButton: { alignSelf: 'flex-start' },
+  deleteButton: { alignSelf: 'flex-start', borderWidth: 0 },
 });

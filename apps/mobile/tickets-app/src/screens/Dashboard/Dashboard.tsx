@@ -63,33 +63,26 @@ function RecentTicketsCard({
   onPressTicket: (id: string) => void;
 }) {
   const { colors } = useTheme();
-  const recent = tickets.slice(0, 3);
   return (
-    <Card framed>
-      {recent.map((t, i) => (
-        <Pressable
-          key={t.id}
-          onPress={() => onPressTicket(t.id)}
-          style={[
-            styles.recentItem,
-            { borderBottomColor: colors.divider },
-            i === recent.length - 1 && { borderBottomWidth: 0 },
-          ]}
-        >
-          <View style={styles.recentHeader}>
-            <Text style={[styles.recentTitle, { color: colors.text }]}>{t.title}</Text>
-            <Badge tone={PRIORITY_TONES[t.priority]} solid={isPriorityMaximum(t.priority)}>
-              {PRIORITY_LABELS[t.priority]}
-            </Badge>
-          </View>
-          <Text style={[styles.recentMeta, { color: alpha(colors.text, 70) }]}>
-            {t.creatorName}
-            {t.createdAt ? ` · ${formatDayMonth(t.createdAt)}` : ''} ·{' '}
-            {t.assigneeName ?? 'não designado'}
-          </Text>
+    <View style={styles.recentList}>
+      {tickets.slice(0, 3).map((t) => (
+        <Pressable key={t.id} onPress={() => onPressTicket(t.id)}>
+          <Card framed style={styles.recentItem}>
+            <View style={styles.recentHeader}>
+              <Text style={[styles.recentTitle, { color: colors.text }]}>{t.title}</Text>
+              <Badge tone={PRIORITY_TONES[t.priority]} solid={isPriorityMaximum(t.priority)}>
+                {PRIORITY_LABELS[t.priority]}
+              </Badge>
+            </View>
+            <Text style={[styles.recentMeta, { color: alpha(colors.text, 50) }]}>
+              {t.creatorName}
+              {t.createdAt ? ` · ${formatDayMonth(t.createdAt)}` : ''} ·{' '}
+              {t.assigneeName ?? 'não designado'}
+            </Text>
+          </Card>
         </Pressable>
       ))}
-    </Card>
+    </View>
   );
 }
 
