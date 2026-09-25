@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <g id="ticket">
+    <rect x="296" y="196" width="432" height="632" fill="none" stroke="#86a8cc" stroke-width="3"/>
+    <path d="M280 196 H312 M296 180 V212" stroke="#86a8cc" stroke-width="3"/>
+    <path d="M712 196 H744 M728 180 V212" stroke="#86a8cc" stroke-width="3"/>
+    <path d="M280 828 H312 M296 812 V844" stroke="#86a8cc" stroke-width="3"/>
+    <path d="M712 828 H744 M728 812 V844" stroke="#86a8cc" stroke-width="3"/>
+    <path d="M312 212 H712 V468 A44 44 0 0 0 712 556 V812 H312 V556 A44 44 0 0 0 312 468 Z" fill="#e6e9ec"/>
+    <circle cx="512" cy="432" r="120" fill="none" stroke="#7ea9d5" stroke-width="44" stroke-dasharray="376.99 753.98" stroke-dashoffset="0.00" transform="rotate(-90 512 432)"/>
+    <circle cx="512" cy="432" r="120" fill="none" stroke="#b4a46a" stroke-width="44" stroke-dasharray="226.19 753.98" stroke-dashoffset="-376.99" transform="rotate(-90 512 432)"/>
+    <circle cx="512" cy="432" r="120" fill="none" stroke="#77b493" stroke-width="44" stroke-dasharray="150.80 753.98" stroke-dashoffset="-603.19" transform="rotate(-90 512 432)"/>
+    <rect x="372" y="616" width="280" height="20" fill="#86a8cc"/>
+    <rect x="372" y="668" width="200" height="20" fill="#86a8cc"/>
+    <rect x="372" y="720" width="140" height="20" fill="#86a8cc"/>
+    <rect x="592" y="700" width="60" height="60" fill="#86a8cc"/>
+    <path d="M604 731 L618 745 L640 717" fill="none" stroke="#14161a" stroke-width="9" stroke-linecap="square"/>
+  </g>
+</svg>
