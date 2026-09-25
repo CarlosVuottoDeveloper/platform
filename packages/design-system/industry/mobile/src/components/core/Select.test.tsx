@@ -1,5 +1,11 @@
 import { fireEvent, render } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import { space } from '@industry/tokens';
 import { Select } from './Select';
+
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 34, left: 0, right: 0 }),
+}));
 
 const OPTIONS = ['a', 'b'];
 
@@ -125,5 +131,17 @@ describe('Select', () => {
     );
 
     expect(getByTestId('status-select').props.accessibilityState).toMatchObject({ disabled: true });
+  });
+
+  it('pads the option panel by the bottom safe area so the last option clears the navigation bar', () => {
+    const { getByTestId } = render(
+      <Select options={OPTIONS} testID="status-select" onValueChange={jest.fn()} />,
+    );
+
+    fireEvent.press(getByTestId('status-select'));
+
+    expect(StyleSheet.flatten(getByTestId('status-select-panel').props.style).paddingBottom).toBe(
+      space[2] + 34,
+    );
   });
 });

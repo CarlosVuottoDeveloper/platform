@@ -6,6 +6,14 @@ import type { User } from '../../domain/user';
 import type { AppStackParamList } from '../../navigation/types';
 import { CreateUser } from './CreateUser';
 
+jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter', () =>
+  jest.fn().mockImplementation(() => ({
+    addListener: jest.fn(() => ({ remove: jest.fn() })),
+    removeListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+    emit: jest.fn(),
+  })),
+);
 jest.mock('../../services/authService');
 jest.mock('../../services/firebase', () => ({ auth: {}, db: {} }));
 
