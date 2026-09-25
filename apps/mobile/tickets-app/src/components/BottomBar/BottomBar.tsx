@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@industry/mobile';
 import { space } from '@industry/tokens';
+import { useKeyboardVisible } from '../../hooks/useKeyboardVisible';
 
 export interface BottomBarProps {
   children: ReactNode;
@@ -13,6 +14,7 @@ export interface BottomBarProps {
 export function BottomBar({ children, testID }: BottomBarProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const keyboardVisible = useKeyboardVisible();
 
   return (
     <View
@@ -25,7 +27,7 @@ export function BottomBar({ children, testID }: BottomBarProps) {
         backgroundColor: colors.bg,
         paddingTop: space[3],
         paddingHorizontal: space[6],
-        paddingBottom: 20 + insets.bottom,
+        paddingBottom: keyboardVisible ? space[3] : 20 + insets.bottom,
       }}
     >
       {children}

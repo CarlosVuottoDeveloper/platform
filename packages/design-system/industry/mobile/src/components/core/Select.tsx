@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FlatList, Modal, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { alpha, color, control, danger, semanticColor, space } from '@industry/tokens';
@@ -41,6 +42,7 @@ export function Select({
   testID,
 }: SelectProps) {
   const [open, setOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const normalized = options.map(resolveOption);
   const selected = normalized.find((o) => o.value === value);
   const borderColor = error ? semanticColor.danger : color.divider;
@@ -87,12 +89,14 @@ export function Select({
           style={{ flex: 1, backgroundColor: alpha(color.bg, 70), justifyContent: 'flex-end' }}
         >
           <View
+            testID={testID ? `${testID}-panel` : undefined}
             style={{
               backgroundColor: color.surface,
               borderTopWidth: 1,
               borderColor: color.divider,
               maxHeight: '60%',
-              paddingVertical: space[2],
+              paddingTop: space[2],
+              paddingBottom: space[2] + insets.bottom,
             }}
           >
             <FlatList
