@@ -81,6 +81,9 @@ export type {
   PieChartSlice,
 } from './PieChart';
 
+export { RingProgress } from './RingProgress';
+export type { RingProgressProps } from './RingProgress';
+
 export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonVariant, IconButtonSize } from './IconButton';
 
