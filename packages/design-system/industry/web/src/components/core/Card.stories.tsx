@@ -29,11 +29,3 @@ export const Elevated: Story = {
     </div>
   ),
 };
-
-export const Framed: Story = {
-  render: () => (
-    <div style={{ width: 320 }}>
-      <Card title="Card com marcas blueprint" framed body="Marcas de canto no estilo Frame." />
-    </div>
-  ),
-};

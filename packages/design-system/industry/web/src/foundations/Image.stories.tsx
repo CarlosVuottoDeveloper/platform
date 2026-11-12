@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Frame, Duotone } from '../components/core';
+import { Duotone } from '../components/core';
 
 const meta: Meta = {
   title: 'Foundations/Image',
@@ -11,7 +11,7 @@ type Story = StoryObj;
 export const DuotoneTreatment: Story = {
   render: () => (
     <figure style={{ margin: 0, maxWidth: 320 }}>
-      <Frame>
+      <div style={{ border: '1px solid var(--color-divider)' }}>
         <Duotone>
           <div
             style={{
@@ -21,7 +21,7 @@ export const DuotoneTreatment: Story = {
             }}
           />
         </Duotone>
-      </Frame>
+      </div>
       <figcaption
         style={{
           fontSize: 12,

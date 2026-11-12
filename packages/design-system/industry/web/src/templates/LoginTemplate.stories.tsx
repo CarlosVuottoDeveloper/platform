@@ -24,7 +24,7 @@ function LoginScreen() {
         padding: 'var(--space-5)',
       }}
     >
-      <Card framed style={{ width: 360 }}>
+      <Card style={{ width: 360 }}>
         <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
           <div>
             <h1 style={{ margin: 0, fontFamily: 'var(--font-heading)', fontSize: 22 }}>Entrar</h1>

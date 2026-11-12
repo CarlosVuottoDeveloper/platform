@@ -1,5 +1,4 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
-import { BlueprintMarks } from './BlueprintMarks';
 
 export type CardElevation = 'sm' | 'md' | 'lg';
 
@@ -9,7 +8,6 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'style' 
   body?: ReactNode;
   meta?: ReactNode;
   elevation?: CardElevation;
-  framed?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
 }
@@ -26,7 +24,6 @@ export function Card({
   body,
   meta,
   elevation,
-  framed,
   children,
   style,
   ...rest
@@ -34,7 +31,6 @@ export function Card({
   return (
     <div
       style={{
-        position: framed ? 'relative' : undefined,
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-2)',
@@ -47,7 +43,6 @@ export function Card({
       }}
       {...rest}
     >
-      {framed ? <BlueprintMarks /> : null}
       {kicker ? (
         <div
           style={{

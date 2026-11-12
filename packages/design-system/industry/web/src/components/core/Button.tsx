@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
-import { BlueprintMarks } from './BlueprintMarks';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -9,13 +8,25 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   variant?: ButtonVariant;
   size?: ButtonSize;
   block?: boolean;
-  framed?: boolean;
+  selected?: boolean;
   iconOnly?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
 }
 
-function skin(variant: ButtonVariant, hovered: boolean, pressed: boolean): CSSProperties {
+function skin(
+  variant: ButtonVariant,
+  hovered: boolean,
+  pressed: boolean,
+  selected: boolean,
+): CSSProperties {
+  if (selected) {
+    return {
+      color: 'var(--color-text)',
+      borderColor: 'var(--color-accent-400)',
+      background: `color-mix(in srgb, var(--color-accent) ${pressed ? 28 : hovered ? 22 : 16}%, transparent)`,
+    };
+  }
   if (variant === 'primary') {
     return {
       background: pressed
@@ -66,7 +77,7 @@ export function Button({
   variant = 'secondary',
   size = 'md',
   block,
-  framed,
+  selected,
   iconOnly,
   disabled,
   children,
@@ -81,6 +92,7 @@ export function Button({
     <button
       type="button"
       disabled={disabled}
+      aria-pressed={selected === undefined ? undefined : selected}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => {
         setHovered(false);
@@ -89,7 +101,6 @@ export function Button({
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}
       style={{
-        position: framed ? 'relative' : undefined,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -107,12 +118,11 @@ export function Button({
         padding: iconOnly ? 0 : size === 'sm' ? '0 var(--space-3)' : '0 var(--space-4)',
         opacity: disabled ? 0.45 : 1,
         transition: 'background 120ms ease, border-color 120ms ease',
-        ...skin(variant, hovered && !disabled, pressed && !disabled),
+        ...skin(variant, hovered && !disabled, pressed && !disabled, Boolean(selected)),
         ...style,
       }}
       {...rest}
     >
-      {framed ? <BlueprintMarks /> : null}
       {children}
     </button>
   );

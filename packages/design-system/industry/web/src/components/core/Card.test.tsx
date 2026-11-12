@@ -26,16 +26,4 @@ describe('Card', () => {
 
     expect(screen.getByText('Só título')).toBeInTheDocument();
   });
-
-  it('renders blueprint corner marks when framed', () => {
-    const { container } = render(<Card title="Framed" framed />);
-
-    expect(container.querySelectorAll('[data-frame-corner]')).toHaveLength(4);
-  });
-
-  it('does not render corner marks by default', () => {
-    const { container } = render(<Card title="Sem marcas" />);
-
-    expect(container.querySelectorAll('[data-frame-corner]')).toHaveLength(0);
-  });
 });

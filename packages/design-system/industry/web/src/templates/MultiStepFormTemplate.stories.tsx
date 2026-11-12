@@ -26,7 +26,7 @@ function MultiStepFormScreen() {
         padding: 'var(--space-5)',
       }}
     >
-      <Card framed style={{ width: 420 }}>
+      <Card style={{ width: 420 }}>
         <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
           <Stepper steps={STEPS} current={step} />
 
