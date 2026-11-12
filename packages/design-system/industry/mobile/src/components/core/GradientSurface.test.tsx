@@ -76,4 +76,18 @@ describe('GradientSurface', () => {
       borderRadius: 4,
     });
   });
+
+  it('forwards the remaining view props to its view', () => {
+    const onStartShouldSetResponder = jest.fn(() => true);
+    render(
+      <GradientSurface
+        testID="s"
+        accessibilityLabel="superfície"
+        onStartShouldSetResponder={onStartShouldSetResponder}
+      />,
+    );
+    const view = screen.getByTestId('s');
+    expect(view.props.accessibilityLabel).toBe('superfície');
+    expect(view.props.onStartShouldSetResponder).toBe(onStartShouldSetResponder);
+  });
 });

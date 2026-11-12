@@ -15,7 +15,7 @@ export interface MenuItem {
 export interface MenuProps {
   /** Usually a `<Button>` or `<IconButton>` — receives the press that opens the menu. */
   trigger: ReactNode;
-  /** Small uppercase label above the items, e.g. a group heading like "Período". */
+  /** Small label above the items, e.g. a group heading like "Período". */
   header?: string;
   items?: MenuItem[];
   open?: boolean;
@@ -84,37 +84,35 @@ export function Menu({
                 minWidth: 200,
                 backgroundColor: color.surface2,
                 borderRadius: radii.md,
+                overflow: 'hidden',
+                paddingVertical: space[1],
               },
               shadow.md,
             ]}
           >
-            <View style={{ paddingVertical: space[1], borderRadius: radii.md, overflow: 'hidden' }}>
-              {header ? (
-                <Text
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: 1.1,
-                    textTransform: 'uppercase',
-                    color: alpha(color.text, 50),
-                    paddingHorizontal: space[4],
-                    paddingTop: space[2],
-                    paddingBottom: space[1],
-                  }}
-                >
-                  {header}
-                </Text>
-              ) : null}
-              {items.map((item, index) => (
-                <MenuItemRow
-                  key={item.key ?? index}
-                  item={item}
-                  onSelect={() => {
-                    item.onSelect?.();
-                    setOpen(false);
-                  }}
-                />
-              ))}
-            </View>
+            {header ? (
+              <Text
+                style={{
+                  fontSize: 11,
+                  color: alpha(color.text, 50),
+                  paddingHorizontal: space[4],
+                  paddingTop: space[2],
+                  paddingBottom: space[1],
+                }}
+              >
+                {header}
+              </Text>
+            ) : null}
+            {items.map((item, index) => (
+              <MenuItemRow
+                key={item.key ?? index}
+                item={item}
+                onSelect={() => {
+                  item.onSelect?.();
+                  setOpen(false);
+                }}
+              />
+            ))}
           </View>
         </Pressable>
       </Modal>
@@ -137,7 +135,7 @@ function MenuItemRow({ item, onSelect }: { item: MenuItem; onSelect: () => void 
         backgroundColor: item.selected
           ? alpha(color.accent, 22)
           : pressed
-            ? color.surface2
+            ? alpha(color.text, 8)
             : 'transparent',
         opacity: item.disabled ? 0.5 : 1,
       })}

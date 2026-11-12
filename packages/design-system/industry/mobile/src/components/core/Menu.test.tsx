@@ -255,5 +255,35 @@ describe('Menu', () => {
     const style = StyleSheet.flatten(getByTestId('menu-panel').props.style);
     expect(style.borderRadius).toBe(radii.md);
     expect(style.backgroundColor).toBe(color.surface2);
+    expect(style.overflow).toBe('hidden');
+    expect(style.shadowOpacity).toBeDefined();
+  });
+
+  it('shows a pressed row on a background distinct from the panel', () => {
+    const { getByTestId } = render(
+      <Menu trigger={<Text>Ações</Text>} items={ITEMS} testID="menu" />,
+    );
+
+    fireEvent.press(getByTestId('menu'));
+    fireEvent(getByTestId('menu-item-edit'), 'responderGrant', {
+      nativeEvent: { touches: [], changedTouches: [], timestamp: 0 },
+      persist: jest.fn(),
+    });
+
+    const pressed = getByTestId('menu-item-edit').props.style.backgroundColor;
+    expect(pressed).toBe(alpha(color.text, 8));
+    expect(pressed).not.toBe(color.surface2);
+  });
+
+  it('renders the header without caps or tracking', () => {
+    const { getByTestId, getByText } = render(
+      <Menu trigger={<Text>Ações</Text>} header="Período" items={ITEMS} testID="menu" />,
+    );
+
+    fireEvent.press(getByTestId('menu'));
+
+    const style = StyleSheet.flatten(getByText('Período').props.style);
+    expect(style.textTransform).toBeUndefined();
+    expect(style.letterSpacing).toBeUndefined();
   });
 });

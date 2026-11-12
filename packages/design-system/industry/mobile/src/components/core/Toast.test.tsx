@@ -61,4 +61,26 @@ describe('Toast', () => {
     expect(style.borderRadius).toBe(radii.md);
     expect(style.backgroundColor).toBe(color.surface2);
   });
+
+  it.each([
+    ['accent', color.accent],
+    ['success', semanticColor.success],
+    ['warning', semanticColor.warning],
+    ['danger', semanticColor.danger],
+  ] as const)('marks the %s tone with a left bar in the tone color', (tone, expected) => {
+    const { getByTestId } = render(<Toast tone={tone} title="Aviso" />);
+
+    const bar = StyleSheet.flatten(getByTestId('toast-tone').props.style);
+    expect(bar.backgroundColor).toBe(expected);
+    expect(bar.width).toBe(3);
+  });
+
+  it('keeps a uniform divider border and clips the tone bar', () => {
+    const { toJSON } = render(<Toast title="Salvo" />);
+
+    const style = StyleSheet.flatten((toJSON() as ReactTestRendererJSON).props.style);
+    expect(style.overflow).toBe('hidden');
+    expect(style.borderLeftWidth).toBeUndefined();
+    expect(style.borderColor).toBe(color.divider);
+  });
 });

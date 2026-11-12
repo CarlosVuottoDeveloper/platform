@@ -111,4 +111,14 @@ describe('Accordion', () => {
     const section = root.children?.[0] as ReactTestRendererJSON;
     expect(StyleSheet.flatten(section.props.style).borderColor).toBe(color.divider);
   });
+
+  it('draws no divider under the last section', () => {
+    render(<Accordion items={ITEMS} testID="acc" />);
+
+    const root = screen.toJSON() as ReactTestRendererJSON;
+    const widths = (root.children as ReactTestRendererJSON[]).map(
+      (section) => StyleSheet.flatten(section.props.style).borderBottomWidth,
+    );
+    expect(widths).toEqual([1, 1, 0]);
+  });
 });

@@ -1,16 +1,14 @@
 import { View } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
+import type { ViewProps } from 'react-native';
 import type { ReactNode } from 'react';
 import { glow as glowToken, gradient, radii } from '@industry/tokens';
 import type { GradientName } from '@industry/tokens';
 
-export interface GradientSurfaceProps {
+export interface GradientSurfaceProps extends ViewProps {
   variant?: GradientName;
   radius?: number;
   glow?: boolean;
   children?: ReactNode;
-  style?: StyleProp<ViewStyle>;
-  testID?: string;
 }
 
 export function GradientSurface({
@@ -19,12 +17,12 @@ export function GradientSurface({
   glow = false,
   children,
   style,
-  testID,
+  ...viewProps
 }: GradientSurfaceProps) {
   const { colors, angle } = gradient[variant];
   return (
     <View
-      testID={testID}
+      {...viewProps}
       style={[
         {
           borderRadius: radius,

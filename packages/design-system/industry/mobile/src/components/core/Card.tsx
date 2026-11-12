@@ -27,7 +27,7 @@ export function Card({ kicker, title, body, meta, elevation, children, style, te
           gap: space[2],
           padding: space[4],
           borderWidth: 1,
-          borderColor: alpha(color.text, 8),
+          borderColor: color.divider,
         },
         elevation ? shadow[elevation] : null,
         style,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { GestureResponderEvent, PressableProps, StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, radii, space } from '@industry/tokens';
+import { alpha, color, space } from '@industry/tokens';
 
 export interface ListRowProps extends Omit<PressableProps, 'style' | 'children'> {
   /** Leading slot — icon or avatar. */
@@ -49,9 +49,8 @@ export function ListRow({
           paddingHorizontal: space[4],
           paddingVertical: space[3],
           borderBottomWidth: 1,
-          borderRadius: radii.md,
           borderBottomColor: color.divider,
-          backgroundColor: pressed ? color.surface2 : color.surface,
+          backgroundColor: pressed ? alpha(color.text, 5) : 'transparent',
         },
         style,
       ]}

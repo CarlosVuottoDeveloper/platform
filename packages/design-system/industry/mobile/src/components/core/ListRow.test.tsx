@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
-import { color, radii } from '@industry/tokens';
+import { alpha, color } from '@industry/tokens';
 import { ListRow } from './ListRow';
 
 describe('ListRow', () => {
@@ -52,20 +52,23 @@ describe('ListRow', () => {
     expect(queryByText('Meta')).toBeNull();
   });
 
-  it('is a rounded surface row with a divider', () => {
+  it('is a flat transparent row with a straight divider', () => {
     const { getByTestId } = render(<ListRow title="Título" testID="row" />);
 
     const style = StyleSheet.flatten(getByTestId('row').props.style);
-    expect(style.borderRadius).toBe(radii.md);
-    expect(style.backgroundColor).toBe(color.surface);
+    expect(style.borderRadius).toBeUndefined();
+    expect(style.backgroundColor).toBe('transparent');
+    expect(style.borderBottomWidth).toBe(1);
     expect(style.borderBottomColor).toBe(color.divider);
   });
 
-  it('tints the row with surface2 while pressed', () => {
+  it('tints the row while pressed', () => {
     const { getByTestId } = render(<ListRow title="Título" testID="row" onPress={jest.fn()} />);
 
     fireEvent(getByTestId('row'), 'pressIn');
 
-    expect(StyleSheet.flatten(getByTestId('row').props.style).backgroundColor).toBe(color.surface2);
+    expect(StyleSheet.flatten(getByTestId('row').props.style).backgroundColor).toBe(
+      alpha(color.text, 5),
+    );
   });
 });

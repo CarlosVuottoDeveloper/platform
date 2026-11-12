@@ -35,48 +35,48 @@ export function Sheet({
         onPress={onDismiss}
         style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: alpha(color.bg, 60) }}
       >
-        <View testID={testID} onStartShouldSetResponder={() => true} style={shadow.lg}>
-          <GradientSurface
-            variant="surface"
-            testID={testID ? `${testID}-surface` : undefined}
-            style={[
-              {
-                gap: space[3],
-                paddingHorizontal: space[4],
-                paddingTop: space[3],
-                paddingBottom: space[6] + insets.bottom,
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
-                borderWidth: 1,
-                borderColor: alpha(color.text, 8),
-              },
-              style,
-            ]}
-          >
-            <View
+        <GradientSurface
+          variant="surface"
+          testID={testID}
+          onStartShouldSetResponder={() => true}
+          style={[
+            {
+              gap: space[3],
+              paddingHorizontal: space[4],
+              paddingTop: space[3],
+              paddingBottom: space[6] + insets.bottom,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+              borderWidth: 1,
+              borderColor: color.divider,
+            },
+            shadow.lg,
+            style,
+          ]}
+        >
+          <View
+            style={{
+              width: 44,
+              height: 3,
+              backgroundColor: color.dividerStrong,
+              alignSelf: 'center',
+            }}
+          />
+          {title ? (
+            <Text
               style={{
-                width: 44,
-                height: 3,
-                backgroundColor: color.dividerStrong,
-                alignSelf: 'center',
+                fontFamily: fontFamily.heading,
+                fontWeight: fontWeight.heading,
+                fontSize: fontSize.h4,
+                color: color.text,
               }}
-            />
-            {title ? (
-              <Text
-                style={{
-                  fontFamily: fontFamily.heading,
-                  fontWeight: fontWeight.heading,
-                  fontSize: fontSize.h4,
-                  color: color.text,
-                }}
-              >
-                {title}
-              </Text>
-            ) : null}
-            {children}
-            {actions}
-          </GradientSurface>
-        </View>
+            >
+              {title}
+            </Text>
+          ) : null}
+          {children}
+          {actions}
+        </GradientSurface>
       </Pressable>
     </Modal>
   );

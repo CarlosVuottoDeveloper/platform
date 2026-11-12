@@ -50,10 +50,11 @@ export function Accordion({
         style,
       ]}
     >
-      {items.map((item) => (
+      {items.map((item, index) => (
         <AccordionSection
           key={item.key}
           item={item}
+          last={index === items.length - 1}
           open={openKeys.includes(item.key)}
           onToggle={() => toggle(item.key)}
           testID={testID ? `${testID}-${item.key}` : undefined}
@@ -65,17 +66,19 @@ export function Accordion({
 
 function AccordionSection({
   item,
+  last,
   open,
   onToggle,
   testID,
 }: {
   item: AccordionItem;
+  last: boolean;
   open: boolean;
   onToggle: () => void;
   testID?: string;
 }) {
   return (
-    <View style={{ borderBottomWidth: 1, borderColor: color.divider }}>
+    <View style={{ borderBottomWidth: last ? 0 : 1, borderColor: color.divider }}>
       <Pressable
         testID={testID}
         disabled={item.disabled}

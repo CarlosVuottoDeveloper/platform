@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
-import { alpha, color, gradient, radii } from '@industry/tokens';
+import { color, gradient, radii } from '@industry/tokens';
 import { Card } from './Card';
 
 describe('Card', () => {
@@ -58,7 +58,7 @@ describe('Card', () => {
     expect(style.borderRadius).toBe(radii.lg);
     expect(style.backgroundColor).toBe(gradient.surface.colors[0]);
     expect(style.borderWidth).toBe(1);
-    expect(style.borderColor).toBe(alpha(color.text, 8));
+    expect(style.borderColor).toBe(color.divider);
   });
 
   it('keeps the kicker in its original case', () => {
