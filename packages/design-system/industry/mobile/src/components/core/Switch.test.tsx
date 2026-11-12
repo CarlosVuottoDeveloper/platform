@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { color, neutral } from '@industry/tokens';
+import { color, glow, neutral, radii } from '@industry/tokens';
 import { Switch } from './Switch';
 
 describe('Switch', () => {
@@ -63,6 +63,25 @@ describe('Switch', () => {
 
     expect(getByTestId('switch-thumb').props.style).toMatchObject({
       backgroundColor: neutral['400'],
+    });
+  });
+
+  it('draws an off track on surface2 with a visible border and a glowless thumb', () => {
+    const { getByTestId } = render(<Switch label="Wifi" />);
+    expect(getByTestId('switch-track').props.style).toMatchObject({
+      backgroundColor: color.surface2,
+      borderColor: color.controlBorder,
+      borderRadius: radii.pill,
+    });
+    expect(getByTestId('switch-thumb').props.style).toMatchObject({ borderRadius: radii.pill });
+    expect(getByTestId('switch-thumb').props.style.boxShadow).toBeUndefined();
+  });
+
+  it('glows the accent thumb when on', () => {
+    const { getByTestId } = render(<Switch label="Wifi" defaultChecked />);
+    expect(getByTestId('switch-thumb').props.style).toMatchObject({
+      backgroundColor: color.accent,
+      boxShadow: glow.accent,
     });
   });
 });

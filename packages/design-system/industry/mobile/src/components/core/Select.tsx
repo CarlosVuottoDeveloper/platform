@@ -3,7 +3,16 @@ import { FlatList, Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { alpha, color, control, danger, semanticColor, space } from '@industry/tokens';
+import {
+  alpha,
+  color,
+  control,
+  danger,
+  fontSize,
+  radii,
+  semanticColor,
+  space,
+} from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface SelectOption {
@@ -45,12 +54,14 @@ export function Select({
   const insets = useSafeAreaInsets();
   const normalized = options.map(resolveOption);
   const selected = normalized.find((o) => o.value === value);
-  const borderColor = error ? semanticColor.danger : color.divider;
+  const borderColor = error ? semanticColor.danger : color.controlBorder;
   const close = () => setOpen(false);
 
   return (
     <View style={[{ gap: 6 }, style]}>
-      {label ? <Text style={{ fontSize: 13, color: alpha(color.text, 70) }}>{label}</Text> : null}
+      {label ? (
+        <Text style={{ fontSize: fontSize.h6, color: alpha(color.text, 70) }}>{label}</Text>
+      ) : null}
       <Pressable
         testID={testID}
         disabled={disabled}
@@ -66,11 +77,16 @@ export function Select({
           backgroundColor: color.surface,
           borderWidth: 1,
           borderColor,
+          borderRadius: radii.md,
           opacity: disabled ? 0.45 : 1,
         }}
       >
         <Text
-          style={{ flex: 1, fontSize: 15, color: selected ? color.text : alpha(color.text, 50) }}
+          style={{
+            flex: 1,
+            fontSize: fontSize.body,
+            color: selected ? color.text : alpha(color.text, 50),
+          }}
         >
           {selected?.label ?? placeholder}
         </Text>
@@ -94,6 +110,8 @@ export function Select({
               backgroundColor: color.surface,
               borderTopWidth: 1,
               borderColor: color.divider,
+              borderTopLeftRadius: radii.lg,
+              borderTopRightRadius: radii.lg,
               maxHeight: '60%',
               paddingTop: space[2],
               paddingBottom: space[2] + insets.bottom,
@@ -117,10 +135,11 @@ export function Select({
                       minHeight: control.tap,
                       justifyContent: 'center',
                       paddingHorizontal: space[4],
-                      backgroundColor: on ? alpha(color.accent, 16) : 'transparent',
+                      backgroundColor: on ? color.accent : 'transparent',
+                      borderRadius: radii.sm,
                     }}
                   >
-                    <Text style={{ fontSize: 15, color: on ? color.accent : color.text }}>
+                    <Text style={{ fontSize: fontSize.body, color: on ? color.bg : color.text }}>
                       {item.label}
                     </Text>
                   </Pressable>

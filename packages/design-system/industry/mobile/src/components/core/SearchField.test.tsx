@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { color } from '@industry/tokens';
+import { accentRamp, color, radii } from '@industry/tokens';
 import { SearchField } from './SearchField';
 
 describe('SearchField', () => {
@@ -13,20 +13,25 @@ describe('SearchField', () => {
     expect(getByPlaceholderText('Buscar tickets')).toBeTruthy();
   });
 
+  it('renders as a pill', () => {
+    const { getByPlaceholderText } = render(<SearchField />);
+    expect(getByPlaceholderText('Search').props.style).toMatchObject({ borderRadius: radii.pill });
+  });
+
   it('calls onFocus and onBlur and updates the border color accordingly', () => {
     const onFocus = jest.fn();
     const onBlur = jest.fn();
     const { getByPlaceholderText } = render(<SearchField onFocus={onFocus} onBlur={onBlur} />);
     const input = getByPlaceholderText('Search');
 
-    expect(input.props.style).toMatchObject({ borderColor: color.divider });
+    expect(input.props.style).toMatchObject({ borderColor: color.controlBorder });
 
     fireEvent(input, 'focus', { nativeEvent: {} });
     expect(onFocus).toHaveBeenCalled();
-    expect(input.props.style).toMatchObject({ borderColor: color.accent });
+    expect(input.props.style).toMatchObject({ borderColor: accentRamp['400'] });
 
     fireEvent(input, 'blur', { nativeEvent: {} });
     expect(onBlur).toHaveBeenCalled();
-    expect(input.props.style).toMatchObject({ borderColor: color.divider });
+    expect(input.props.style).toMatchObject({ borderColor: color.controlBorder });
   });
 });

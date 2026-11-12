@@ -2,7 +2,17 @@ import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import type { BlurEvent, FocusEvent, StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, control, semanticColor, danger, alpha, space } from '@industry/tokens';
+import {
+  accentRamp,
+  alpha,
+  color,
+  control,
+  danger,
+  fontSize,
+  radii,
+  semanticColor,
+  space,
+} from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
@@ -29,7 +39,11 @@ export function TextField({
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(secureTextEntry ?? true);
   const resolvedSecureTextEntry = secureToggle ? hidden : secureTextEntry;
-  const borderColor = error ? semanticColor.danger : focused ? color.accent : color.divider;
+  const borderColor = error
+    ? semanticColor.danger
+    : focused
+      ? accentRamp['400']
+      : color.controlBorder;
 
   const inputElement = (
     <TextInput
@@ -48,17 +62,17 @@ export function TextField({
       selectionColor={color.accent}
       style={
         secureToggle
-          ? { flex: 1, fontSize: 15, color: color.text }
+          ? { flex: 1, fontSize: fontSize.body, color: color.text }
           : {
               minHeight: multiline ? 104 : control.height,
               paddingHorizontal: space[3],
               paddingVertical: multiline ? space[2] : 0,
-              fontSize: 15,
+              fontSize: fontSize.body,
               color: color.text,
               backgroundColor: color.surface,
               borderWidth: 1,
               borderColor,
-              borderRadius: 0,
+              borderRadius: radii.md,
               textAlignVertical: multiline ? 'top' : 'center',
             }
       }
@@ -68,7 +82,9 @@ export function TextField({
 
   return (
     <View style={[{ gap: 6 }, style]}>
-      {label ? <Text style={{ fontSize: 13, color: alpha(color.text, 70) }}>{label}</Text> : null}
+      {label ? (
+        <Text style={{ fontSize: fontSize.h6, color: alpha(color.text, 70) }}>{label}</Text>
+      ) : null}
       {secureToggle ? (
         <View
           style={{
@@ -79,6 +95,7 @@ export function TextField({
             backgroundColor: color.surface,
             borderWidth: 1,
             borderColor,
+            borderRadius: radii.md,
           }}
         >
           {inputElement}

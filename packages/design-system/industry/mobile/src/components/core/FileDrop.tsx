@@ -8,7 +8,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, danger, semanticColor, space } from '@industry/tokens';
+import { alpha, color, danger, fontSize, radii, semanticColor, space } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface FileDropProps {
@@ -57,6 +57,7 @@ export const FileDrop = forwardRef<View, FileDropProps>(function FileDrop(
           paddingVertical: space[8],
           paddingHorizontal: space[4],
           backgroundColor: resolveDropzoneBackground(pressed),
+          borderRadius: radii.lg,
           borderWidth: 1,
           borderStyle: 'dashed',
           borderColor,
@@ -66,7 +67,14 @@ export const FileDrop = forwardRef<View, FileDropProps>(function FileDrop(
       ]}
     >
       <Icon name="Upload" size="lg" color={color.text} />
-      <Text style={{ fontSize: 15, fontWeight: '500', color: color.text, textAlign: 'center' }}>
+      <Text
+        style={{
+          fontSize: fontSize.body,
+          fontWeight: '500',
+          color: color.text,
+          textAlign: 'center',
+        }}
+      >
         {label}
       </Text>
       {hint ? (

@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import { color, radii, semanticColor } from '@industry/tokens';
 import {
   DatePicker,
   buildMonthMatrix,
@@ -135,6 +137,41 @@ describe('DatePicker', () => {
     });
     expect(screen.getByTestId('date-cell-2026-7-15').props.style).toMatchObject({
       backgroundColor: expect.any(String),
+    });
+  });
+
+  it('outlines the trigger with the control border and a md radius', () => {
+    render(<DatePicker testID="dp" />);
+    expect(StyleSheet.flatten(screen.getByTestId('dp').props.style)).toMatchObject({
+      borderColor: color.controlBorder,
+      borderRadius: radii.md,
+      backgroundColor: color.surface,
+    });
+  });
+
+  it('turns the trigger border to danger on error', () => {
+    render(<DatePicker testID="dp" error="x" />);
+    expect(StyleSheet.flatten(screen.getByTestId('dp').props.style)).toMatchObject({
+      borderColor: semanticColor.danger,
+    });
+  });
+
+  it('rounds the panel and fills the selected day with the accent', () => {
+    render(<DatePicker value={new Date(2026, 7, 26)} testID="dp" />);
+    fireEvent.press(screen.getByTestId('dp'));
+
+    expect(screen.getByTestId('dp-panel').props.style).toMatchObject({
+      borderTopLeftRadius: radii.lg,
+      borderTopRightRadius: radii.lg,
+    });
+    expect(StyleSheet.flatten(screen.getByTestId('date-cell-2026-7-26').props.style)).toMatchObject(
+      {
+        backgroundColor: color.accent,
+        borderRadius: radii.pill,
+      },
+    );
+    expect(screen.getByText('26', { includeHiddenElements: true }).props.style).toMatchObject({
+      color: color.bg,
     });
   });
 

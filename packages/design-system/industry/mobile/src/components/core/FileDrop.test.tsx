@@ -1,5 +1,6 @@
+import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { color } from '@industry/tokens';
+import { color, radii } from '@industry/tokens';
 import { FileDrop, resolveDropzoneBackground } from './FileDrop';
 
 describe('resolveDropzoneBackground', () => {
@@ -20,6 +21,15 @@ describe('FileDrop', () => {
     render(<FileDrop label="Enviar comprovante" hint="PDF até 5 MB" />);
     expect(screen.getByText('Enviar comprovante')).toBeTruthy();
     expect(screen.getByText('PDF até 5 MB')).toBeTruthy();
+  });
+
+  it('keeps a dashed strong divider on a large radius', () => {
+    render(<FileDrop testID="drop" />);
+    expect(StyleSheet.flatten(screen.getByTestId('drop').props.style)).toMatchObject({
+      borderRadius: radii.lg,
+      borderStyle: 'dashed',
+      borderColor: color.dividerStrong,
+    });
   });
 
   it('calls onPress when tapped', () => {

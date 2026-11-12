@@ -1,7 +1,8 @@
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, space, control } from '@industry/tokens';
+import { color, control, neutral, radii, space } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
 
 export interface SegmentOption {
   value: string;
@@ -35,9 +36,17 @@ export function SegmentedControl({
       testID={testID}
       accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
-      style={[{ flexDirection: 'row', borderWidth: 1, borderColor: color.divider }, style]}
+      style={[
+        {
+          flexDirection: 'row',
+          padding: (control.height - control.heightSm) / 2,
+          backgroundColor: color.surface,
+          borderRadius: radii.pill,
+        },
+        style,
+      ]}
     >
-      {options.map((option, index) => {
+      {options.map((option) => {
         const opt = resolveOption(option);
         const checked = value === opt.value;
         return (
@@ -52,16 +61,23 @@ export function SegmentedControl({
               alignItems: 'center',
               justifyContent: 'center',
               gap: space[2],
-              minHeight: control.height,
+              minHeight: control.heightSm,
               paddingHorizontal: space[4],
-              borderLeftWidth: index > 0 ? 1 : 0,
-              borderLeftColor: color.divider,
-              backgroundColor: checked ? color.accent : 'transparent',
+              borderRadius: radii.pill,
             }}
           >
+            {checked ? (
+              <GradientSurface
+                testID={`segment-surface-${opt.value}`}
+                variant="primary"
+                radius={radii.pill}
+                pointerEvents="none"
+                style={StyleSheet.absoluteFill}
+              />
+            ) : null}
             {opt.icon}
             {typeof opt.label === 'string' || typeof opt.label === 'number' ? (
-              <Text style={{ fontSize: 14, color: checked ? color.bg : color.text }}>
+              <Text style={{ fontSize: 14, color: checked ? color.text : neutral['400'] }}>
                 {opt.label}
               </Text>
             ) : (
