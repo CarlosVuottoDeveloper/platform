@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { View } from 'react-native';
+import { color } from '@industry/tokens';
 import { ListRow } from './ListRow';
 import { Icon } from './Icon';
 
@@ -20,7 +21,7 @@ export const Default: Story = {
         lead={<Icon name="Folder" color="#86a8cc" />}
         title="Contratos"
         meta="12 arquivos"
-        trail={<Icon name="ChevronRight" size="sm" color="#e6e9ec" />}
+        trail={<Icon name="ChevronRight" size="sm" color={color.text} />}
       />
     </View>
   ),

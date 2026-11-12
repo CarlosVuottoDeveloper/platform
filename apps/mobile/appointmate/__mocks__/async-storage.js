@@ -1,8 +1,4 @@
 export default {
-  // Resolves to null by default (not just an unimplemented jest.fn()) —
-  // @industry/mobile's useTheme() calls getItem() on every render to read the
-  // stored theme preference, and an unresolved mock crashes with "Cannot
-  // read properties of undefined (reading 'then')".
   getItem: jest.fn().mockResolvedValue(null),
   setItem: jest.fn().mockResolvedValue(undefined),
   removeItem: jest.fn().mockResolvedValue(undefined),
