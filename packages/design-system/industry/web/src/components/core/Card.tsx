@@ -1,4 +1,5 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import { GradientSurface } from './GradientSurface';
 
 export type CardElevation = 'sm' | 'md' | 'lg';
 
@@ -29,14 +30,12 @@ export function Card({
   ...rest
 }: CardProps) {
   return (
-    <div
+    <GradientSurface
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-2)',
         padding: 'var(--space-4)',
-        borderRadius: 0,
-        background: 'transparent',
         border: '1px solid var(--color-divider)',
         boxShadow: elevation ? SHADOW[elevation] : undefined,
         ...style,
@@ -47,8 +46,6 @@ export function Card({
         <div
           style={{
             fontSize: 11,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
             color: 'var(--color-accent-300)',
           }}
         >
@@ -82,6 +79,6 @@ export function Card({
           {meta}
         </div>
       ) : null}
-    </div>
+    </GradientSurface>
   );
 }

@@ -113,4 +113,18 @@ describe('Popover', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
+
+  it('renders the panel as a rounded surface-2 card without an outline', () => {
+    render(<Popover trigger="Abrir">Conteúdo</Popover>);
+    fireEvent.click(screen.getByText('Abrir'));
+
+    const panel = screen.getByRole('dialog');
+    expect(panel).toHaveStyle({
+      background: 'var(--color-surface-2)',
+      borderRadius: 'var(--radius-md)',
+      boxShadow: 'var(--shadow-md)',
+      overflow: 'hidden',
+    });
+    expect(panel.style.border).toBe('');
+  });
 });

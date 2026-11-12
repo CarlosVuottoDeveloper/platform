@@ -29,4 +29,33 @@ describe('Toast', () => {
 
     expect(onDismiss).toHaveBeenCalled();
   });
+
+  it('is a rounded surface-2 card with a uniform divider border', () => {
+    render(<Toast title="Salvo" />);
+
+    const toast = screen.getByRole('status');
+    expect(toast).toHaveStyle({
+      background: 'var(--color-surface-2)',
+      borderRadius: 'var(--radius-md)',
+      boxShadow: 'var(--shadow-md)',
+      border: '1px solid var(--color-divider)',
+      overflow: 'hidden',
+      position: 'relative',
+    });
+    expect(toast.style.borderLeft).toBe('');
+  });
+
+  it.each([
+    ['accent', 'var(--color-accent)'],
+    ['success', 'var(--color-success)'],
+    ['warning', 'var(--color-warning)'],
+    ['danger', 'var(--color-danger)'],
+  ] as const)('draws the %s tone as an inner bar and colours the title with it', (tone, tint) => {
+    render(<Toast tone={tone} title="Salvo" />);
+
+    const bar = screen.getByRole('status').firstElementChild as HTMLElement;
+    expect(bar).toHaveStyle({ position: 'absolute', left: '0px', width: '3px', background: tint });
+    expect(bar).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByText('Salvo')).toHaveStyle({ color: tint });
+  });
 });

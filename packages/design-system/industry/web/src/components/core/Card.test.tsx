@@ -26,4 +26,34 @@ describe('Card', () => {
 
     expect(screen.getByText('Só título')).toBeInTheDocument();
   });
+
+  it('is a large rounded gradient surface with a soft border', () => {
+    render(<Card title="Título" data-testid="card" />);
+
+    expect(screen.getByTestId('card')).toHaveStyle({
+      background: 'var(--gradient-surface)',
+      borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--color-divider)',
+    });
+  });
+
+  it('keeps the kicker in sentence case without tracking', () => {
+    render(<Card kicker="Projeto" />);
+
+    const kicker = screen.getByText('Projeto');
+    expect(kicker.style.textTransform).toBe('');
+    expect(kicker.style.letterSpacing).toBe('');
+  });
+
+  it('applies the elevation shadow when given', () => {
+    render(<Card title="Título" elevation="md" data-testid="card" />);
+
+    expect(screen.getByTestId('card')).toHaveStyle({ boxShadow: 'var(--shadow-md)' });
+  });
+
+  it('lets consumer style override the surface', () => {
+    render(<Card title="Título" data-testid="card" style={{ width: 320 }} />);
+
+    expect(screen.getByTestId('card')).toHaveStyle({ width: '320px' });
+  });
 });
