@@ -7,7 +7,7 @@ import {
   resolveFieldFrameStyle,
 } from './fieldFrame';
 import { Icon } from './Icon';
-import { TEXT_TINT_FILLS } from './stateFills';
+import { TEXT_TINT_FILLS, resolveFill } from './stateFills';
 import { Popover } from './Popover';
 
 export interface DatePickerProps {
@@ -155,7 +155,7 @@ export function DatePicker({
           </div>
         }
       >
-        <div style={{ display: 'grid', gap: 'var(--space-2)', width: 'calc(var(--tap) * 7)' }}>
+        <div style={{ display: 'grid', gap: 'var(--space-2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <NavButton direction="left" onClick={() => goToMonth(-1)} label="Mês anterior" />
             <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-text)' }}>
@@ -163,7 +163,13 @@ export function DatePicker({
             </span>
             <NavButton direction="right" onClick={() => goToMonth(1)} label="Próximo mês" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(7, minmax(var(--tap), 1fr))',
+              gap: 2,
+            }}
+          >
             {WEEKDAY_LABELS.map((wd, index) => (
               <span
                 key={index}
@@ -230,7 +236,7 @@ function NavButton({
         justifyContent: 'center',
         minWidth: 'var(--tap)',
         minHeight: 'var(--tap)',
-        background: hovered ? TEXT_TINT_FILLS.hovered : TEXT_TINT_FILLS.rest,
+        background: resolveFill(TEXT_TINT_FILLS, hovered, false),
         border: 'none',
         borderRadius: 'var(--radius-pill)',
         cursor: 'pointer',
@@ -276,11 +282,7 @@ function DayCell({
         justifyContent: 'center',
         fontSize: 12,
         color: selected ? 'var(--color-bg)' : 'var(--color-text)',
-        background: selected
-          ? 'var(--color-accent)'
-          : hovered
-            ? TEXT_TINT_FILLS.hovered
-            : TEXT_TINT_FILLS.rest,
+        background: selected ? 'var(--color-accent)' : resolveFill(TEXT_TINT_FILLS, hovered, false),
         borderRadius: 'var(--radius-pill)',
         border:
           isToday && !selected ? '1px solid var(--color-divider-strong)' : '1px solid transparent',

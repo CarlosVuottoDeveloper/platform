@@ -30,17 +30,19 @@ describe('TabBar', () => {
     expect(onSelect).toHaveBeenCalledWith('profile');
   });
 
-  it('exposes a tablist of tabs with the selected state', () => {
+  it('is a navigation landmark whose items are plain buttons without tab roles', () => {
     render(<TabBar items={ITEMS} current="profile" />);
 
-    expect(screen.getByRole('tablist')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Perfil' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: 'Início' })).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Perfil' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Perfil' })).not.toHaveAttribute('aria-selected');
   });
 
   it('draws a surface bar with rounded top corners and no hairline', () => {
     render(<TabBar items={ITEMS} />);
-    const bar = screen.getByRole('tablist');
+    const bar = screen.getByRole('navigation');
 
     expect(bar.style.background).toBe('var(--color-surface)');
     expect(bar.style.borderTopLeftRadius).toBe('var(--radius-lg)');
@@ -50,7 +52,7 @@ describe('TabBar', () => {
 
   it('pads the bar by the space token plus the safe area', () => {
     render(<TabBar items={ITEMS} />);
-    const bar = screen.getByRole('tablist');
+    const bar = screen.getByRole('navigation');
 
     expect(bar.style.paddingTop).toBe('var(--space-2)');
     expect(bar.style.paddingBottom).toBe('calc(var(--space-2) + var(--safe-b))');
@@ -91,7 +93,7 @@ describe('TabBar', () => {
 
   it('brightens an inactive item on hover', () => {
     render(<TabBar items={ICON_ITEMS} current="home" />);
-    const tab = screen.getByRole('tab', { name: 'Perfil' });
+    const tab = screen.getByRole('button', { name: 'Perfil' });
     const wrapper = screen.getByTestId('icon-profile').parentElement as HTMLElement;
 
     fireEvent.mouseEnter(tab);
@@ -105,6 +107,6 @@ describe('TabBar', () => {
   it('keeps every item at least one tap target tall', () => {
     render(<TabBar items={ITEMS} />);
 
-    expect(screen.getByRole('tab', { name: 'Perfil' }).style.minHeight).toBe('var(--tap)');
+    expect(screen.getByRole('button', { name: 'Perfil' }).style.minHeight).toBe('var(--tap)');
   });
 });

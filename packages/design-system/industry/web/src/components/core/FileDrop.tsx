@@ -55,7 +55,6 @@ export function partitionFiles(
   return { accepted, rejected };
 }
 
-/** Dashed drop zone for file uploads. */
 export const FileDrop = forwardRef<HTMLLabelElement, FileDropProps>(function FileDrop(
   {
     label = 'Arraste um arquivo ou clique para escolher',

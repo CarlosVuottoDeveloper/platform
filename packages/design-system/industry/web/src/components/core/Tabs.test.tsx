@@ -81,8 +81,12 @@ describe('Tabs', () => {
   it('colours the selected label with the text colour and the others neutral', () => {
     render(<Tabs items={ITEMS} current="settings" />);
 
-    expect(screen.getByText('Configurações').style.color).toBe('var(--color-text)');
-    expect(screen.getByText('Visão geral').style.color).toBe('var(--color-neutral-400)');
+    expect((screen.getByText('Configurações').parentElement as HTMLElement).style.color).toBe(
+      'var(--color-text)',
+    );
+    expect((screen.getByText('Visão geral').parentElement as HTMLElement).style.color).toBe(
+      'var(--color-neutral-400)',
+    );
   });
 
   it('tints an unselected tab on hover and press', () => {
@@ -143,5 +147,29 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: 'Visão geral' }).style.minHeight).toBe(
       'var(--control-h)',
     );
+  });
+
+  it('colours the tab root so icons and element labels inherit it', () => {
+    render(
+      <Tabs
+        items={[
+          { id: 'a', icon: <i data-testid="icon" />, label: <strong data-testid="raw">A</strong> },
+          { id: 'b', label: 'B' },
+        ]}
+        current="a"
+      />,
+    );
+    const [active, inactive] = screen.getAllByRole('tab') as [HTMLElement, HTMLElement];
+
+    expect(active.style.color).toBe('var(--color-text)');
+    expect(inactive.style.color).toBe('var(--color-neutral-400)');
+  });
+
+  it('keeps segments from shrinking and labels from wrapping so the list scrolls', () => {
+    render(<Tabs items={ITEMS} />);
+    const tab = screen.getByRole('tab', { name: 'Visão geral' });
+
+    expect(tab.style.flexShrink).toBe('0');
+    expect(tab.style.whiteSpace).toBe('nowrap');
   });
 });

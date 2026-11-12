@@ -77,4 +77,14 @@ describe('Switch', () => {
 
     expect(trackOf(screen.getByRole('checkbox')).style.opacity).toBe('0.45');
   });
+
+  it('shows no hover state while disabled', () => {
+    render(<Switch label="Notificações" disabled />);
+
+    fireEvent.mouseEnter(screen.getByText('Notificações'));
+
+    expect(trackOf(screen.getByRole('checkbox')).style.borderColor).toBe(
+      'var(--color-control-border)',
+    );
+  });
 });

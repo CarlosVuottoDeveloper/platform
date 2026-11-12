@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import type { CSSProperties, MouseEvent, ReactNode } from 'react';
-import { TEXT_TINT_FILLS, resolveFill } from './stateFills';
+import { TEXT_TINT_FILLS, resolveFill, usePressState } from './stateFills';
 import type { StateFills } from './stateFills';
 
 export interface SidebarItem {
@@ -86,20 +85,13 @@ function SidebarLink({
   active: boolean;
   onSelect?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
+  const { hovered, pressed, handlers } = usePressState();
 
   return (
     <a
       href={item.href ?? '#'}
       aria-current={active ? 'page' : undefined}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      {...handlers}
       onClick={
         onSelect
           ? (e: MouseEvent<HTMLAnchorElement>) => {

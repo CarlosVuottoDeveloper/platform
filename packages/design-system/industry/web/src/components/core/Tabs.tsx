@@ -56,6 +56,7 @@ export function Tabs({ items = [], current, onSelect, style }: TabsProps) {
           <PillSegment
             key={id}
             as="button"
+            scrollable
             role="tab"
             aria-selected={active}
             active={active}

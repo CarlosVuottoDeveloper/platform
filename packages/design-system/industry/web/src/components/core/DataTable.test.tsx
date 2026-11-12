@@ -49,7 +49,10 @@ describe('DataTable', () => {
     );
 
     const button = screen.getByRole('button', { name: 'Nome' });
-    expect(button).toHaveAttribute('aria-sort', 'ascending');
+    expect(screen.getByRole('columnheader', { name: 'Nome' })).toHaveAttribute(
+      'aria-sort',
+      'ascending',
+    );
 
     fireEvent.click(button);
     expect(onSort).toHaveBeenCalledWith('name');
@@ -210,5 +213,43 @@ describe('DataTable', () => {
     fireEvent.mouseUp(other);
     fireEvent.mouseLeave(other);
     expect(other.style.background).toBe('transparent');
+  });
+
+  it('shows a read-only sort from the sort prop without making headers interactive', () => {
+    render(<DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'asc' }} />);
+    const header = screen.getByRole('columnheader', { name: 'Nome' });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(header).toHaveAttribute('aria-sort', 'ascending');
+    expect(header.style.color).toBe('var(--color-accent-200)');
+    expect(header.querySelector('[aria-hidden="true"]')).not.toBeNull();
+    expect(screen.getByRole('columnheader', { name: 'Cargo' })).not.toHaveAttribute('aria-sort');
+  });
+
+  it('marks the descending header on the cell when sorting is interactive', () => {
+    render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        sort={{ key: 'role', dir: 'desc' }}
+        onSort={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('columnheader', { name: 'Cargo' })).toHaveAttribute(
+      'aria-sort',
+      'descending',
+    );
+  });
+
+  it('does not leave a page button pressed when it was disabled mid-press', () => {
+    const { rerender } = render(<DataTable columns={COLUMNS} rows={ROWS} page={1} pageCount={2} />);
+    const next = screen.getByRole('button', { name: 'Próxima' });
+
+    fireEvent.mouseDown(next);
+    rerender(<DataTable columns={COLUMNS} rows={ROWS} page={2} pageCount={2} />);
+    rerender(<DataTable columns={COLUMNS} rows={ROWS} page={1} pageCount={2} />);
+
+    expect(next.style.background).toBe('transparent');
   });
 });

@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
-import { resolveFill, tint, tintedFills } from './stateFills';
+import { resolveFill, tint, tintedFills, usePressState } from './stateFills';
 import type { StateFills } from './stateFills';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -87,25 +86,16 @@ export function Button({
   style,
   ...rest
 }: ButtonProps) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
+  const { hovered: isHovered, pressed: isPressed, handlers } = usePressState(disabled);
   const height = size === 'sm' ? 'var(--control-h-sm)' : 'var(--control-h)';
   const hasGradient = variant === 'primary' && !selected;
-  const isHovered = hovered && !disabled;
-  const isPressed = pressed && !disabled;
 
   return (
     <button
       type="button"
       disabled={disabled}
       aria-pressed={selected}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      {...handlers}
       style={{
         position: 'relative',
         isolation: 'isolate',

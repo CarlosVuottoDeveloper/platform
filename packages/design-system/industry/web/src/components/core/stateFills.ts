@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export interface StateFills {
   rest: string;
   hovered: string;
@@ -30,3 +32,27 @@ export const TEXT_TINT_FILLS: StateFills = {
   hovered: tint('var(--color-text)', 8),
   pressed: tint('var(--color-text)', 14),
 };
+
+export function usePressState(disabled = false) {
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  if (disabled && (hovered || pressed)) {
+    setHovered(false);
+    setPressed(false);
+  }
+
+  return {
+    hovered: hovered && !disabled,
+    pressed: pressed && !disabled,
+    handlers: {
+      onMouseEnter: () => setHovered(true),
+      onMouseLeave: () => {
+        setHovered(false);
+        setPressed(false);
+      },
+      onMouseDown: () => setPressed(true),
+      onMouseUp: () => setPressed(false),
+    },
+  };
+}

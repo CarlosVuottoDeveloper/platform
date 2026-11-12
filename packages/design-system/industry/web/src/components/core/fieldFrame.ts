@@ -7,10 +7,10 @@ interface FieldFrameState {
   disabled?: boolean;
 }
 
-function resolveBorderColor({ focused, invalid, hovered }: FieldFrameState) {
+function resolveBorderColor({ focused, invalid, hovered, disabled }: FieldFrameState) {
   if (invalid) return 'var(--color-danger)';
   if (focused) return 'var(--color-accent)';
-  return hovered ? 'var(--color-neutral-500)' : 'var(--color-control-border)';
+  return hovered && !disabled ? 'var(--color-neutral-500)' : 'var(--color-control-border)';
 }
 
 export function resolveFieldFrameStyle(state: FieldFrameState): CSSProperties {

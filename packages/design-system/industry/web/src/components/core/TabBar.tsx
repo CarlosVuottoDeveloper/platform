@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { PrimaryActionSurface } from './PrimaryActionSurface';
+import { usePressState } from './stateFills';
 
 export interface TabBarItem {
   id?: string;
@@ -18,8 +18,7 @@ export interface TabBarProps {
 /** Bottom navigation bar. Respects the safe-area inset. */
 export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
   return (
-    <div
-      role="tablist"
+    <nav
       style={{
         display: 'flex',
         borderTopLeftRadius: 'var(--radius-lg)',
@@ -41,7 +40,7 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
           />
         );
       })}
-    </div>
+    </nav>
   );
 }
 
@@ -64,23 +63,14 @@ function TabBarButton({
   active: boolean;
   onSelect?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
+  const { hovered, pressed, handlers } = usePressState();
 
   return (
     <button
       type="button"
-      role="tab"
-      aria-selected={active}
       aria-current={active ? 'page' : undefined}
       onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      {...handlers}
       style={{
         flex: 1,
         display: 'flex',

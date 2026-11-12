@@ -36,7 +36,7 @@ export const Headings: Story = {
           >
             {label}
           </span>
-          <Tag style={{ margin: 0, textTransform: 'none' }}>Um design system de uma só voz</Tag>
+          <Tag style={{ margin: 0 }}>Um design system de uma só voz</Tag>
         </div>
       ))}
     </div>

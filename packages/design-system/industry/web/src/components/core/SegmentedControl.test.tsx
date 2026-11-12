@@ -46,8 +46,10 @@ describe('SegmentedControl', () => {
   it('colours the active label with the text colour and the inactive one neutral', () => {
     render(<SegmentedControl name="range" options={OPTIONS} value="dia" onChange={jest.fn()} />);
 
-    expect((screen.getByText('dia') as HTMLElement).style.color).toBe('var(--color-text)');
-    expect((screen.getByText('Semana') as HTMLElement).style.color).toBe(
+    expect((screen.getByText('dia').parentElement as HTMLElement).style.color).toBe(
+      'var(--color-text)',
+    );
+    expect((screen.getByText('Semana').parentElement as HTMLElement).style.color).toBe(
       'var(--color-neutral-400)',
     );
   });
@@ -122,5 +124,22 @@ describe('SegmentedControl', () => {
 
     expect((screen.getByText('um') as HTMLElement).style.fontSize).toBe('14px');
     expect((screen.getByText('7') as HTMLElement).style.fontSize).toBe('14px');
+  });
+
+  it('colours the segment root so icons and element labels inherit it', () => {
+    render(<SegmentedControl name="range" options={OPTIONS} value="dia" onChange={jest.fn()} />);
+
+    expect(segmentOf(screen.getByRole('radio', { name: 'dia' })).style.color).toBe(
+      'var(--color-text)',
+    );
+    expect(segmentOf(screen.getByRole('radio', { name: 'Semana' })).style.color).toBe(
+      'var(--color-neutral-400)',
+    );
+  });
+
+  it('lets segments share the width instead of refusing to shrink', () => {
+    render(<SegmentedControl name="range" options={OPTIONS} value="dia" onChange={jest.fn()} />);
+
+    expect(segmentOf(screen.getByRole('radio', { name: 'dia' })).style.flexShrink).toBe('');
   });
 });

@@ -182,9 +182,9 @@ describe('DatePicker', () => {
 
     expect(next.style.minHeight).toBe('var(--tap)');
     expect(next.style.minWidth).toBe('var(--tap)');
-    expect(screen.getByRole('dialog').firstElementChild).toHaveStyle({
-      width: 'calc(var(--tap) * 7)',
-    });
+    const grid = screen.getByRole('button', { name: '15' }).parentElement as HTMLElement;
+    expect(grid.style.gridTemplateColumns).toBe('repeat(7, minmax(var(--tap), 1fr))');
+    expect((screen.getByRole('dialog').firstElementChild as HTMLElement).style.width).toBe('');
   });
 
   it('renders label, hint and error', async () => {
@@ -194,5 +194,15 @@ describe('DatePicker', () => {
 
     rerender(<DatePicker label="Data" error="Obrigatório" />);
     expect(screen.getByText('Obrigatório')).toBeInTheDocument();
+  });
+
+  it('shows no hover state on a disabled trigger', async () => {
+    render(<DatePicker label="Data" disabled />);
+    const trigger = (await screen.findByRole('button', { name: /Selecione uma data/ }))
+      .firstElementChild as HTMLElement;
+
+    fireEvent.mouseEnter(trigger);
+
+    expect(trigger.style.borderColor).toBe('var(--color-control-border)');
   });
 });

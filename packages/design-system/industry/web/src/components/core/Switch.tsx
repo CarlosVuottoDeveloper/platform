@@ -77,7 +77,7 @@ export function Switch({
           borderWidth: 1,
           borderStyle: 'solid',
           borderRadius: 'var(--radius-pill)',
-          borderColor: resolveBorderColor(isChecked, hovered),
+          borderColor: resolveBorderColor(isChecked, hovered && !disabled),
           background: isChecked ? 'var(--color-accent-800)' : 'var(--color-surface-2)',
           opacity: disabled ? 0.45 : 1,
           outline: focused ? '2px solid var(--color-accent)' : 'none',

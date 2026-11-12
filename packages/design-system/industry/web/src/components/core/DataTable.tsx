@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-import { TEXT_TINT_FILLS, resolveFill } from './stateFills';
+import { TEXT_TINT_FILLS, resolveFill, usePressState } from './stateFills';
 
 export interface Column<Row extends Record<string, ReactNode> = Record<string, ReactNode>> {
   key: string;
@@ -74,37 +74,50 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
         >
           <thead>
             <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1,
-                    height: 'var(--tap)',
-                    textAlign: 'left',
-                    fontSize: 'var(--text-h6)',
-                    fontWeight: 'var(--font-medium-weight)',
-                    color: 'var(--color-neutral-400)',
-                    background: 'var(--color-surface-2)',
-                    padding: '0 var(--space-3)',
-                    whiteSpace: 'nowrap',
-                    width: column.width,
-                  }}
-                >
-                  {column.sortable === false || !onSort ? (
-                    column.label
-                  ) : (
-                    <SortButton
-                      active={sort?.key === column.key}
-                      direction={sort?.key === column.key ? sort.dir : undefined}
-                      onClick={() => onSort(column.key)}
-                    >
-                      {column.label}
-                    </SortButton>
-                  )}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const direction =
+                  column.sortable !== false && sort?.key === column.key ? sort.dir : undefined;
+                return (
+                  <th
+                    key={column.key}
+                    aria-sort={
+                      direction === undefined
+                        ? undefined
+                        : direction === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                    }
+                    style={{
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1,
+                      height: 'var(--tap)',
+                      textAlign: 'left',
+                      fontSize: 'var(--text-h6)',
+                      fontWeight: 'var(--font-medium-weight)',
+                      color: direction ? 'var(--color-accent-200)' : 'var(--color-neutral-400)',
+                      background: 'var(--color-surface-2)',
+                      padding: '0 var(--space-3)',
+                      whiteSpace: 'nowrap',
+                      width: column.width,
+                    }}
+                  >
+                    {column.sortable !== false && onSort ? (
+                      <SortButton
+                        active={direction !== undefined}
+                        direction={direction}
+                        onClick={() => onSort(column.key)}
+                      >
+                        {column.label}
+                      </SortButton>
+                    ) : direction ? (
+                      <ReadOnlySortLabel direction={direction}>{column.label}</ReadOnlySortLabel>
+                    ) : (
+                      column.label
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -146,10 +159,25 @@ function DataRow({ children }: { children: ReactNode }) {
     <tr
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ background: hovered ? TEXT_TINT_FILLS.hovered : TEXT_TINT_FILLS.rest }}
+      style={{ background: resolveFill(TEXT_TINT_FILLS, hovered, false) }}
     >
       {children}
     </tr>
+  );
+}
+
+function ReadOnlySortLabel({
+  direction,
+  children,
+}: {
+  direction: 'asc' | 'desc';
+  children?: ReactNode;
+}) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+      {children}
+      <Caret direction={direction} />
+    </span>
   );
 }
 
@@ -165,13 +193,10 @@ function SortButton({
   children?: ReactNode;
 }) {
   const [hovered, setHovered] = useState(false);
-  const ariaSort =
-    direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : undefined;
 
   return (
     <button
       type="button"
-      aria-sort={ariaSort}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -275,8 +300,7 @@ function PagerButton({
   onClick?: () => void;
   children?: ReactNode;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
+  const { hovered, pressed, handlers } = usePressState(disabled);
 
   return (
     <button
@@ -284,13 +308,7 @@ function PagerButton({
       disabled={disabled}
       aria-current={current ? 'page' : undefined}
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      {...handlers}
       style={{
         minWidth: 'var(--tap)',
         minHeight: 'var(--tap)',
@@ -301,7 +319,7 @@ function PagerButton({
         cursor: disabled ? 'not-allowed' : 'pointer',
         background: current
           ? 'var(--color-accent)'
-          : resolveFill(TEXT_TINT_FILLS, hovered && !disabled, pressed && !disabled),
+          : resolveFill(TEXT_TINT_FILLS, hovered, pressed),
         borderWidth: 1,
         borderStyle: 'solid',
         borderRadius: 'var(--radius-pill)',

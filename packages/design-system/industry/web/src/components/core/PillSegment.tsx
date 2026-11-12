@@ -1,7 +1,7 @@
-import { Fragment, isValidElement, useState } from 'react';
+import { Fragment, isValidElement } from 'react';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { PrimaryActionSurface } from './PrimaryActionSurface';
-import { TEXT_TINT_FILLS, resolveFill } from './stateFills';
+import { TEXT_TINT_FILLS, resolveFill, usePressState } from './stateFills';
 
 const ACTIVE_PILL_MARGIN = 'calc((var(--control-h) - var(--control-h-sm)) / 2)';
 
@@ -20,6 +20,7 @@ interface PillSegmentProps extends Omit<
   as: 'button' | 'label';
   active: boolean;
   focused?: boolean;
+  scrollable?: boolean;
   icon?: ReactNode;
   label?: ReactNode;
   trailing?: ReactNode;
@@ -30,26 +31,20 @@ export function PillSegment({
   as: Element,
   active,
   focused = false,
+  scrollable = false,
   icon,
   label,
   trailing,
   children,
   ...rest
 }: PillSegmentProps) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
+  const { hovered, pressed, handlers } = usePressState();
 
   return (
     <Element
       {...(Element === 'button' ? { type: 'button' } : {})}
       {...rest}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      {...handlers}
       style={{
         position: 'relative',
         isolation: 'isolate',
@@ -65,6 +60,9 @@ export function PillSegment({
         outline: focused ? '2px solid var(--color-accent)' : undefined,
         outlineOffset: -2,
         font: 'inherit',
+        color: active ? 'var(--color-text)' : 'var(--color-neutral-400)',
+        flexShrink: scrollable ? 0 : undefined,
+        whiteSpace: scrollable ? 'nowrap' : undefined,
         cursor: 'pointer',
         transition: 'background 120ms ease',
       }}
@@ -88,14 +86,7 @@ export function PillSegment({
       {isEmptyLabel(label) ? null : isStandaloneElement(label) ? (
         label
       ) : (
-        <span
-          style={{
-            fontSize: 14,
-            color: active ? 'var(--color-text)' : 'var(--color-neutral-400)',
-          }}
-        >
-          {label}
-        </span>
+        <span style={{ fontSize: 14 }}>{label}</span>
       )}
       {trailing}
     </Element>

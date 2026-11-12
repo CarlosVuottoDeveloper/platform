@@ -33,6 +33,12 @@ describe('resolveFieldFrameStyle', () => {
     );
   });
 
+  it('ignores hover while disabled', () => {
+    expect(resolveFieldFrameStyle({ hovered: true, disabled: true }).borderColor).toBe(
+      'var(--color-control-border)',
+    );
+  });
+
   it('dims a disabled field', () => {
     expect(resolveFieldFrameStyle({ disabled: true }).opacity).toBe(0.45);
   });

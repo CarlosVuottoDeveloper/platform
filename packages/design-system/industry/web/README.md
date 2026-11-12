@@ -63,16 +63,17 @@ O Industry tem uma única aparência, escura. Não há tema claro nem hook de te
 
 Paridade de nome não significa paridade de implementação. As diferenças são deliberadas:
 
-| Componente   | Diferença                                                                                                                                                                                     |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Button`     | Tem estados de hover, pressed e foco visível — `:hover` existe com mouse; o mobile só tem pressed                                                                                             |
-| `Select`     | Usa o `<select>` nativo do navegador: a lista de opções é desenhada pelo navegador e só o fundo das opções segue o sistema. O mobile abre um painel próprio com a opção selecionada em acento |
-| `Switch`     | `checked` / `onChange`, como um `<input type="checkbox">`; o mobile usa `checked` / `onCheckedChange`                                                                                         |
-| `RadioGroup` | Exige `name`, amarração de formulário HTML                                                                                                                                                    |
-| `DataTable`  | O corpo rola dentro de um pai com altura limitada, com o cabeçalho fixo (`overflow: auto`). Menus ancorados dentro de uma célula ficam recortados pela área de rolagem                        |
-| `DatePicker` | O painel é um `Popover`, e cada dia e botão de mês tem pelo menos `--tap` de lado                                                                                                             |
-| `Duotone`    | Usa `mix-blend-mode: color`, que preserva a luminância da foto; o mobile só consegue uma sobreposição translúcida                                                                             |
-| `Icon`       | `name` em kebab-case (`"arrow-right"`), convenção do `lucide-react`; `color` padrão é `currentColor`                                                                                          |
+| Componente   | Diferença                                                                                                                                                                                                                                                 |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`     | Tem estados de hover, pressed e foco visível — `:hover` existe com mouse; o mobile só tem pressed                                                                                                                                                         |
+| `Select`     | Usa o `<select>` nativo do navegador: a lista de opções é desenhada pelo navegador e só o fundo das opções segue o sistema. O mobile abre um painel próprio com a opção selecionada em acento                                                             |
+| `TabBar`     | É uma navegação (`<nav>`) com botões que marcam o item ativo com `aria-current="page"`, não um `tablist`: na web a barra inferior navega entre páginas, sem painéis nem o modelo de teclado de abas. O mobile expõe `tablist` / `tab` com `aria-selected` |
+| `Switch`     | `checked` / `onChange`, como um `<input type="checkbox">`; o mobile usa `checked` / `onCheckedChange`                                                                                                                                                     |
+| `RadioGroup` | Exige `name`, amarração de formulário HTML                                                                                                                                                                                                                |
+| `DataTable`  | O corpo rola dentro de um pai com altura limitada, com o cabeçalho fixo (`overflow: auto`). Menus ancorados dentro de uma célula ficam recortados pela área de rolagem                                                                                    |
+| `DatePicker` | O painel é um `Popover`, e cada dia e botão de mês tem pelo menos `--tap` de lado                                                                                                                                                                         |
+| `Duotone`    | Usa `mix-blend-mode: color`, que preserva a luminância da foto; o mobile só consegue uma sobreposição translúcida                                                                                                                                         |
+| `Icon`       | `name` em kebab-case (`"arrow-right"`), convenção do `lucide-react`; `color` padrão é `currentColor`                                                                                                                                                      |
 
 ## Fundações no Storybook
 
@@ -86,7 +87,7 @@ A fonte Inter é carregada no preview por `@industry/tokens/styles.css` e na int
 
 ```sh
 yarn workspace @industry/web storybook        # dev em :6010
-yarn workspace @industry/web test             # 345 testes, 35 suítes
+yarn workspace @industry/web test             # 357 testes, 36 suítes
 yarn workspace @industry/web build            # tsup → dist/index.{js,mjs,d.ts}
 yarn workspace @industry/web build-storybook  # estático, usado pelo Chromatic e pelo Vercel
 ```
