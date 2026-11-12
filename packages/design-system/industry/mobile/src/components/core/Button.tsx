@@ -5,6 +5,7 @@ import {
   color,
   accentRamp,
   danger,
+  neutral,
   alpha,
   control,
   fontFamily,
@@ -68,7 +69,7 @@ function resolveVariantStyle(
   }
   return {
     container: {
-      backgroundColor: pressed ? color.surface : color.surface2,
+      backgroundColor: pressed ? neutral['800'] : color.surface2,
       borderColor: alpha(color.text, 10),
     },
     text: { color: color.text },
@@ -108,8 +109,10 @@ export function Button({
           gap: space[2],
           minHeight: height,
           width: iconOnly ? height : block ? '100%' : undefined,
-          paddingHorizontal: iconOnly ? 0 : size === 'sm' ? space[3] : space[4],
-          borderWidth: 1,
+          paddingHorizontal: iconOnly
+            ? 0
+            : (size === 'sm' ? space[3] : space[4]) + (hasGradient ? 1 : 0),
+          borderWidth: hasGradient ? 0 : 1,
           borderRadius: radii.pill,
           opacity: disabled ? 0.45 : 1,
         },

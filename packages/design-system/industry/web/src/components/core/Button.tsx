@@ -26,7 +26,7 @@ const GHOST_FILLS: StateFills = {
 const SECONDARY_FILLS: StateFills = {
   rest: 'var(--color-surface-2)',
   hovered: 'color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2))',
-  pressed: 'var(--color-surface)',
+  pressed: 'var(--color-neutral-800)',
 };
 
 function skin(
@@ -89,6 +89,8 @@ export function Button({
   const { hovered: isHovered, pressed: isPressed, handlers } = usePressState(disabled);
   const height = size === 'sm' ? 'var(--control-h-sm)' : 'var(--control-h)';
   const hasGradient = variant === 'primary' && !selected;
+  const basePadding = size === 'sm' ? 'var(--space-3)' : 'var(--space-4)';
+  const horizontalPadding = iconOnly ? 0 : hasGradient ? `calc(${basePadding} + 1px)` : basePadding;
 
   return (
     <button
@@ -111,10 +113,13 @@ export function Button({
         fontWeight: 'var(--font-heading-weight)',
         fontSize: size === 'sm' ? 'var(--text-h6)' : 'var(--text-body)',
         lineHeight: 1.2,
-        borderWidth: 1,
+        borderWidth: hasGradient ? 0 : 1,
         borderStyle: 'solid',
         borderRadius: 'var(--radius-pill)',
-        padding: iconOnly ? 0 : size === 'sm' ? '0 var(--space-3)' : '0 var(--space-4)',
+        paddingTop: 0,
+        paddingBottom: 0,
+        paddingLeft: horizontalPadding,
+        paddingRight: horizontalPadding,
         opacity: disabled ? 0.45 : 1,
         transition: 'background 120ms ease, border-color 120ms ease',
         ...skin(variant, isHovered, isPressed, Boolean(selected)),

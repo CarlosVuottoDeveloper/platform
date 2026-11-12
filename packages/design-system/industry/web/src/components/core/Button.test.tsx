@@ -181,7 +181,7 @@ describe('Button', () => {
     });
   });
 
-  it('fills the secondary variant with surface-2 and a soft border, darker when pressed', () => {
+  it('fills the secondary variant with surface-2 and a soft border, lighter when pressed', () => {
     render(<Button>Salvar</Button>);
     const button = screen.getByRole('button');
 
@@ -192,7 +192,7 @@ describe('Button', () => {
 
     fireEvent.mouseDown(button);
 
-    expect(button.style.background).toBe('var(--color-surface)');
+    expect(button.style.background).toBe('var(--color-neutral-800)');
   });
 
   it('tints the secondary variant on hover with a fill distinct from rest and pressed', () => {
@@ -235,18 +235,24 @@ describe('Button', () => {
     );
   });
 
-  it('gives every skin the same one-pixel border so the box never shifts', () => {
-    const borderOf = (props: { variant?: 'primary'; selected?: boolean }) => {
+  it('keeps the primary box the same size as the secondary by trading its border for padding', () => {
+    const boxOf = (props: { variant?: 'primary'; selected?: boolean; size?: 'sm' }) => {
       const { unmount } = render(<Button {...props}>Salvar</Button>);
-      const border = screen.getByRole('button').style.borderWidth;
+      const { borderWidth, paddingLeft, paddingRight } = screen.getByRole('button').style;
       unmount();
-      return border;
+      return { borderWidth, paddingLeft, paddingRight };
     };
-    const secondary = borderOf({});
 
-    expect(secondary).toBe('1px');
-    expect(borderOf({ variant: 'primary' })).toBe(secondary);
-    expect(borderOf({ variant: 'primary', selected: true })).toBe(secondary);
+    expect(boxOf({}).borderWidth).toBe('1px');
+    expect(boxOf({ variant: 'primary' })).toEqual({
+      borderWidth: '0px',
+      paddingLeft: 'calc(var(--space-4) + 1px)',
+      paddingRight: 'calc(var(--space-4) + 1px)',
+    });
+    expect(boxOf({ variant: 'primary', size: 'sm' }).paddingLeft).toBe(
+      'calc(var(--space-3) + 1px)',
+    );
+    expect(boxOf({ variant: 'primary', selected: true }).borderWidth).toBe('1px');
   });
 
   it('dims a disabled button and ignores hover and press on it', () => {

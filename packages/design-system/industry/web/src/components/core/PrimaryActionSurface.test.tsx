@@ -18,15 +18,6 @@ describe('PrimaryActionSurface', () => {
     });
   });
 
-  it('covers the border box so no base ring shows around the pill', () => {
-    const surface = renderSurface();
-
-    expect(surface.style.top).toBe('-1px');
-    expect(surface.style.right).toBe('-1px');
-    expect(surface.style.bottom).toBe('-1px');
-    expect(surface.style.left).toBe('-1px');
-  });
-
   it('drops the glow when asked to, even when enabled', () => {
     expect(renderSurface({ glow: false }).style.boxShadow).toBe('');
   });
