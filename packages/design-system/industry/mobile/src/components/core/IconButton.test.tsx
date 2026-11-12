@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { accentRamp, color, danger } from '@industry/tokens';
+import { accentRamp, color, control, danger } from '@industry/tokens';
 import { IconButton, resolveIconButtonBackground, resolveIconButtonIconColor } from './IconButton';
 
 describe('resolveIconButtonBackground', () => {
@@ -60,13 +60,13 @@ describe('IconButton', () => {
   it('shrinks the box for the "sm" size', () => {
     render(<IconButton icon="ListFilter" label="Filtrar" size="sm" />);
     const [flattened] = screen.getByLabelText('Filtrar').props.style;
-    expect(flattened).toMatchObject({ width: 36, height: 36 });
+    expect(flattened).toMatchObject({ width: control.heightSm, height: control.heightSm });
   });
 
   it('defaults to the "md" box size', () => {
     render(<IconButton icon="ListFilter" label="Filtrar" />);
     const [flattened] = screen.getByLabelText('Filtrar').props.style;
-    expect(flattened).toMatchObject({ width: 44, height: 44 });
+    expect(flattened).toMatchObject({ width: control.height, height: control.height });
   });
 
   it('renders without a border for the solid variant', () => {
