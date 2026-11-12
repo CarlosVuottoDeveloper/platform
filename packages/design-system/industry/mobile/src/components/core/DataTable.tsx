@@ -36,6 +36,7 @@ export interface DataTableProps<Row extends Record<string, ReactNode> = Record<s
   /** Row above the table — search, filters, actions. */
   toolbar?: ReactNode;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 /** Sorting, filtering and paging are controlled — the table renders, you own the data. */
@@ -50,16 +51,22 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
   total,
   toolbar,
   style,
+  testID,
 }: DataTableProps<Row>) {
   return (
-    <View style={style}>
+    <View testID={testID} style={style}>
       {toolbar ? <View style={{ paddingBottom: space[3] }}>{toolbar}</View> : null}
       <View
-        testID="data-table-surface"
-        style={{ backgroundColor: color.surface, borderRadius: radii.lg, overflow: 'hidden' }}
+        testID={testID ? `${testID}-surface` : undefined}
+        style={{
+          flexShrink: 1,
+          backgroundColor: color.surface,
+          borderRadius: radii.lg,
+          overflow: 'hidden',
+        }}
       >
         <View
-          testID="data-table-header"
+          testID={testID ? `${testID}-header` : undefined}
           style={{ flexDirection: 'row', backgroundColor: color.surface2 }}
         >
           {columns.map((column) => (
@@ -71,14 +78,14 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
                 paddingHorizontal: space[3],
               }}
             >
-              {column.sortable === false ? (
+              {column.sortable === false || !onSort ? (
                 <ColumnLabel>{column.label}</ColumnLabel>
               ) : (
                 <SortHeader
                   columnKey={column.key}
                   active={sort?.key === column.key}
                   direction={sort?.key === column.key ? sort.dir : undefined}
-                  onPress={onSort ? () => onSort(column.key) : undefined}
+                  onPress={() => onSort(column.key)}
                 >
                   {column.label}
                 </SortHeader>
@@ -91,7 +98,7 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
           keyExtractor={(row, index) => String((row.id as string | number | undefined) ?? index)}
           renderItem={({ item: row, index }) => (
             <View
-              testID={`data-table-row-${index}`}
+              testID={testID ? `${testID}-row-${index}` : undefined}
               style={{
                 flexDirection: 'row',
                 borderBottomWidth: index < rows.length - 1 ? 1 : undefined,
@@ -121,7 +128,13 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
         />
       </View>
       {pageCount > 1 ? (
-        <Pagination page={page} pageCount={pageCount} total={total} onPage={onPage} />
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          total={total}
+          onPage={onPage}
+          testID={testID ? `${testID}-pager` : undefined}
+        />
       ) : null}
     </View>
   );
@@ -137,7 +150,7 @@ function Cell({ children }: { children?: ReactNode }) {
 
 function ColumnLabel({ children }: { children?: ReactNode }) {
   return (
-    <View style={{ minHeight: control.heightSm, justifyContent: 'center' }}>
+    <View style={{ minHeight: control.tap, justifyContent: 'center' }}>
       <Text style={{ fontSize: fontSize.h6, fontWeight: fontWeight.medium, color: neutral['400'] }}>
         {children}
       </Text>
@@ -197,17 +210,26 @@ function Pagination({
   pageCount,
   total,
   onPage,
+  testID,
 }: {
   page: number;
   pageCount: number;
   total?: number;
   onPage?: (page: number) => void;
+  testID?: string;
 }) {
   return (
     <View
-      style={{ flexDirection: 'row', alignItems: 'center', gap: space[2], paddingTop: space[3] }}
+      testID={testID}
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: space[2],
+        paddingTop: space[3],
+      }}
     >
-      <Text style={{ flex: 1, fontSize: fontSize.h6, color: neutral['400'] }}>
+      <Text style={{ flexBasis: '100%', fontSize: fontSize.h6, color: neutral['400'] }}>
         {total != null ? `${total} registros` : `Página ${page} de ${pageCount}`}
       </Text>
       <PagerButton disabled={page <= 1} onPress={onPage ? () => onPage(page - 1) : undefined}>

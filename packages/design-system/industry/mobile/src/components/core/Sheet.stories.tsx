@@ -5,6 +5,7 @@ import { Sheet } from './Sheet';
 const meta: Meta<typeof Sheet> = {
   title: 'Core/Sheet',
   component: Sheet,
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

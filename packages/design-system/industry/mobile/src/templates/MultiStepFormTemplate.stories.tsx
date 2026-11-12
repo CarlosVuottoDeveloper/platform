@@ -7,6 +7,7 @@ import { color, fontSize, neutral, space } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Templates/Multi-step Form',
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

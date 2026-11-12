@@ -95,7 +95,12 @@ describe('DataTable', () => {
 
   it('shows the descending sort indicator when dir is desc', () => {
     const { getByTestId } = render(
-      <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'desc' }} />,
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        sort={{ key: 'name', dir: 'desc' }}
+        onSort={jest.fn()}
+      />,
     );
 
     expect(getByTestId('sort-header-name').props.accessibilityState).toMatchObject({
@@ -191,9 +196,9 @@ describe('DataTable look', () => {
     StyleSheet.flatten(node.props.style as never) as Record<string, unknown>;
 
   it('draws a clipped rounded surface around the header and rows', () => {
-    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} />);
+    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} testID="table" />);
 
-    expect(flat(getByTestId('data-table-surface'))).toMatchObject({
+    expect(flat(getByTestId('table-surface'))).toMatchObject({
       backgroundColor: color.surface,
       borderRadius: radii.lg,
       overflow: 'hidden',
@@ -202,10 +207,16 @@ describe('DataTable look', () => {
 
   it('puts the header row on surface2 with sentence-case muted labels', () => {
     const { getByTestId, getByText } = render(
-      <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'asc' }} />,
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        sort={{ key: 'name', dir: 'asc' }}
+        testID="table"
+        onSort={jest.fn()}
+      />,
     );
 
-    expect(flat(getByTestId('data-table-header')).backgroundColor).toBe(color.surface2);
+    expect(flat(getByTestId('table-header')).backgroundColor).toBe(color.surface2);
     const label = flat(getByText('Cargo'));
     expect(label.color).toBe(neutral['400']);
     expect(label.textTransform).toBeUndefined();
@@ -214,17 +225,19 @@ describe('DataTable look', () => {
   });
 
   it('separates rows with the divider color and leaves the last row without one', () => {
-    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} />);
+    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} testID="table" />);
 
-    expect(flat(getByTestId('data-table-row-0'))).toMatchObject({
+    expect(flat(getByTestId('table-row-0'))).toMatchObject({
       borderBottomWidth: 1,
       borderBottomColor: color.divider,
     });
-    expect(flat(getByTestId('data-table-row-1')).borderBottomWidth).toBeUndefined();
+    expect(flat(getByTestId('table-row-1')).borderBottomWidth).toBeUndefined();
   });
 
   it('gives sortable headers a tap-size target and press feedback', () => {
-    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} onSort={jest.fn()} />);
+    const { getByTestId } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} onSort={jest.fn()} testID="table" />,
+    );
     const header = getByTestId('sort-header-name');
 
     expect(flat(header).minHeight).toBe(control.tap);
@@ -235,7 +248,7 @@ describe('DataTable look', () => {
 
   it('renders the pager buttons as pills with readable text on the current page', () => {
     const { getByTestId, getByText } = render(
-      <DataTable columns={COLUMNS} rows={ROWS} page={1} pageCount={2} />,
+      <DataTable columns={COLUMNS} rows={ROWS} page={1} pageCount={2} testID="table" />,
     );
 
     expect(flat(getByTestId('pager-btn-1'))).toMatchObject({
@@ -245,5 +258,60 @@ describe('DataTable look', () => {
     });
     expect(flat(getByText('1')).color).toBe(color.bg);
     expect(flat(getByTestId('pager-btn-2')).borderColor).toBe(color.controlBorder);
+  });
+
+  it('lets the surface shrink so the list scrolls inside a bounded table', () => {
+    const { getByTestId } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} testID="table" style={{ flex: 1 }} />,
+    );
+
+    expect(flat(getByTestId('table-surface')).flexShrink).toBe(1);
+  });
+
+  it('gives sortable and plain header labels the same minimum height', () => {
+    const { getByTestId, getByText } = render(
+      <DataTable
+        columns={[
+          { key: 'name', label: 'Nome' },
+          { key: 'role', label: 'Cargo', sortable: false },
+        ]}
+        rows={ROWS}
+        onSort={jest.fn()}
+      />,
+    );
+
+    expect(flat(getByTestId('sort-header-name')).minHeight).toBe(control.tap);
+    expect(flat(getByText('Cargo').parent!.parent!).minHeight).toBe(control.tap);
+  });
+
+  it('lets the pager wrap onto a second line with the count on its own line', () => {
+    const { getByTestId, getByText } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} page={1} pageCount={5} total={48} testID="table" />,
+    );
+
+    expect(flat(getByTestId('table-pager'))).toMatchObject({ flexWrap: 'wrap' });
+    expect(flat(getByText('48 registros')).flexBasis).toBe('100%');
+  });
+
+  it('derives internal ids from testID and renders none without it', () => {
+    const { queryByTestId, rerender, getByTestId } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} />,
+    );
+    expect(queryByTestId('table-surface')).toBeNull();
+    expect(queryByTestId('table-header')).toBeNull();
+    expect(queryByTestId('table-row-0')).toBeNull();
+
+    rerender(<DataTable columns={COLUMNS} rows={ROWS} testID="table" />);
+    expect(getByTestId('table')).toBeTruthy();
+    expect(getByTestId('table-surface')).toBeTruthy();
+    expect(getByTestId('table-header')).toBeTruthy();
+    expect(getByTestId('table-row-1')).toBeTruthy();
+  });
+
+  it('renders a plain label, not a button, when there is no onSort', () => {
+    const { queryByTestId, getByText } = render(<DataTable columns={COLUMNS} rows={ROWS} />);
+
+    expect(queryByTestId('sort-header-name')).toBeNull();
+    expect(getByText('Nome')).toBeTruthy();
   });
 });

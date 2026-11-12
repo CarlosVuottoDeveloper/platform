@@ -7,6 +7,7 @@ import { TabBar } from './TabBar';
 const meta: Meta<typeof TabBar> = {
   title: 'Core/TabBar',
   component: TabBar,
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

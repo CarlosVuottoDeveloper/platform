@@ -175,7 +175,7 @@ export function PieChart({
                   fontFamily: fontFamily.body,
                   fontWeight: active ? fontWeight.heading : fontWeight.body,
                   fontSize: fontSize.h6,
-                  color: active ? color.text : neutral['400'],
+                  color: color.text,
                 }}
               >
                 {slice.label}
@@ -184,7 +184,7 @@ export function PieChart({
                 style={{
                   fontFamily: monoFontFamily,
                   fontSize: 12,
-                  color: color.text,
+                  color: neutral['400'],
                 }}
               >
                 {legendValue === 'percent' ? `${pct}%` : `${valueFormatter(slice.value)} · ${pct}%`}

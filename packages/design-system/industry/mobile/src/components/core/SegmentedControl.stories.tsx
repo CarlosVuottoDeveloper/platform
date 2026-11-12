@@ -7,7 +7,7 @@ import { color, neutral } from '@industry/tokens';
 const meta: Meta<typeof SegmentedControl> = {
   title: 'Core/SegmentedControl',
   component: SegmentedControl,
-  parameters: { svgKnownIssue: true },
+  parameters: { svgKnownIssue: true, gradientKnownIssue: true },
 };
 
 export default meta;

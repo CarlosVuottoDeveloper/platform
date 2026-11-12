@@ -7,6 +7,7 @@ import { color, space } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Templates/List + Detail',
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

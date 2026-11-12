@@ -68,7 +68,7 @@ Seis páginas em `Foundations/*` renderizando os tokens reais (cores, `controlBo
 
 > **Limitação conhecida — SVG:** não renderiza no preview do Storybook. `Icon` e `PieChart` montam sem erro e aparecem vazios, e há um banner visível nas stories afetadas. Não afeta o app real — Metro e Fabric renderizam SVG normalmente.
 
-> **Limitação conhecida — gradiente:** o `react-native-web` do preview ignora `experimental_backgroundImage` e mostra a cor sólida de fallback. As stories que dependem dele (`Foundations/Color`, `Foundations/Spacing & Elevation`) exibem um banner. O gradiente e o brilho só aparecem no dispositivo.
+> **Limitação conhecida — gradiente:** o `react-native-web` do preview ignora `experimental_backgroundImage` e mostra a cor sólida de fallback. Stories de componentes que desenham gradiente levam o aviso. O gradiente e o brilho só aparecem no dispositivo.
 
 ## Desenvolvimento
 

@@ -7,6 +7,7 @@ import { color, fontSize, fontWeight, neutral, space } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Templates/Login',
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

@@ -1,11 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import { color, fontFamily, fontSize, neutral, radii, space } from '@industry/tokens';
 import { GradientSurface } from './GradientSurface';
-
-const AnimatedGradientSurface = Animated.createAnimatedComponent(GradientSurface);
 
 export interface ProgressProps {
   value?: number;
@@ -26,6 +24,7 @@ export function Progress({
 }: ProgressProps) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   const width = useRef(new Animated.Value(pct)).current;
+  const [trackWidth, setTrackWidth] = useState(0);
 
   useEffect(() => {
     Animated.timing(width, { toValue: pct, duration: 240, useNativeDriver: false }).start();
@@ -60,22 +59,30 @@ export function Progress({
         accessible
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max, now: value }}
+        onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
         style={{
-          height: 8,
+          height: space[2],
           backgroundColor: color.surface2,
           borderRadius: radii.pill,
           overflow: 'hidden',
         }}
       >
-        <AnimatedGradientSurface
+        <Animated.View
           testID={testID ? `${testID}-fill` : undefined}
-          variant="primary"
-          radius={radii.pill}
           style={{
             height: '100%',
+            borderRadius: radii.pill,
+            overflow: 'hidden',
             width: width.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
           }}
-        />
+        >
+          <GradientSurface
+            testID={testID ? `${testID}-gradient` : undefined}
+            variant="primary"
+            radius={radii.pill}
+            style={{ height: '100%', width: trackWidth }}
+          />
+        </Animated.View>
       </View>
     </View>
   );

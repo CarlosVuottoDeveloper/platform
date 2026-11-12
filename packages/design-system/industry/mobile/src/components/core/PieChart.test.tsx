@@ -102,14 +102,11 @@ describe('PieChart look', () => {
   const flat = (node: { props: { style?: unknown } }) =>
     StyleSheet.flatten(node.props.style as never) as Record<string, unknown>;
 
-  it('mutes legend labels and values with neutral 400 and keeps the active label at text color', () => {
+  it('keeps legend labels at text color and mutes the values with neutral 400', () => {
     render(<PieChart slices={SLICES} />);
 
-    expect(flat(screen.getByText('Aberto')).color).toBe(neutral['400']);
-    expect(flat(screen.getByText('3 · 30%')).color).toBe(color.text);
-
-    fireEvent.press(screen.getByLabelText('Aberto: 3, 30%'));
     expect(flat(screen.getByText('Aberto')).color).toBe(color.text);
+    expect(flat(screen.getByText('3 · 30%')).color).toBe(neutral['400']);
   });
 
   it('rounds the legend swatches', () => {

@@ -5,6 +5,7 @@ import { Card } from './Card';
 const meta: Meta<typeof Card> = {
   title: 'Core/Card',
   component: Card,
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

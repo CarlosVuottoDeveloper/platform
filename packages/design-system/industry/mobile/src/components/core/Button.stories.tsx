@@ -7,7 +7,7 @@ import { color } from '@industry/tokens';
 const meta: Meta<typeof Button> = {
   title: 'Core/Button',
   component: Button,
-  parameters: { svgKnownIssue: true },
+  parameters: { svgKnownIssue: true, gradientKnownIssue: true },
 };
 
 export default meta;

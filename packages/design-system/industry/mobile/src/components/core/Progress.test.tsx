@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
-import { color, gradient, neutral, radii } from '@industry/tokens';
+import { color, gradient, neutral, radii, space } from '@industry/tokens';
 import { Progress, Spinner } from './Progress';
 
 describe('Progress', () => {
@@ -73,18 +73,28 @@ describe('Progress look', () => {
       backgroundColor: color.surface2,
       borderRadius: radii.pill,
       overflow: 'hidden',
+      height: space[2],
     });
   });
 
-  it('fills the track with the primary gradient, clipped to the animated width', () => {
+  it('clips the fill to the animated width with a pill radius', () => {
     const { getByTestId } = render(<Progress value={40} testID="progress" />);
     const fill = flat(getByTestId('progress-fill'));
 
-    expect(fill.borderRadius).toBe(radii.pill);
-    expect(fill.width).toBe('40%');
-    expect(fill.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
-    expect(fill.experimental_backgroundImage).toContain(gradient.primary.colors[1]);
-    expect(fill.boxShadow).toBeUndefined();
+    expect(fill).toMatchObject({ borderRadius: radii.pill, overflow: 'hidden', width: '40%' });
+  });
+
+  it('draws the primary gradient at the full track width so it does not rescale', () => {
+    const { getByTestId } = render(<Progress value={40} testID="progress" />);
+    fireEvent(getByTestId('progress'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 200, height: space[2] } },
+    });
+    const gradientStyle = flat(getByTestId('progress-gradient'));
+
+    expect(gradientStyle.width).toBe(200);
+    expect(gradientStyle.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
+    expect(gradientStyle.experimental_backgroundImage).toContain(gradient.primary.colors[1]);
+    expect(gradientStyle.boxShadow).toBeUndefined();
   });
 
   it('mutes the label and the percentage with neutral 400', () => {
