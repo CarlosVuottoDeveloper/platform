@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Modal, Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, alpha, color, shadow, space } from '@industry/tokens';
+import { accentRamp, alpha, color, control, shadow, space } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface MenuItem {
@@ -132,7 +132,7 @@ function MenuItemRow({ item, onSelect }: { item: MenuItem; onSelect: () => void 
         flexDirection: 'row',
         alignItems: 'center',
         gap: space[2],
-        minHeight: 44,
+        minHeight: control.tap,
         paddingHorizontal: space[4],
         backgroundColor: item.selected
           ? alpha(color.accent, 22)

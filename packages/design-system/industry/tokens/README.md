@@ -8,7 +8,7 @@ Industry tem uma única aparência: escura, em tons de azul, com gradientes e br
 
 As cores são authored em OKLCH, com rampas geradas por luminosidade e croma. Isso é ótimo na web: `oklch()` e `color-mix(in srgb, ...)` são resolvidos pelo motor do browser em tempo real. React Native não resolve nenhum dos dois.
 
-Por isso a origem não é nem o CSS nem o TypeScript: é `scripts/build-native-tokens.mjs`. Ele define os valores uma vez e escreve as duas saídas:
+Por isso a origem não é nem o CSS nem o TypeScript: é `scripts/build-tokens.mjs`. Ele define os valores uma vez e escreve as duas saídas:
 
 | Saída                             | Conteúdo                                                            |
 | --------------------------------- | ------------------------------------------------------------------- |
@@ -110,7 +110,7 @@ O contorno de campos e controles interativos é `color.controlBorder` (`--color-
 
 ```sh
 yarn workspace @industry/tokens build                   # gera tokens nativos e CSS, formata, empacota e emite dist/styles.css
-yarn workspace @industry/tokens generate:native-tokens  # só a etapa de geração
+yarn workspace @industry/tokens generate:tokens  # só a etapa de geração
 ```
 
 O build passa o Prettier nos arquivos gerados logo após produzi-los; sem isso, rodar o gerador duas vezes deixaria diff cosmético na árvore.

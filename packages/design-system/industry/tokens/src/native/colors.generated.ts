@@ -1,5 +1,5 @@
 // GENERATED FILE — do not edit by hand.
-// Authored in scripts/build-native-tokens.mjs. Re-run `yarn build` after changing it.
+// Authored in scripts/build-tokens.mjs. Re-run `yarn build` after changing it.
 
 export const color = {
   bg: '#070B1F',

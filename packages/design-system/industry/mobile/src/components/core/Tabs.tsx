@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, Text } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, fontFamily, fontWeight, neutral, space } from '@industry/tokens';
+import { alpha, color, control, fontFamily, fontWeight, neutral, space } from '@industry/tokens';
 
 export interface TabItem {
   id?: string;
@@ -68,7 +68,7 @@ function TabButton({
         flexDirection: 'row',
         alignItems: 'center',
         gap: space[2],
-        minHeight: 44,
+        minHeight: control.height,
         paddingBottom: 10,
         borderBottomWidth: 2,
         borderBottomColor: active ? color.accent : 'transparent',

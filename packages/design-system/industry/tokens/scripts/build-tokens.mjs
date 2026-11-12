@@ -147,15 +147,50 @@ function mixOver(foregroundHex, percent, backgroundHex) {
   return `#${[1, 3, 5].map((i) => channel(i).toString(16).padStart(2, '0')).join('')}`;
 }
 
-const gradient = {
-  primary: { colors: [accentRamp[600], accentRamp[800]], angle: 180 },
-  surface: { colors: [color.surface2, color.surface], angle: 180 },
-  backdrop: { colors: [mixOver(accentRamp[800], 60, color.bg), color.bg], angle: 180 },
+const rampSources = {
+  accent: { values: accentRamp, cssPrefix: 'color-accent' },
+  accent2: { values: accent2Ramp, cssPrefix: 'color-accent-2' },
+  neutral: { values: neutral, cssPrefix: 'color-neutral' },
+};
+const colorCssNames = { bg: 'color-bg', surface: 'color-surface', surface2: 'color-surface-2' };
+
+const rampStop = (ramp, step) => ({
+  hex: rampSources[ramp].values[step],
+  css: `var(--${rampSources[ramp].cssPrefix}-${step})`,
+});
+const colorStop = (name) => ({ hex: color[name], css: `var(--${colorCssNames[name]})` });
+const mixStop = (foreground, percent, background) => ({
+  hex: mixOver(foreground.hex, percent, background.hex),
+  css: `color-mix(in srgb, ${foreground.css} ${percent}%, ${background.css})`,
+});
+
+const gradientDefinitions = {
+  primary: { from: rampStop('accent', 600), to: rampStop('accent', 800), angle: 180 },
+  surface: { from: colorStop('surface2'), to: colorStop('surface'), angle: 180 },
+  backdrop: {
+    from: mixStop(rampStop('accent', 800), 60, colorStop('bg')),
+    to: colorStop('bg'),
+    angle: 180,
+  },
 };
 
-const glow = {
-  accent: `0 8px 20px 0 ${alpha(accentRamp[500], 45)}`,
+const gradient = Object.fromEntries(
+  Object.entries(gradientDefinitions).map(([name, { from, to, angle }]) => [
+    name,
+    { colors: [from.hex, to.hex], angle },
+  ]),
+);
+
+const glowDefinition = {
+  accent: { offsetX: 0, offsetY: 8, blur: 20, spread: 0, tint: rampStop('accent', 500), alpha: 45 },
 };
+
+const glow = Object.fromEntries(
+  Object.entries(glowDefinition).map(([name, d]) => [
+    name,
+    `${d.offsetX}px ${d.offsetY}px ${d.blur}px ${d.spread}px ${alpha(d.tint.hex, d.alpha)}`,
+  ]),
+);
 
 assertContrast(color.text, color.bg, 4.5, 'text on bg');
 assertContrast(color.text, color.surface, 4.5, 'text on surface');
@@ -179,7 +214,7 @@ gradient.surface.colors.forEach((stop, index) =>
 );
 
 const nativeHeader = `// GENERATED FILE — do not edit by hand.
-// Authored in scripts/build-native-tokens.mjs. Re-run \`yarn build\` after changing it.
+// Authored in scripts/build-tokens.mjs. Re-run \`yarn build\` after changing it.
 `;
 
 const colorsTs = `${nativeHeader}
@@ -215,7 +250,7 @@ export const gradient: Record<GradientName, GradientToken> = ${JSON.stringify(gr
 export const glow: Record<'accent', string> = ${JSON.stringify(glow, null, 2)};
 `;
 
-const cssHeader = `/* GENERATED FILE — do not edit by hand. Authored in scripts/build-native-tokens.mjs. */`;
+const cssHeader = `/* GENERATED FILE — do not edit by hand. Authored in scripts/build-tokens.mjs. */`;
 
 function cssVars(prefix, spec) {
   return Object.entries(spec)
@@ -260,16 +295,15 @@ ${Object.entries(vizHues)
 }
 `;
 
-function linearGradientCss(angle, from, to) {
-  return `linear-gradient(${angle}deg, ${from}, ${to})`;
-}
+const gradientCssLines = Object.entries(gradientDefinitions).map(
+  ([name, { from, to, angle }]) =>
+    `  --gradient-${name}: linear-gradient(${angle}deg, ${from.css}, ${to.css});`,
+);
+const glowCssLines = Object.entries(glow).map(([name, value]) => `  --glow-${name}: ${value};`);
 
 const gradientsCss = `${cssHeader}
 :root {
-  --gradient-primary: ${linearGradientCss(gradient.primary.angle, 'var(--color-accent-600)', 'var(--color-accent-800)')};
-  --gradient-surface: ${linearGradientCss(gradient.surface.angle, 'var(--color-surface-2)', 'var(--color-surface)')};
-  --gradient-backdrop: ${linearGradientCss(gradient.backdrop.angle, 'color-mix(in srgb, var(--color-accent-800) 60%, var(--color-bg))', 'var(--color-bg)')};
-  --glow-accent: ${glow.accent};
+${[...gradientCssLines, ...glowCssLines].join('\n')}
 }
 `;
 

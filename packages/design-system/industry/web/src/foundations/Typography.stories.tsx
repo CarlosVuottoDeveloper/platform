@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { fontSize } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Foundations/Typography',
@@ -7,14 +8,10 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-const HEADINGS = [
-  { tag: 'h1' as const, label: 'H1 · 46' },
-  { tag: 'h2' as const, label: 'H2 · 34' },
-  { tag: 'h3' as const, label: 'H3 · 26' },
-  { tag: 'h4' as const, label: 'H4 · 21' },
-  { tag: 'h5' as const, label: 'H5 · 17' },
-  { tag: 'h6' as const, label: 'H6 · 13' },
-];
+const HEADINGS = (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const).map((tag) => ({
+  tag,
+  label: `${tag.toUpperCase()} · ${fontSize[tag]}`,
+}));
 
 export const Headings: Story = {
   render: () => (
@@ -40,7 +37,7 @@ export const Headings: Story = {
           >
             {label}
           </span>
-          <Tag style={{ margin: 0 }}>Um design system em Barlow Condensed</Tag>
+          <Tag style={{ margin: 0 }}>Um design system de uma só voz</Tag>
         </div>
       ))}
     </div>

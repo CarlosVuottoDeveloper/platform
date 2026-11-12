@@ -1,5 +1,5 @@
 // GENERATED FILE — do not edit by hand.
-// Authored in scripts/build-native-tokens.mjs. Re-run `yarn build` after changing it.
+// Authored in scripts/build-tokens.mjs. Re-run `yarn build` after changing it.
 
 export interface GradientToken {
   colors: readonly [string, string];
@@ -24,5 +24,5 @@ export const gradient: Record<GradientName, GradientToken> = {
 };
 
 export const glow: Record<'accent', string> = {
-  accent: '0 8px 20px 0 rgba(38, 139, 252, 0.45)',
+  accent: '0px 8px 20px 0px rgba(38, 139, 252, 0.45)',
 };

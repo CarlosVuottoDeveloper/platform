@@ -88,7 +88,7 @@ export const TouchTargets: Story = {
 export const Radius: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-      {(['sm', 'md', 'lg'] as const).map((size) => (
+      {(['sm', 'md', 'lg', 'pill'] as const).map((size) => (
         <div key={size} style={{ flex: 1 }}>
           <div
             style={{
