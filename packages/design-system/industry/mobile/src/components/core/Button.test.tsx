@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { accentRamp, alpha, color } from '@industry/tokens';
+import { accentRamp, alpha, color, control, danger, glow, radii } from '@industry/tokens';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -26,19 +26,92 @@ describe('Button', () => {
     });
   });
 
-  it('applies the pressed skin for the primary variant on press', () => {
+  it('renders the primary skin on a gradient surface with the accent glow', () => {
     const { getByTestId } = render(<Button variant="primary">Save</Button>);
-    const root = getByTestId('button-root');
+    const surface = StyleSheet.flatten(getByTestId('button-surface').props.style);
 
-    expect(root.props.style).toContainEqual(
-      expect.objectContaining({ backgroundColor: color.accent }),
+    expect(surface.boxShadow).toBe(glow.accent);
+    expect(surface.borderRadius).toBe(radii.pill);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).borderRadius).toBe(
+      radii.pill,
     );
+  });
 
-    fireEvent(root, 'pressIn');
+  it('uses the regular text colour on the primary gradient', () => {
+    const { getByText } = render(<Button variant="primary">Save</Button>);
+    expect(StyleSheet.flatten(getByText('Save').props.style).color).toBe(color.text);
+  });
 
-    expect(getByTestId('button-root').props.style).toContainEqual(
-      expect.objectContaining({ backgroundColor: accentRamp['500'] }),
+  it('shows no glow when a primary button is disabled', () => {
+    const { getByTestId } = render(
+      <Button variant="primary" disabled>
+        Salvar
+      </Button>,
     );
+    expect(StyleSheet.flatten(getByTestId('button-surface').props.style).boxShadow).toBeUndefined();
+  });
+
+  it('dims the primary surface while pressed', () => {
+    const { getByTestId } = render(<Button variant="primary">Save</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-surface').props.style).opacity).toBe(1);
+
+    fireEvent(getByTestId('button-root'), 'pressIn');
+
+    expect(StyleSheet.flatten(getByTestId('button-surface').props.style).opacity).toBe(0.85);
+  });
+
+  it('draws no gradient and no glow when a primary button is selected', () => {
+    const { queryByTestId } = render(
+      <Button variant="primary" selected>
+        Admin
+      </Button>,
+    );
+    expect(queryByTestId('button-surface')).toBeNull();
+  });
+
+  it('keeps a long label on one line inside the pill', () => {
+    const { getByText } = render(<Button>{'a'.repeat(200)}</Button>);
+    expect(getByText('a'.repeat(200)).props.numberOfLines).toBe(1);
+  });
+
+  it.each([
+    ['md' as const, control.height],
+    ['sm' as const, control.heightSm],
+  ])('uses a pill with the %s control height', (size, height) => {
+    const { getByTestId } = render(<Button size={size}>Save</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style)).toMatchObject({
+      borderRadius: radii.pill,
+      minHeight: height,
+    });
+  });
+
+  it('fills the secondary variant with surface2 and a soft border', () => {
+    const { getByTestId } = render(<Button>Save</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style)).toMatchObject({
+      backgroundColor: color.surface2,
+      borderColor: alpha(color.text, 10),
+    });
+  });
+
+  it('keeps the ghost variant transparent with accent text', () => {
+    const { getByTestId, getByText } = render(<Button variant="ghost">Save</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor).toBe(
+      'transparent',
+    );
+    expect(StyleSheet.flatten(getByText('Save').props.style).color).toBe(accentRamp['300']);
+  });
+
+  it('tints the danger variant instead of outlining it', () => {
+    const { getByTestId, getByText } = render(<Button variant="danger">Delete</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor).toBe(
+      alpha(danger['400'], 16),
+    );
+    expect(StyleSheet.flatten(getByText('Delete').props.style).color).toBe(danger['300']);
+  });
+
+  it('dims a disabled button', () => {
+    const { getByTestId } = render(<Button disabled>Save</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).opacity).toBe(0.45);
   });
 
   it('exposes the selected state to assistive tech', () => {

@@ -1,7 +1,16 @@
 import { Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, danger, neutral, semanticColor, success, warning } from '@industry/tokens';
+import {
+  color,
+  danger,
+  fontSize,
+  neutral,
+  radii,
+  semanticColor,
+  success,
+  warning,
+} from '@industry/tokens';
 
 export type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
 
@@ -30,7 +39,7 @@ const SOLID_BACKGROUND: Partial<Record<BadgeTone, string>> = {
   danger: semanticColor.danger,
 };
 
-/** A status pill with a leading square marker. */
+/** A status pill with a leading dot marker. */
 export function Badge({ tone = 'neutral', solid, children, style, testID }: BadgeProps) {
   const textColor = solid ? color.bg : OUTLINE_COLOR[tone];
 
@@ -46,19 +55,18 @@ export function Badge({ tone = 'neutral', solid, children, style, testID }: Badg
           paddingHorizontal: 10,
           paddingVertical: 3,
           borderWidth: 1,
+          borderRadius: radii.pill,
           borderColor: solid ? 'transparent' : OUTLINE_COLOR[tone],
-          backgroundColor: solid ? SOLID_BACKGROUND[tone] : undefined,
+          backgroundColor: solid ? SOLID_BACKGROUND[tone] : color.surface2,
         },
         style,
       ]}
     >
-      <View style={{ width: 6, height: 6, backgroundColor: textColor }} />
+      <View style={{ width: 6, height: 6, borderRadius: radii.pill, backgroundColor: textColor }} />
       {typeof children === 'string' ? (
         <Text
           style={{
-            fontSize: 12,
-            letterSpacing: 0.5,
-            textTransform: 'uppercase',
+            fontSize: fontSize.h6,
             color: textColor,
           }}
         >

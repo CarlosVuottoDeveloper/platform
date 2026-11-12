@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import type {
   GestureResponderEvent,
   PressableProps,
@@ -15,9 +15,12 @@ import {
   alpha,
   control,
   fontFamily,
+  fontSize,
   fontWeight,
+  radii,
   space,
 } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -48,11 +51,8 @@ function resolveVariantStyle(
   }
   if (variant === 'primary') {
     return {
-      container: {
-        backgroundColor: pressed ? accentRamp['500'] : color.accent,
-        borderColor: pressed ? accentRamp['500'] : color.accent,
-      },
-      text: { color: color.bg },
+      container: { backgroundColor: 'transparent', borderColor: 'transparent' },
+      text: { color: color.text },
     };
   }
   if (variant === 'ghost') {
@@ -67,16 +67,16 @@ function resolveVariantStyle(
   if (variant === 'danger') {
     return {
       container: {
-        backgroundColor: pressed ? alpha(danger['400'], 16) : 'transparent',
-        borderColor: alpha(danger['400'], 45),
+        backgroundColor: alpha(danger['400'], pressed ? 28 : 16),
+        borderColor: 'transparent',
       },
       text: { color: danger['300'] },
     };
   }
   return {
     container: {
-      backgroundColor: pressed ? alpha(color.text, 14) : 'transparent',
-      borderColor: color.divider,
+      backgroundColor: pressed ? color.surface : color.surface2,
+      borderColor: alpha(color.text, 10),
     },
     text: { color: color.text },
   };
@@ -98,7 +98,9 @@ export function Button({
 }: ButtonProps) {
   const [pressed, setPressed] = useState(false);
   const height = size === 'sm' ? control.heightSm : control.height;
-  const { container, text } = resolveVariantStyle(variant, pressed && !disabled, Boolean(selected));
+  const isPressed = pressed && !disabled;
+  const { container, text } = resolveVariantStyle(variant, isPressed, Boolean(selected));
+  const hasGradient = variant === 'primary' && !selected;
 
   return (
     <Pressable
@@ -127,8 +129,8 @@ export function Button({
           minHeight: height,
           width: iconOnly ? height : block ? '100%' : undefined,
           paddingHorizontal: iconOnly ? 0 : size === 'sm' ? space[3] : space[4],
-          borderWidth: 1,
-          borderRadius: 0,
+          borderWidth: hasGradient ? 0 : 1,
+          borderRadius: radii.pill,
           opacity: disabled ? 0.45 : 1,
         },
         container,
@@ -136,13 +138,24 @@ export function Button({
       ]}
       {...rest}
     >
+      {hasGradient ? (
+        <GradientSurface
+          testID="button-surface"
+          variant="primary"
+          radius={radii.pill}
+          glow={!disabled}
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, { opacity: isPressed ? 0.85 : 1 }]}
+        />
+      ) : null}
       {typeof children === 'string' ? (
         <Text
+          numberOfLines={1}
           style={[
             {
               fontFamily: fontFamily.heading,
               fontWeight: fontWeight.heading,
-              fontSize: size === 'sm' ? 14 : 15,
+              fontSize: size === 'sm' ? fontSize.h6 : fontSize.body,
             },
             text,
           ]}
