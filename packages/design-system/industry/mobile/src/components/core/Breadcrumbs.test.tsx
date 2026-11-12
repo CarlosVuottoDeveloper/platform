@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { color, neutral } from '@industry/tokens';
 import { Breadcrumbs } from './Breadcrumbs';
 
 describe('Breadcrumbs', () => {
@@ -48,5 +49,13 @@ describe('Breadcrumbs', () => {
   it('renders nothing when there are no items', () => {
     render(<Breadcrumbs testID="bc" />);
     expect(screen.getByTestId('bc').children).toHaveLength(0);
+  });
+
+  it('colours the current crumb, previous crumbs and separators', () => {
+    render(<Breadcrumbs items={[{ label: 'A' }, { label: 'B' }]} />);
+
+    expect(screen.getByText('B').props.style).toMatchObject({ color: color.text });
+    expect(screen.getByText('A').props.style).toMatchObject({ color: neutral['400'] });
+    expect(screen.getByText('/').props.style).toMatchObject({ color: neutral['600'] });
   });
 });

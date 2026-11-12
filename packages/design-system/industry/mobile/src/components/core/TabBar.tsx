@@ -2,7 +2,8 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, control, space } from '@industry/tokens';
+import { color, control, fontSize, neutral, radii } from '@industry/tokens';
+import { PrimaryActionSurface } from './PrimaryActionSurface';
 
 export interface TabBarItem {
   id?: string;
@@ -26,9 +27,9 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
       style={[
         {
           flexDirection: 'row',
-          borderTopWidth: 1,
-          borderTopColor: color.divider,
-          backgroundColor: color.bg,
+          borderTopLeftRadius: radii.lg,
+          borderTopRightRadius: radii.lg,
+          backgroundColor: color.surface,
           paddingBottom: insets.bottom,
         },
         style,
@@ -41,31 +42,50 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
           <Pressable
             key={id}
             testID={`tabbar-item-${id}`}
-            accessibilityRole="button"
+            accessibilityRole="tab"
             accessibilityState={{ selected: active }}
             onPress={onSelect ? () => onSelect(id) : undefined}
             style={{
               flex: 1,
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 3,
               minHeight: control.tap,
-              paddingVertical: space[2],
             }}
           >
-            {item.icon ? <View style={{ opacity: active ? 1 : 0.85 }}>{item.icon}</View> : null}
-            {item.label ? (
-              <Text
-                style={{
-                  fontSize: 11,
-                  letterSpacing: 0.4,
-                  textTransform: 'uppercase',
-                  color: active ? color.accent : alpha(color.text, 55),
-                }}
-              >
-                {item.label}
-              </Text>
-            ) : null}
+            {({ pressed }) => (
+              <>
+                {item.icon ? (
+                  <View
+                    testID={`tabbar-icon-${id}`}
+                    style={{
+                      width: control.tap,
+                      height: control.tap,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {active ? (
+                      <PrimaryActionSurface
+                        testID={`tabbar-surface-${id}`}
+                        pressed={pressed}
+                        disabled={false}
+                      />
+                    ) : null}
+                    {item.icon}
+                  </View>
+                ) : null}
+                {item.label ? (
+                  <Text
+                    style={{
+                      fontSize: fontSize.h6,
+                      color: active ? color.text : neutral['400'],
+                    }}
+                  >
+                    {item.label}
+                  </Text>
+                ) : null}
+              </>
+            )}
           </Pressable>
         );
       })}

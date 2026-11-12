@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, alpha, color } from '@industry/tokens';
+import { accentRamp, color, fontSize, neutral, radii } from '@industry/tokens';
 
 export interface Step {
   label?: ReactNode;
@@ -37,15 +37,20 @@ export function Stepper({ steps = [], current = 0, style }: StepperProps) {
                   height: 28,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: done ? color.accent : color.bg,
-                  borderWidth: 1,
-                  borderColor: done || isCurrent ? color.accent : color.dividerStrong,
+                  borderRadius: radii.pill,
+                  backgroundColor: isCurrent
+                    ? color.accent
+                    : done
+                      ? accentRamp['700']
+                      : color.surface2,
+                  borderWidth: isCurrent || done ? 0 : 1,
+                  borderColor: color.controlBorder,
                 }}
               >
                 <Text
                   style={{
                     fontSize: 12,
-                    color: done ? color.bg : isCurrent ? accentRamp['200'] : alpha(color.text, 60),
+                    color: isCurrent ? color.bg : done ? color.text : neutral['400'],
                   }}
                 >
                   {done ? '✓' : index + 1}
@@ -53,13 +58,9 @@ export function Stepper({ steps = [], current = 0, style }: StepperProps) {
               </View>
               <Text
                 style={{
-                  fontSize: 13,
+                  fontSize: fontSize.h6,
                   textAlign: 'center',
-                  color: isCurrent
-                    ? color.text
-                    : done
-                      ? alpha(color.text, 75)
-                      : alpha(color.text, 55),
+                  color: isCurrent ? color.text : neutral['400'],
                 }}
               >
                 {label}
