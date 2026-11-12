@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { CSSProperties, InputHTMLAttributes } from 'react';
+import { resolveFieldFrameStyle } from './fieldFrame';
 import { Icon } from './Icon';
 
 export interface SearchFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'style'> {
@@ -16,12 +17,6 @@ export function SearchField({
 }: SearchFieldProps) {
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
-
-  const borderColor = focused
-    ? 'var(--color-accent)'
-    : hovered
-      ? 'var(--color-divider-strong)'
-      : 'var(--color-divider)';
 
   return (
     <div style={{ position: 'relative', ...style }}>
@@ -40,17 +35,15 @@ export function SearchField({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
+          ...resolveFieldFrameStyle({ focused, hovered, disabled }),
+          borderRadius: 'var(--radius-pill)',
           width: '100%',
           minHeight: 'var(--control-h)',
           padding: '0 var(--space-3) 0 var(--space-8)',
           font: 'inherit',
-          fontSize: 15,
+          fontSize: 'var(--text-body)',
           color: 'var(--color-text)',
           caretColor: 'var(--color-accent)',
-          background: 'var(--color-surface)',
-          border: `1px solid ${borderColor}`,
-          borderRadius: 0,
-          opacity: disabled ? 0.45 : 1,
           cursor: disabled ? 'not-allowed' : undefined,
         }}
         {...rest}

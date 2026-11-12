@@ -165,4 +165,25 @@ describe('FileDrop', () => {
     rerender(<FileDrop error="Arquivo inválido" />);
     expect(screen.getByText('Arquivo inválido')).toBeInTheDocument();
   });
+
+  it('draws a large-radius dashed zone on the surface', async () => {
+    render(<FileDrop label="Solte aqui" />);
+    const dropzone = await screen.findByRole('button', { name: /Solte aqui/ });
+
+    expect(dropzone.style.borderRadius).toBe('var(--radius-lg)');
+    expect(dropzone.style.borderStyle).toBe('dashed');
+    expect(dropzone.style.borderColor).toBe('var(--color-divider-strong)');
+    expect(dropzone.style.background).toBe('var(--color-surface)');
+  });
+
+  it('uses the danger border for an error and the accent while dragging over', async () => {
+    const { rerender } = render(<FileDrop label="Solte aqui" error="Arquivo inválido" />);
+    const dropzone = await screen.findByRole('button', { name: /Solte aqui/ });
+    expect(dropzone.style.borderColor).toBe('var(--color-danger)');
+
+    rerender(<FileDrop label="Solte aqui" />);
+    fireEvent.dragOver(dropzone);
+    expect(dropzone.style.borderColor).toBe('var(--color-accent)');
+    expect(dropzone.style.background).toBe('var(--color-surface-2)');
+  });
 });

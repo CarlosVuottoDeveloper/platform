@@ -1,6 +1,13 @@
 import { useId, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import {
+  FIELD_ERROR_STYLE,
+  FIELD_HINT_STYLE,
+  FIELD_LABEL_STYLE,
+  resolveFieldFrameStyle,
+} from './fieldFrame';
 import { Icon } from './Icon';
+import { TEXT_TINT_FILLS } from './stateFills';
 import { Popover } from './Popover';
 
 export interface DatePickerProps {
@@ -85,13 +92,8 @@ export function DatePicker({
   const hintId = `${fid}-hint`;
   const describedBy = error || hint ? hintId : undefined;
   const [open, setOpen] = useState(false);
+  const [triggerHovered, setTriggerHovered] = useState(false);
   const [viewDate, setViewDate] = useState(() => startOfDay(value ?? new Date()));
-
-  const borderColor = error
-    ? 'var(--color-danger)'
-    : open
-      ? 'var(--color-accent)'
-      : 'var(--color-divider)';
 
   function selectDate(date: Date) {
     onChange?.(date);
@@ -108,10 +110,7 @@ export function DatePicker({
   return (
     <div style={{ display: 'grid', gap: 6, ...style }}>
       {label ? (
-        <label
-          htmlFor={fid}
-          style={{ fontSize: 13, color: 'color-mix(in srgb, var(--color-text) 70%, transparent)' }}
-        >
+        <label htmlFor={fid} style={FIELD_LABEL_STYLE}>
           {label}
         </label>
       ) : null}
@@ -126,7 +125,15 @@ export function DatePicker({
             aria-disabled={disabled || undefined}
             aria-invalid={error ? 'true' : undefined}
             aria-describedby={describedBy}
+            onMouseEnter={() => setTriggerHovered(true)}
+            onMouseLeave={() => setTriggerHovered(false)}
             style={{
+              ...resolveFieldFrameStyle({
+                focused: open,
+                hovered: triggerHovered,
+                invalid: Boolean(error),
+                disabled,
+              }),
               width: '100%',
               height: 'var(--control-h)',
               padding: '0 var(--space-3)',
@@ -135,15 +142,11 @@ export function DatePicker({
               justifyContent: 'space-between',
               gap: 'var(--space-2)',
               font: 'inherit',
-              fontSize: 15,
+              fontSize: 'var(--text-body)',
               textAlign: 'left',
               color: value
                 ? 'var(--color-text)'
                 : 'color-mix(in srgb, var(--color-text) 50%, transparent)',
-              background: 'var(--color-surface)',
-              border: `1px solid ${borderColor}`,
-              borderRadius: 0,
-              opacity: disabled ? 0.45 : 1,
               cursor: disabled ? 'not-allowed' : 'pointer',
             }}
           >
@@ -152,12 +155,10 @@ export function DatePicker({
           </div>
         }
       >
-        <div style={{ display: 'grid', gap: 'var(--space-2)', width: 240 }}>
+        <div style={{ display: 'grid', gap: 'var(--space-2)', width: 'calc(var(--tap) * 7)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <NavButton direction="left" onClick={() => goToMonth(-1)} label="Mês anterior" />
-            <span
-              style={{ fontSize: 13, fontFamily: 'var(--font-mono)', color: 'var(--color-text)' }}
-            >
+            <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-text)' }}>
               {MONTH_NAMES[viewDate.getMonth()]} {viewDate.getFullYear()}
             </span>
             <NavButton direction="right" onClick={() => goToMonth(1)} label="Próximo mês" />
@@ -193,14 +194,11 @@ export function DatePicker({
         </div>
       </Popover>
       {error ? (
-        <span id={hintId} style={{ fontSize: 12, color: 'var(--color-danger-300)' }}>
+        <span id={hintId} style={FIELD_ERROR_STYLE}>
           {error}
         </span>
       ) : hint ? (
-        <span
-          id={hintId}
-          style={{ fontSize: 12, color: 'color-mix(in srgb, var(--color-text) 50%, transparent)' }}
-        >
+        <span id={hintId} style={FIELD_HINT_STYLE}>
           {hint}
         </span>
       ) : null}
@@ -228,9 +226,13 @@ function NavButton({
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
-        padding: 4,
-        background: hovered ? 'var(--color-surface-2)' : 'transparent',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 'var(--tap)',
+        minHeight: 'var(--tap)',
+        background: hovered ? TEXT_TINT_FILLS.hovered : TEXT_TINT_FILLS.rest,
         border: 'none',
+        borderRadius: 'var(--radius-pill)',
         cursor: 'pointer',
       }}
     >
@@ -273,13 +275,13 @@ function DayCell({
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: 12,
-        fontFamily: 'var(--font-mono)',
-        color: selected ? 'var(--color-surface)' : 'var(--color-text)',
+        color: selected ? 'var(--color-bg)' : 'var(--color-text)',
         background: selected
           ? 'var(--color-accent)'
           : hovered
-            ? 'var(--color-surface-2)'
-            : 'transparent',
+            ? TEXT_TINT_FILLS.hovered
+            : TEXT_TINT_FILLS.rest,
+        borderRadius: 'var(--radius-pill)',
         border:
           isToday && !selected ? '1px solid var(--color-divider-strong)' : '1px solid transparent',
         opacity: disabled ? 0.35 : 1,

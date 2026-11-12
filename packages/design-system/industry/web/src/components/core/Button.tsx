@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
 import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
+import { resolveFill, tint, tintedFills } from './stateFills';
+import type { StateFills } from './stateFills';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -13,28 +15,6 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   iconOnly?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
-}
-
-function tint(colorVar: string, percent: number) {
-  return `color-mix(in srgb, ${colorVar} ${percent}%, transparent)`;
-}
-
-interface StateFills {
-  rest: string;
-  hovered: string;
-  pressed: string;
-}
-
-function resolveFill(fills: StateFills, hovered: boolean, pressed: boolean) {
-  return pressed ? fills.pressed : hovered ? fills.hovered : fills.rest;
-}
-
-function tintedFills(colorVar: string, rest: number, hovered: number, pressed: number): StateFills {
-  return {
-    rest: tint(colorVar, rest),
-    hovered: tint(colorVar, hovered),
-    pressed: tint(colorVar, pressed),
-  };
 }
 
 const SELECTED_FILLS = tintedFills('var(--color-accent)', 16, 22, 28);

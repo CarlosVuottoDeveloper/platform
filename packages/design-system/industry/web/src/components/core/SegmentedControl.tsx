@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react';
+import { PillSegment } from './PillSegment';
 
 export interface SegmentOption {
   value: string;
@@ -29,9 +30,14 @@ export function SegmentedControl({
   return (
     <div
       role="radiogroup"
-      style={{ display: 'inline-flex', border: '1px solid var(--color-divider)', ...style }}
+      style={{
+        display: 'inline-flex',
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-pill)',
+        ...style,
+      }}
     >
-      {options.map((option, index) => {
+      {options.map((option) => {
         const opt = resolveOption(option);
         return (
           <SegmentItem
@@ -40,7 +46,6 @@ export function SegmentedControl({
             option={opt}
             checked={value === opt.value}
             onChange={onChange}
-            withDivider={index > 0}
           />
         );
       })}
@@ -53,40 +58,21 @@ function SegmentItem({
   option,
   checked,
   onChange,
-  withDivider,
 }: {
   name: string;
   option: SegmentOption;
   checked: boolean;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
-  withDivider: boolean;
 }) {
-  const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
 
   return (
-    <label
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 'var(--space-2)',
-        minHeight: 'var(--control-h)',
-        padding: '0 var(--space-4)',
-        fontSize: 14,
-        cursor: 'pointer',
-        borderLeft: withDivider ? '1px solid var(--color-divider)' : undefined,
-        background: checked
-          ? 'var(--color-accent)'
-          : hovered
-            ? 'color-mix(in srgb, var(--color-text) 8%, transparent)'
-            : 'transparent',
-        color: checked ? 'var(--color-bg)' : 'inherit',
-        outline: focused ? '2px solid var(--color-accent)' : 'none',
-        outlineOffset: -2,
-      }}
+    <PillSegment
+      as="label"
+      active={checked}
+      focused={focused}
+      icon={option.icon}
+      label={option.label}
     >
       <input
         type="radio"
@@ -98,8 +84,6 @@ function SegmentItem({
         onBlur={() => setFocused(false)}
         style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
       />
-      {option.icon}
-      {option.label}
-    </label>
+    </PillSegment>
   );
 }

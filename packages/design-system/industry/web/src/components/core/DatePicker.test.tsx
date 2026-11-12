@@ -125,16 +125,66 @@ describe('DatePicker', () => {
     fireEvent.click(await screen.findByRole('button', { name: /26\/08\/2026/ }));
     const nextMonth = await screen.findByRole('button', { name: 'Próximo mês' });
     const day = screen.getByRole('button', { name: '15' });
+    const tint = 'color-mix(in srgb, var(--color-text) 8%, transparent)';
 
     fireEvent.mouseEnter(nextMonth);
     fireEvent.mouseEnter(day);
-    expect(nextMonth).toHaveStyle({ background: 'var(--color-surface-2)' });
-    expect(day).toHaveStyle({ background: 'var(--color-surface-2)' });
+    expect(nextMonth.style.background).toBe(tint);
+    expect(day.style.background).toBe(tint);
 
     fireEvent.mouseLeave(nextMonth);
     fireEvent.mouseLeave(day);
-    expect(nextMonth).toHaveStyle({ background: 'transparent' });
-    expect(day).toHaveStyle({ background: 'transparent' });
+    expect(nextMonth.style.background).toBe('transparent');
+    expect(day.style.background).toBe('transparent');
+  });
+
+  it('draws the trigger in the shared field frame', async () => {
+    render(<DatePicker label="Data" />);
+    const trigger = (await screen.findByRole('button', { name: /Selecione uma data/ }))
+      .firstElementChild as HTMLElement;
+
+    expect(trigger.style.background).toBe('var(--color-surface)');
+    expect(trigger.style.borderRadius).toBe('var(--radius-md)');
+    expect(trigger.style.borderColor).toBe('var(--color-control-border)');
+  });
+
+  it('highlights the trigger while open, lifts it on hover and flags errors', async () => {
+    const { rerender } = render(<DatePicker label="Data" />);
+    const button = await screen.findByRole('button', { name: /Selecione uma data/ });
+    const trigger = button.firstElementChild as HTMLElement;
+
+    fireEvent.mouseEnter(trigger);
+    expect(trigger.style.borderColor).toBe('var(--color-neutral-500)');
+    fireEvent.mouseLeave(trigger);
+
+    fireEvent.click(button);
+    expect(trigger.style.borderColor).toBe('var(--color-accent)');
+
+    rerender(<DatePicker label="Data" error="Obrigatório" />);
+    expect(trigger.style.borderColor).toBe('var(--color-danger)');
+  });
+
+  it('fills the selected day with the accent and a bg-coloured label', async () => {
+    render(<DatePicker value={new Date(2026, 7, 26)} />);
+    fireEvent.click(await screen.findByRole('button', { name: /26\/08\/2026/ }));
+    await screen.findByRole('button', { name: 'Próximo mês' });
+    const selected = screen.getByRole('button', { name: '26' });
+
+    expect(selected.style.background).toBe('var(--color-accent)');
+    expect(selected.style.color).toBe('var(--color-bg)');
+    expect(selected.style.borderRadius).toBe('var(--radius-pill)');
+  });
+
+  it('keeps every interactive cell at least one tap target wide', async () => {
+    render(<DatePicker value={new Date(2026, 7, 26)} />);
+    fireEvent.click(await screen.findByRole('button', { name: /26\/08\/2026/ }));
+    const next = await screen.findByRole('button', { name: 'Próximo mês' });
+
+    expect(next.style.minHeight).toBe('var(--tap)');
+    expect(next.style.minWidth).toBe('var(--tap)');
+    expect(screen.getByRole('dialog').firstElementChild).toHaveStyle({
+      width: 'calc(var(--tap) * 7)',
+    });
   });
 
   it('renders label, hint and error', async () => {
