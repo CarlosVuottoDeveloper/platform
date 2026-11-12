@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontFamily, fontWeight, space } from '@industry/tokens';
+import { fontFamily, fontSize, fontWeight, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
@@ -17,9 +17,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   kicker: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontSize: fontSize.h6,
   },
   form: { gap: space[3] },
   helperRow: { flexDirection: 'row', justifyContent: 'flex-end' },
@@ -33,8 +31,6 @@ export const styles = StyleSheet.create({
   orDivider: { flex: 1, height: 1 },
   orLabel: {
     fontSize: 12,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
   },
   googleMark: {
     width: 28,

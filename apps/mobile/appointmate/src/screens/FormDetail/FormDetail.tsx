@@ -47,7 +47,7 @@ function SummaryCell({
 }) {
   const { colors } = useTheme();
   return (
-    <View style={[styles.summaryCell, { backgroundColor: colors.bg }]}>
+    <View style={[styles.summaryCell, { backgroundColor: colors.surface }]}>
       <Text style={[styles.summaryCellLabel, { color: alpha(colors.text, 50) }]}>{label}</Text>
       <Text style={[styles.summaryCellValue, { color: colors.text }]} testID={testID}>
         {value?.trim() ? value : '—'}
@@ -261,10 +261,7 @@ export function FormDetail({ navigation, route }: Props) {
           />
         ) : (
           <>
-            <View
-              style={[styles.summaryGrid, { backgroundColor: colors.divider }]}
-              testID="form-detail-summary-grid"
-            >
+            <View style={styles.summaryGrid} testID="form-detail-summary-grid">
               <SummaryCell label="Humor" value={moodLabel} testID="form-detail-overall-mood" />
               <SummaryCell label="Sono" value={values.sleep} />
               <SummaryCell label="Energia" value={values.energy} />

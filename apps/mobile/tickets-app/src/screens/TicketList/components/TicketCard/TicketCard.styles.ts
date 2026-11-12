@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontWeight, space } from '@industry/tokens';
+import { fontSize, fontWeight, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   header: {
@@ -8,6 +8,6 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: space[2],
   },
-  title: { flex: 1, fontSize: 17, fontWeight: fontWeight.heading },
+  title: { flex: 1, fontSize: fontSize.h5, fontWeight: fontWeight.heading },
   meta: { fontSize: 12 },
 });

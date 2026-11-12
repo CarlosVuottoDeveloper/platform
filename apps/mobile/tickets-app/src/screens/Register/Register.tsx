@@ -53,12 +53,7 @@ export function Register({ navigation }: Props) {
       >
         <View style={[styles.container, { backgroundColor: colors.bg }]}>
           {isFirstUser && (
-            <View
-              style={[
-                styles.adminNotice,
-                { backgroundColor: accentRamp['900'], borderLeftColor: colors.accent },
-              ]}
-            >
+            <View style={[styles.adminNotice, { backgroundColor: accentRamp['900'] }]}>
               <Text style={[styles.adminNoticeKicker, { color: accentRamp['200'] }]}>
                 Primeiro acesso
               </Text>

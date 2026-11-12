@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontSize, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
   trailingTextButton: { paddingHorizontal: space[3], paddingVertical: space[2] },
   trailingTextButtonLabel: { fontSize: 15, fontWeight: '600' },
   chartCard: {
-    borderWidth: 1,
+    borderRadius: radii.lg,
     padding: space[4],
   },
   chartTotalText: { fontSize: 19 },
@@ -25,9 +25,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionLabel: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontSize: fontSize.h6,
   },
   sectionLabelCount: { fontSize: 12 },
   sectionHairline: { height: 1, marginTop: space[2], marginBottom: space[3] },
@@ -39,7 +37,7 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: space[2],
   },
-  recentTitle: { flex: 1, fontSize: 17, fontWeight: '600' },
+  recentTitle: { flex: 1, fontSize: fontSize.h5, fontWeight: '600' },
   recentMeta: { fontSize: 12 },
   statCardWrapper: { marginLeft: space[2] },
   sectionPad: { paddingHorizontal: space[4] },

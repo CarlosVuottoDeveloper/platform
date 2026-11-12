@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontSize, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1 },
@@ -10,9 +10,7 @@ export const styles = StyleSheet.create({
   },
   titleBlock: { gap: space[1] },
   kicker: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontSize: fontSize.h6,
   },
   heading: {
     fontSize: 30,
@@ -22,16 +20,15 @@ export const styles = StyleSheet.create({
     fontSize: 11,
   },
   summaryGrid: {
-    gap: 1,
+    gap: space[2],
   },
   summaryCell: {
+    borderRadius: radii.md,
     padding: space[4],
     gap: space[1],
   },
   summaryCellLabel: {
-    fontSize: 10,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    fontSize: fontSize.h6,
   },
   summaryCellValue: {
     fontSize: 15,

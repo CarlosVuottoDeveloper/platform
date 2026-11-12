@@ -35,10 +35,10 @@ export function TicketMetaRow({ creatorName, createdAt, assigneeName }: Props) {
   const { colors } = useTheme();
   const labelColor = alpha(colors.text, 50);
   const valueColor = colors.text;
-  const bg = colors.bg;
+  const bg = colors.surface;
 
   return (
-    <View style={[styles.grid, { backgroundColor: colors.divider }]}>
+    <View style={styles.grid}>
       <View style={styles.row}>
         <MetaCell
           label="Criador"

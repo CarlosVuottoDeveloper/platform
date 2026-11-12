@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontSize, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -7,9 +7,7 @@ export const styles = StyleSheet.create({
   intro: { fontSize: 15, lineHeight: 22 },
   sectionLabelBlock: { gap: space[2], marginTop: space[2] },
   sectionLabel: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontSize: fontSize.h6,
   },
   sectionHairline: { height: 1 },
   roleRow: { flexDirection: 'row', gap: space[3] },
@@ -17,6 +15,7 @@ export const styles = StyleSheet.create({
   roleHint: { fontSize: 13, lineHeight: 19 },
   adminTag: {
     borderWidth: 1,
+    borderRadius: radii.pill,
     paddingHorizontal: space[3],
     paddingVertical: space[1],
   },

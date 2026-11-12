@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontFamily, fontWeight, space } from '@industry/tokens';
+import { fontFamily, fontSize, fontWeight, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: space[6],
   },
   title: {
-    fontSize: 26,
+    fontSize: fontSize.h3,
     fontFamily: fontFamily.heading,
     fontWeight: fontWeight.heading,
     paddingHorizontal: space[6],
@@ -32,9 +32,7 @@ export const styles = StyleSheet.create({
   },
   sectionHairline: { height: 1 },
   sectionLabel: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontSize: fontSize.h6,
   },
   sectionLabelCount: { fontSize: 12 },
   emptyComments: {
@@ -48,6 +46,6 @@ export const styles = StyleSheet.create({
     paddingVertical: space[2],
     borderBottomWidth: 1,
   },
-  diffLabel: { width: 88, fontSize: 10, letterSpacing: 1, textTransform: 'uppercase' },
+  diffLabel: { width: 88, fontSize: fontSize.h6, letterSpacing: 1, textTransform: 'uppercase' },
   diffValue: { flex: 1, fontSize: 15 },
 });

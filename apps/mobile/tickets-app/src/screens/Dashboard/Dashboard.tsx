@@ -219,7 +219,7 @@ export function Dashboard({ navigation }: Props) {
           <View style={styles.sectionPad}>
             <Pressable
               accessibilityLabel="Ver todos os chamados"
-              style={[styles.chartCard, { borderColor: colors.divider }]}
+              style={[styles.chartCard, { backgroundColor: colors.surface }]}
               onPress={() => navigation.navigate('TicketList', {})}
             >
               <PieChart

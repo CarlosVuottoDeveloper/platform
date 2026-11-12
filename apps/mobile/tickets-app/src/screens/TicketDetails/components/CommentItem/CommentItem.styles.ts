@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { fontSize, space } from '@industry/tokens';
+import { fontSize, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   commentRow: { flexDirection: 'row', gap: space[3] },
   avatar: {
     width: 32,
     height: 32,
-    borderWidth: 1,
+    borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
