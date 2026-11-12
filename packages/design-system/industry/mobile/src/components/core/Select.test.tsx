@@ -1,5 +1,5 @@
 import { fireEvent, render, within } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { color, radii, semanticColor, space } from '@industry/tokens';
 import { Select } from './Select';
 
@@ -104,6 +104,9 @@ describe('Select', () => {
     expect(getByTestId('s-panel').props.style).toMatchObject({
       borderTopLeftRadius: radii.lg,
       borderTopRightRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: color.divider,
+      overflow: 'hidden',
     });
     expect(StyleSheet.flatten(getByTestId('select-option-b').props.style)).toMatchObject({
       backgroundColor: color.accent,
@@ -111,6 +114,26 @@ describe('Select', () => {
     });
     expect(within(getByTestId('select-option-b')).getByText('b').props.style).toMatchObject({
       color: color.bg,
+    });
+  });
+
+  it('insets the option list from the panel edges', () => {
+    const { getByTestId, UNSAFE_getByType } = render(
+      <Select options={OPTIONS} testID="s" onValueChange={jest.fn()} />,
+    );
+    fireEvent.press(getByTestId('s'));
+    expect(UNSAFE_getByType(FlatList).props.contentContainerStyle).toMatchObject({
+      paddingHorizontal: space[2],
+    });
+  });
+
+  it('emphasises the trigger border while the sheet is open', () => {
+    const { getByTestId } = render(
+      <Select options={OPTIONS} testID="s" onValueChange={jest.fn()} />,
+    );
+    fireEvent.press(getByTestId('s'));
+    expect(StyleSheet.flatten(getByTestId('s').props.style)).toMatchObject({
+      borderColor: color.accent,
     });
   });
 

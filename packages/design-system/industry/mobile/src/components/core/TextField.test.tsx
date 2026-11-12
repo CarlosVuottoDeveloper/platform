@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { Text } from 'react-native';
-import { accentRamp, color, radii, semanticColor } from '@industry/tokens';
+import { color, radii, semanticColor } from '@industry/tokens';
 import { TextField } from './TextField';
 
 describe('TextField', () => {
@@ -39,7 +39,7 @@ describe('TextField', () => {
 
     fireEvent(input, 'focus', { nativeEvent: {} });
     expect(onFocus).toHaveBeenCalled();
-    expect(input.props.style).toMatchObject({ borderColor: accentRamp['400'] });
+    expect(input.props.style).toMatchObject({ borderColor: color.accent });
 
     fireEvent(input, 'blur', { nativeEvent: {} });
     expect(onBlur).toHaveBeenCalled();

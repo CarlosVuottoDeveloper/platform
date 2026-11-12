@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TextInput, View } from 'react-native';
 import type { BlurEvent, FocusEvent, StyleProp, TextInputProps, ViewStyle } from 'react-native';
-import { accentRamp, alpha, color, control, fontSize, radii, space } from '@industry/tokens';
+import { alpha, color, control, fontSize, radii, space } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface SearchFieldProps extends Omit<TextInputProps, 'style'> {
@@ -39,7 +39,7 @@ export function SearchField({
           color: color.text,
           backgroundColor: color.surface,
           borderWidth: 1,
-          borderColor: focused ? accentRamp['400'] : color.controlBorder,
+          borderColor: focused ? color.accent : color.controlBorder,
           borderRadius: radii.pill,
         }}
         {...rest}

@@ -8,15 +8,21 @@ interface PrimaryActionSurfaceProps {
   pressed: boolean;
   disabled: boolean;
   testID: string;
+  glow?: boolean;
 }
 
-export function PrimaryActionSurface({ pressed, disabled, testID }: PrimaryActionSurfaceProps) {
+export function PrimaryActionSurface({
+  pressed,
+  disabled,
+  testID,
+  glow = true,
+}: PrimaryActionSurfaceProps) {
   return (
     <GradientSurface
       testID={testID}
       variant="primary"
       radius={radii.pill}
-      glow={!disabled}
+      glow={glow && !disabled}
       pointerEvents="none"
       style={[StyleSheet.absoluteFill, { opacity: pressed && !disabled ? 0.85 : 1 }]}
     />

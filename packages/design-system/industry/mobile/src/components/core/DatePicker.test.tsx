@@ -163,6 +163,8 @@ describe('DatePicker', () => {
     expect(screen.getByTestId('dp-panel').props.style).toMatchObject({
       borderTopLeftRadius: radii.lg,
       borderTopRightRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: color.divider,
     });
     expect(StyleSheet.flatten(screen.getByTestId('date-cell-2026-7-26').props.style)).toMatchObject(
       {
@@ -172,6 +174,14 @@ describe('DatePicker', () => {
     );
     expect(screen.getByText('26', { includeHiddenElements: true }).props.style).toMatchObject({
       color: color.bg,
+    });
+  });
+
+  it('emphasises the trigger border while the calendar is open', () => {
+    render(<DatePicker testID="dp" />);
+    fireEvent.press(screen.getByTestId('dp'));
+    expect(StyleSheet.flatten(screen.getByTestId('dp').props.style)).toMatchObject({
+      borderColor: color.accent,
     });
   });
 

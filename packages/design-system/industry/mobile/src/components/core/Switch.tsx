@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, control, fontSize, glow, neutral, radii, space } from '@industry/tokens';
+import { accentRamp, color, control, fontSize, neutral, radii, space } from '@industry/tokens';
 
 export interface SwitchProps extends Omit<PressableProps, 'style' | 'children'> {
   checked?: boolean;
@@ -58,8 +58,8 @@ export function Switch({
           height: 24,
           borderWidth: 1,
           borderRadius: radii.pill,
-          borderColor: color.controlBorder,
-          backgroundColor: color.surface2,
+          borderColor: isChecked ? accentRamp['400'] : color.controlBorder,
+          backgroundColor: isChecked ? accentRamp['800'] : color.surface2,
           opacity: disabled ? 0.45 : 1,
         }}
       >
@@ -73,7 +73,6 @@ export function Switch({
             height: 16,
             borderRadius: radii.pill,
             backgroundColor: isChecked ? color.accent : neutral['400'],
-            boxShadow: isChecked ? glow.accent : undefined,
           }}
         />
       </View>

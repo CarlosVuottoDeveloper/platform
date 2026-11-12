@@ -15,6 +15,11 @@ describe('PrimaryActionSurface', () => {
     });
   });
 
+  it('drops the glow when asked to, even when enabled', () => {
+    render(<PrimaryActionSurface pressed={false} disabled={false} glow={false} testID="surface" />);
+    expect(surfaceStyle().boxShadow).toBeUndefined();
+  });
+
   it('dims while pressed', () => {
     render(<PrimaryActionSurface pressed disabled={false} testID="surface" />);
     expect(surfaceStyle().opacity).toBe(0.85);

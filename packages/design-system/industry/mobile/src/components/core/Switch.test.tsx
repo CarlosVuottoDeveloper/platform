@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { color, glow, neutral, radii } from '@industry/tokens';
+import { accentRamp, color, neutral, radii } from '@industry/tokens';
 import { Switch } from './Switch';
 
 describe('Switch', () => {
@@ -77,11 +77,15 @@ describe('Switch', () => {
     expect(getByTestId('switch-thumb').props.style.boxShadow).toBeUndefined();
   });
 
-  it('glows the accent thumb when on', () => {
+  it('shows the checked state on the track and never glows the thumb', () => {
     const { getByTestId } = render(<Switch label="Wifi" defaultChecked />);
+    expect(getByTestId('switch-track').props.style).toMatchObject({
+      backgroundColor: accentRamp['800'],
+      borderColor: accentRamp['400'],
+    });
     expect(getByTestId('switch-thumb').props.style).toMatchObject({
       backgroundColor: color.accent,
-      boxShadow: glow.accent,
     });
+    expect(getByTestId('switch-thumb').props.style.boxShadow).toBeUndefined();
   });
 });

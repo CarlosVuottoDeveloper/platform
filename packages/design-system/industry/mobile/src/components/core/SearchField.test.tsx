@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { accentRamp, color, radii } from '@industry/tokens';
+import { color, radii } from '@industry/tokens';
 import { SearchField } from './SearchField';
 
 describe('SearchField', () => {
@@ -28,7 +28,7 @@ describe('SearchField', () => {
 
     fireEvent(input, 'focus', { nativeEvent: {} });
     expect(onFocus).toHaveBeenCalled();
-    expect(input.props.style).toMatchObject({ borderColor: accentRamp['400'] });
+    expect(input.props.style).toMatchObject({ borderColor: color.accent });
 
     fireEvent(input, 'blur', { nativeEvent: {} });
     expect(onBlur).toHaveBeenCalled();

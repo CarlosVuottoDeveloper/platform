@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
-import { color, gradient, neutral, radii } from '@industry/tokens';
+import { color, control, gradient, neutral, radii } from '@industry/tokens';
 import { SegmentedControl } from './SegmentedControl';
 
 describe('SegmentedControl', () => {
@@ -50,6 +50,15 @@ describe('SegmentedControl', () => {
       backgroundColor: color.surface,
       borderRadius: radii.pill,
     });
+  });
+
+  it('makes every segment at least as tall as the minimum tap target', () => {
+    const { getByTestId } = render(
+      <SegmentedControl options={['a', 'b']} value="a" onValueChange={jest.fn()} />,
+    );
+    expect(
+      StyleSheet.flatten(getByTestId('segment-option-b').props.style).minHeight,
+    ).toBeGreaterThanOrEqual(control.tap);
   });
 
   it('paints the active segment with the primary gradient and no glow', () => {
