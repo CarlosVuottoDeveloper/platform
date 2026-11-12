@@ -11,8 +11,9 @@ import { industryTheme } from './theme';
 // this banner is a stopgap so the gap is visible in every affected story
 // instead of silently looking broken. Opt in per story file via
 // `parameters: { svgKnownIssue: true }`.
-export const withSvgKnownIssueNote: Decorator = (Story, context) => {
+export const withKnownIssueNotes: Decorator = (Story, context) => {
   const hasSvgKnownIssue = Boolean(context.parameters.svgKnownIssue);
+  const hasGradientKnownIssue = Boolean(context.parameters.gradientKnownIssue);
 
   return (
     <SafeAreaProvider
@@ -30,6 +31,14 @@ export const withSvgKnownIssueNote: Decorator = (Story, context) => {
             </Text>
           </View>
         )}
+        {hasGradientKnownIssue && (
+          <View style={{ padding: 8, backgroundColor: '#5a3d00' }}>
+            <Text style={{ color: '#ffd580', fontSize: 12 }}>
+              ⚠️ O gradiente (experimental_backgroundImage) só renderiza no dispositivo — o
+              react-native-web deste preview o ignora e mostra a cor sólida de fallback.
+            </Text>
+          </View>
+        )}
         <Story />
       </View>
     </SafeAreaProvider>
@@ -37,7 +46,7 @@ export const withSvgKnownIssueNote: Decorator = (Story, context) => {
 };
 
 const preview: Preview = {
-  decorators: [withSvgKnownIssueNote],
+  decorators: [withKnownIssueNotes],
   parameters: {
     backgrounds: {
       default: 'industry',

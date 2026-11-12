@@ -1,5 +1,7 @@
 export { Icon } from './Icon';
 export type { IconProps, IconSize, IconName } from './Icon';
+export { GradientSurface } from './GradientSurface';
+export type { GradientSurfaceProps } from './GradientSurface';
 export { Duotone } from './Duotone';
 export type { DuotoneProps } from './Duotone';
 export { Button } from './Button';
