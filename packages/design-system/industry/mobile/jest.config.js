@@ -22,8 +22,6 @@ module.exports = {
     '^react-native-svg$': sharedSvg,
     '^react-native-svg/(.*)$': `${sharedSvg}/$1`,
     '^react-native-safe-area-context$': '<rootDir>/__mocks__/react-native-safe-area-context.js',
-    '^@react-native-async-storage/async-storage$':
-      '<rootDir>/../../../../node_modules/@react-native-async-storage/async-storage/jest/async-storage-mock.js',
     '^react-native/Libraries/Animated/Animated$': '<rootDir>/__mocks__/react-native-animated.js',
     '^react-native/Libraries/Animated/nodes/AnimatedProps$':
       '<rootDir>/__mocks__/react-native-animated-props.js',
