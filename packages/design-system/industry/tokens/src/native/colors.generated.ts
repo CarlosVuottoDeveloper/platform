@@ -1,6 +1,5 @@
 // GENERATED FILE — do not edit by hand.
-// Resolved from tokens/colors.css by scripts/build-native-tokens.mjs.
-// Re-run `yarn build` after changing colors.css to regenerate this file.
+// Authored in scripts/build-native-tokens.mjs. Re-run `yarn build` after changing it.
 
 export const color = {
   bg: '#070B1F',
@@ -11,6 +10,7 @@ export const color = {
   accent2: '#00bbcb',
   divider: 'rgba(242, 245, 250, 0.08)',
   dividerStrong: 'rgba(242, 245, 250, 0.16)',
+  controlBorder: '#697284',
 } as const;
 
 export const neutral = {

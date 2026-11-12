@@ -1,3 +1,4 @@
+/* GENERATED FILE — do not edit by hand. Authored in scripts/build-native-tokens.mjs. */
 :root {
   color-scheme: dark;
 
@@ -9,6 +10,7 @@
   --color-accent-2: var(--color-accent-2-400);
   --color-divider: color-mix(in srgb, #f2f5fa 8%, transparent);
   --color-divider-strong: color-mix(in srgb, #f2f5fa 16%, transparent);
+  --color-control-border: var(--color-neutral-600);
 
   --color-neutral-100: oklch(0.95 0.03 265);
   --color-neutral-200: oklch(0.88 0.03 265);

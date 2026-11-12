@@ -20,6 +20,8 @@ export {
 } from './typography';
 export { resolveLineHeight, resolveLetterSpacing } from './typography-adapter';
 export { space, control } from './spacing';
+export { gradient, glow } from './effects.generated';
+export type { GradientToken, GradientName } from './effects.generated';
 export { radii } from './radii';
 export { shadow } from './shadows';
 export type { DropShadow } from './shadows';

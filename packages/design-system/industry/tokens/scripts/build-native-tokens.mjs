@@ -1,13 +1,13 @@
-// These color values mirror src/tokens/colors.css by hand — this script does not
-// parse the CSS. Keep the two in sync manually whenever one changes.
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { formatHex, oklch, wcagContrast } from 'culori';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outDir = join(root, 'src', 'native');
-mkdirSync(outDir, { recursive: true });
+const nativeDir = join(root, 'src', 'native');
+const cssDir = join(root, 'src', 'tokens');
+mkdirSync(nativeDir, { recursive: true });
+mkdirSync(cssDir, { recursive: true });
 
 function hex(l, c, h) {
   return formatHex(oklch({ mode: 'oklch', l, c, h }));
@@ -39,32 +39,79 @@ const rampL = {
   800: 0.34,
   900: 0.24,
 };
-const accentC = {
-  100: 0.05,
-  200: 0.09,
-  300: 0.13,
-  400: 0.17,
-  500: 0.19,
-  600: 0.18,
-  700: 0.15,
-  800: 0.11,
-  900: 0.075,
-};
-const accent2C = {
-  100: 0.03,
-  200: 0.06,
-  300: 0.1,
-  400: 0.13,
-  500: 0.12,
-  600: 0.1,
-  700: 0.08,
-  800: 0.06,
-  900: 0.04,
-};
 
-const neutral = Object.fromEntries(steps.map((s) => [s, hex(rampL[s], 0.03, 265)]));
-const accentRamp = Object.fromEntries(steps.map((s) => [s, hex(rampL[s], accentC[s], 255)]));
-const accent2Ramp = Object.fromEntries(steps.map((s) => [s, hex(rampL[s], accent2C[s], 205)]));
+function rampSpec(chroma, hue) {
+  return Object.fromEntries(steps.map((s) => [s, { l: rampL[s], c: chroma[s], h: hue }]));
+}
+
+const neutralSpec = rampSpec(Object.fromEntries(steps.map((s) => [s, 0.03])), 265);
+const accentSpec = rampSpec(
+  {
+    100: 0.05,
+    200: 0.09,
+    300: 0.13,
+    400: 0.17,
+    500: 0.19,
+    600: 0.18,
+    700: 0.15,
+    800: 0.11,
+    900: 0.075,
+  },
+  255,
+);
+const accent2Spec = rampSpec(
+  {
+    100: 0.03,
+    200: 0.06,
+    300: 0.1,
+    400: 0.13,
+    500: 0.12,
+    600: 0.1,
+    700: 0.08,
+    800: 0.06,
+    900: 0.04,
+  },
+  205,
+);
+const successSpec = {
+  200: { l: 0.88, c: 0.07, h: 158 },
+  300: { l: 0.8, c: 0.11, h: 158 },
+  400: { l: 0.72, c: 0.14, h: 158 },
+  700: { l: 0.45, c: 0.12, h: 158 },
+  900: { l: 0.24, c: 0.06, h: 158 },
+};
+const warningSpec = {
+  200: { l: 0.88, c: 0.09, h: 82 },
+  300: { l: 0.8, c: 0.14, h: 82 },
+  400: { l: 0.76, c: 0.17, h: 82 },
+  700: { l: 0.45, c: 0.13, h: 82 },
+  900: { l: 0.24, c: 0.07, h: 82 },
+};
+const dangerSpec = {
+  200: { l: 0.88, c: 0.08, h: 28 },
+  300: { l: 0.8, c: 0.13, h: 28 },
+  400: { l: 0.72, c: 0.18, h: 28 },
+  700: { l: 0.45, c: 0.16, h: 28 },
+  900: { l: 0.24, c: 0.09, h: 28 },
+};
+const vizHues = { 1: 250, 2: 205, 3: 160, 4: 95, 5: 35, 6: 305 };
+
+function resolveRamp(spec) {
+  return Object.fromEntries(
+    Object.entries(spec).map(([step, { l, c, h }]) => [step, hex(l, c, h)]),
+  );
+}
+
+function oklchCss({ l, c, h }) {
+  return `oklch(${l} ${c} ${h})`;
+}
+
+const neutral = resolveRamp(neutralSpec);
+const accentRamp = resolveRamp(accentSpec);
+const accent2Ramp = resolveRamp(accent2Spec);
+const success = resolveRamp(successSpec);
+const warning = resolveRamp(warningSpec);
+const danger = resolveRamp(dangerSpec);
 
 const text = '#F2F5FA';
 const color = {
@@ -76,28 +123,7 @@ const color = {
   accent2: accent2Ramp[400],
   divider: alpha(text, 8),
   dividerStrong: alpha(text, 16),
-};
-
-const success = {
-  200: hex(0.88, 0.07, 158),
-  300: hex(0.8, 0.11, 158),
-  400: hex(0.72, 0.14, 158),
-  700: hex(0.45, 0.12, 158),
-  900: hex(0.24, 0.06, 158),
-};
-const warning = {
-  200: hex(0.88, 0.09, 82),
-  300: hex(0.8, 0.14, 82),
-  400: hex(0.76, 0.17, 82),
-  700: hex(0.45, 0.13, 82),
-  900: hex(0.24, 0.07, 82),
-};
-const danger = {
-  200: hex(0.88, 0.08, 28),
-  300: hex(0.8, 0.13, 28),
-  400: hex(0.72, 0.18, 28),
-  700: hex(0.45, 0.16, 28),
-  900: hex(0.24, 0.09, 28),
+  controlBorder: neutral[600],
 };
 
 const semanticColor = {
@@ -108,13 +134,27 @@ const semanticColor = {
 };
 
 const viz = {
-  1: hex(0.72, 0.14, 250),
-  2: hex(0.72, 0.14, 205),
-  3: hex(0.72, 0.14, 160),
-  4: hex(0.72, 0.14, 95),
-  5: hex(0.72, 0.14, 35),
-  6: hex(0.72, 0.14, 305),
+  ...Object.fromEntries(Object.entries(vizHues).map(([n, h]) => [n, hex(0.72, 0.14, h)])),
   grid: alpha(text, 10),
+};
+
+function mixOver(foregroundHex, percent, backgroundHex) {
+  const channel = (index) => {
+    const fg = parseInt(foregroundHex.slice(index, index + 2), 16);
+    const bg = parseInt(backgroundHex.slice(index, index + 2), 16);
+    return Math.round((fg * percent + bg * (100 - percent)) / 100);
+  };
+  return `#${[1, 3, 5].map((i) => channel(i).toString(16).padStart(2, '0')).join('')}`;
+}
+
+const gradient = {
+  primary: { colors: [accentRamp[600], accentRamp[800]], angle: 180 },
+  surface: { colors: [color.surface2, color.surface], angle: 180 },
+  backdrop: { colors: [mixOver(accentRamp[800], 60, color.bg), color.bg], angle: 180 },
+};
+
+const glow = {
+  accent: `0 8px 20px 0 ${alpha(accentRamp[500], 45)}`,
 };
 
 assertContrast(color.text, color.bg, 4.5, 'text on bg');
@@ -128,11 +168,21 @@ assertContrast(success[300], color.surface, 4.5, 'success-300 on surface');
 assertContrast(warning[300], color.surface, 4.5, 'warning-300 on surface');
 assertContrast(danger[300], color.surface, 4.5, 'danger-300 on surface');
 assertContrast(accentRamp[400], color.bg, 3, 'accent-400 on bg');
+assertContrast(color.controlBorder, color.bg, 3, 'control-border on bg');
+assertContrast(color.controlBorder, color.surface, 3, 'control-border on surface');
+assertContrast(color.controlBorder, color.surface2, 3, 'control-border on surface2');
+gradient.primary.colors.forEach((stop, index) =>
+  assertContrast(color.text, stop, 4.5, `text on gradient-primary stop ${index + 1}`),
+);
+gradient.surface.colors.forEach((stop, index) =>
+  assertContrast(color.text, stop, 4.5, `text on gradient-surface stop ${index + 1}`),
+);
 
-const output = `// GENERATED FILE — do not edit by hand.
-// Resolved from tokens/colors.css by scripts/build-native-tokens.mjs.
-// Re-run \`yarn build\` after changing colors.css to regenerate this file.
+const nativeHeader = `// GENERATED FILE — do not edit by hand.
+// Authored in scripts/build-native-tokens.mjs. Re-run \`yarn build\` after changing it.
+`;
 
+const colorsTs = `${nativeHeader}
 export const color = ${JSON.stringify(color, null, 2)} as const;
 
 export const neutral = ${JSON.stringify(neutral, null, 2)} as const;
@@ -152,4 +202,78 @@ export const semanticColor = ${JSON.stringify(semanticColor, null, 2)} as const;
 export const viz = ${JSON.stringify(viz, null, 2)} as const;
 `;
 
-writeFileSync(join(outDir, 'colors.generated.ts'), output);
+const effectsTs = `${nativeHeader}
+export interface GradientToken {
+  colors: readonly [string, string];
+  angle: number;
+}
+
+export type GradientName = 'primary' | 'surface' | 'backdrop';
+
+export const gradient: Record<GradientName, GradientToken> = ${JSON.stringify(gradient, null, 2)};
+
+export const glow: Record<'accent', string> = ${JSON.stringify(glow, null, 2)};
+`;
+
+const cssHeader = `/* GENERATED FILE — do not edit by hand. Authored in scripts/build-native-tokens.mjs. */`;
+
+function cssVars(prefix, spec) {
+  return Object.entries(spec)
+    .map(([step, value]) => `  --${prefix}-${step}: ${oklchCss(value)};`)
+    .join('\n');
+}
+
+const cssHex = (value) => value.toLowerCase();
+
+const colorsCss = `${cssHeader}
+:root {
+  color-scheme: dark;
+
+  --color-bg: ${cssHex(color.bg)};
+  --color-surface: ${cssHex(color.surface)};
+  --color-surface-2: ${cssHex(color.surface2)};
+  --color-text: ${cssHex(color.text)};
+  --color-accent: var(--color-accent-400);
+  --color-accent-2: var(--color-accent-2-400);
+  --color-divider: color-mix(in srgb, ${cssHex(text)} 8%, transparent);
+  --color-divider-strong: color-mix(in srgb, ${cssHex(text)} 16%, transparent);
+  --color-control-border: var(--color-neutral-600);
+
+${cssVars('color-neutral', neutralSpec)}
+
+${cssVars('color-accent', accentSpec)}
+
+${cssVars('color-accent-2', accent2Spec)}
+
+${cssVars('color-success', successSpec)}
+${cssVars('color-warning', warningSpec)}
+${cssVars('color-danger', dangerSpec)}
+  --color-success: var(--color-success-400);
+  --color-warning: var(--color-warning-400);
+  --color-danger: var(--color-danger-400);
+  --color-info: var(--color-accent-2-400);
+
+${Object.entries(vizHues)
+  .map(([n, h]) => `  --viz-${n}: ${oklchCss({ l: 0.72, c: 0.14, h })};`)
+  .join('\n')}
+  --viz-grid: color-mix(in srgb, var(--color-text) 10%, transparent);
+}
+`;
+
+function linearGradientCss(angle, from, to) {
+  return `linear-gradient(${angle}deg, ${from}, ${to})`;
+}
+
+const gradientsCss = `${cssHeader}
+:root {
+  --gradient-primary: ${linearGradientCss(gradient.primary.angle, 'var(--color-accent-600)', 'var(--color-accent-800)')};
+  --gradient-surface: ${linearGradientCss(gradient.surface.angle, 'var(--color-surface-2)', 'var(--color-surface)')};
+  --gradient-backdrop: ${linearGradientCss(gradient.backdrop.angle, 'color-mix(in srgb, var(--color-accent-800) 60%, var(--color-bg))', 'var(--color-bg)')};
+  --glow-accent: ${glow.accent};
+}
+`;
+
+writeFileSync(join(nativeDir, 'colors.generated.ts'), colorsTs);
+writeFileSync(join(nativeDir, 'effects.generated.ts'), effectsTs);
+writeFileSync(join(cssDir, 'colors.css'), colorsCss);
+writeFileSync(join(cssDir, 'gradients.css'), gradientsCss);
