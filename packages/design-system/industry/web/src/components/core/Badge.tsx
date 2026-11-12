@@ -13,7 +13,7 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'style
 
 const OUTLINE_COLOR: Record<BadgeTone, string> = {
   neutral: 'var(--color-neutral-300)',
-  accent: 'var(--color-accent-300)',
+  accent: 'var(--color-accent)',
   success: 'var(--color-success-300)',
   warning: 'var(--color-warning-300)',
   danger: 'var(--color-danger-300)',
@@ -26,7 +26,6 @@ const SOLID_BACKGROUND: Partial<Record<BadgeTone, string>> = {
   danger: 'var(--color-danger)',
 };
 
-/** A status pill with a leading square marker. */
 export function Badge({ tone = 'neutral', solid, children, style, ...rest }: BadgeProps) {
   const color = solid ? 'var(--color-bg)' : OUTLINE_COLOR[tone];
 
@@ -36,21 +35,26 @@ export function Badge({ tone = 'neutral', solid, children, style, ...rest }: Bad
         display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
-        fontSize: 12,
+        fontSize: 'var(--text-h6)',
         padding: '3px 10px',
         fontFamily: 'var(--font-body)',
-        letterSpacing: '0.04em',
-        textTransform: 'uppercase',
+        borderRadius: 'var(--radius-pill)',
         color,
         border: `1px solid ${solid ? 'transparent' : OUTLINE_COLOR[tone]}`,
-        background: solid ? SOLID_BACKGROUND[tone] : undefined,
+        background: solid ? SOLID_BACKGROUND[tone] : 'var(--color-surface-2)',
         ...style,
       }}
       {...rest}
     >
       <span
         aria-hidden="true"
-        style={{ width: 6, height: 6, flex: 'none', background: 'currentColor' }}
+        style={{
+          width: 6,
+          height: 6,
+          flex: 'none',
+          borderRadius: 'var(--radius-pill)',
+          background: 'currentColor',
+        }}
       />
       {children}
     </span>

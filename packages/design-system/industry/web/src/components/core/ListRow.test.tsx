@@ -62,4 +62,14 @@ describe('ListRow', () => {
 
     expect(row.style.background).toBe('color-mix(in srgb, var(--color-text) 5%, transparent)');
   });
+
+  it('clears the hover tint when the pointer leaves', () => {
+    render(<ListRow title="Título" />);
+    const row = screen.getByRole('button');
+
+    fireEvent.mouseEnter(row);
+    fireEvent.mouseLeave(row);
+
+    expect(row.style.background).toBe('none');
+  });
 });

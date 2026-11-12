@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
+import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -14,6 +15,20 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   style?: CSSProperties;
 }
 
+function tint(colorVar: string, percent: number) {
+  return `color-mix(in srgb, ${colorVar} ${percent}%, transparent)`;
+}
+
+function pick(
+  pressed: boolean,
+  hovered: boolean,
+  pressedValue: number,
+  hoveredValue: number,
+  rest: number,
+) {
+  return pressed ? pressedValue : hovered ? hoveredValue : rest;
+}
+
 function skin(
   variant: ButtonVariant,
   hovered: boolean,
@@ -24,52 +39,41 @@ function skin(
     return {
       color: 'var(--color-text)',
       borderColor: 'var(--color-accent-400)',
-      background: `color-mix(in srgb, var(--color-accent) ${pressed ? 28 : hovered ? 22 : 16}%, transparent)`,
+      background: tint('var(--color-accent)', pick(pressed, hovered, 28, 22, 16)),
     };
   }
   if (variant === 'primary') {
     return {
-      background: pressed
-        ? 'var(--color-accent-500)'
-        : hovered
-          ? 'var(--color-accent-300)'
-          : 'var(--color-accent)',
-      color: 'var(--color-bg)',
-      borderColor: pressed
-        ? 'var(--color-accent-500)'
-        : hovered
-          ? 'var(--color-accent-300)'
-          : 'var(--color-accent)',
+      color: 'var(--color-text)',
+      borderColor: 'transparent',
+      background: PRIMARY_ACTION_FILL,
     };
   }
   if (variant === 'ghost') {
     return {
       color: 'var(--color-accent-300)',
       borderColor: 'transparent',
-      background: pressed
-        ? 'color-mix(in srgb, var(--color-accent) 22%, transparent)'
-        : hovered
-          ? 'color-mix(in srgb, var(--color-accent) 14%, transparent)'
+      background:
+        pressed || hovered
+          ? tint('var(--color-accent)', pick(pressed, hovered, 22, 14, 0))
           : 'transparent',
     };
   }
   if (variant === 'danger') {
     return {
       color: 'var(--color-danger-300)',
-      borderColor: 'color-mix(in srgb, var(--color-danger) 45%, transparent)',
-      background: hovered
-        ? 'color-mix(in srgb, var(--color-danger) 16%, transparent)'
-        : 'transparent',
+      borderColor: 'transparent',
+      background: tint('var(--color-danger-400)', pick(pressed, hovered, 28, 22, 16)),
     };
   }
   return {
     color: 'var(--color-text)',
-    borderColor: hovered || pressed ? 'var(--color-divider-strong)' : 'var(--color-divider)',
+    borderColor: tint('var(--color-text)', 10),
     background: pressed
-      ? 'color-mix(in srgb, var(--color-text) 14%, transparent)'
+      ? 'var(--color-surface)'
       : hovered
-        ? 'color-mix(in srgb, var(--color-text) 8%, transparent)'
-        : 'transparent',
+        ? 'color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2))'
+        : 'var(--color-surface-2)',
   };
 }
 
@@ -87,12 +91,15 @@ export function Button({
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const height = size === 'sm' ? 'var(--control-h-sm)' : 'var(--control-h)';
+  const hasGradient = variant === 'primary' && !selected;
+  const isHovered = hovered && !disabled;
+  const isPressed = pressed && !disabled;
 
   return (
     <button
       type="button"
       disabled={disabled}
-      aria-pressed={selected === undefined ? undefined : selected}
+      aria-pressed={selected}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => {
         setHovered(false);
@@ -101,6 +108,8 @@ export function Button({
       onMouseDown={() => setPressed(true)}
       onMouseUp={() => setPressed(false)}
       style={{
+        position: 'relative',
+        isolation: 'isolate',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -111,19 +120,41 @@ export function Button({
         textDecoration: 'none',
         fontFamily: 'var(--font-heading)',
         fontWeight: 'var(--font-heading-weight)',
-        fontSize: size === 'sm' ? 14 : 15,
+        fontSize: size === 'sm' ? 'var(--text-h6)' : 'var(--text-body)',
         lineHeight: 1.2,
-        border: '1px solid',
-        borderRadius: 0,
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderRadius: 'var(--radius-pill)',
         padding: iconOnly ? 0 : size === 'sm' ? '0 var(--space-3)' : '0 var(--space-4)',
         opacity: disabled ? 0.45 : 1,
         transition: 'background 120ms ease, border-color 120ms ease',
-        ...skin(variant, hovered && !disabled, pressed && !disabled, Boolean(selected)),
+        ...skin(variant, isHovered, isPressed, Boolean(selected)),
         ...style,
       }}
       {...rest}
     >
-      {children}
+      {hasGradient ? (
+        <PrimaryActionSurface
+          pressed={isPressed}
+          hovered={isHovered}
+          disabled={Boolean(disabled)}
+        />
+      ) : null}
+      {typeof children === 'string' ? (
+        <span
+          style={{
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+            overflow: 'hidden',
+            textAlign: 'center',
+          }}
+        >
+          {children}
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }

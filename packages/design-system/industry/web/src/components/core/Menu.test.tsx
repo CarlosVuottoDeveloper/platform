@@ -151,4 +151,16 @@ describe('Menu', () => {
     await waitFor(() => expect(selected.querySelector('svg')).not.toBeNull());
     expect(other.querySelector('svg')).toBeNull();
   });
+
+  it('does not tint a disabled row on hover', () => {
+    render(<Menu trigger="Ações" items={ITEMS} />);
+    fireEvent.click(screen.getByText('Ações'));
+    const row = screen.getByRole('menuitem', { name: 'Excluir' });
+
+    fireEvent.mouseEnter(row);
+    expect(row.style.background).toBe('transparent');
+
+    fireEvent.mouseLeave(row);
+    expect(row.style.background).toBe('transparent');
+  });
 });
