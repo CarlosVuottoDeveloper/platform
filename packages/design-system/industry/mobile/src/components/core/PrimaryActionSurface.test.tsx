@@ -15,6 +15,17 @@ describe('PrimaryActionSurface', () => {
     });
   });
 
+  it('bleeds one pixel past the container so the border never shows a ring', () => {
+    render(<PrimaryActionSurface pressed={false} disabled={false} testID="surface" />);
+    expect(surfaceStyle()).toMatchObject({
+      position: 'absolute',
+      top: -1,
+      right: -1,
+      bottom: -1,
+      left: -1,
+    });
+  });
+
   it('drops the glow when asked to, even when enabled', () => {
     render(<PrimaryActionSurface pressed={false} disabled={false} glow={false} testID="surface" />);
     expect(surfaceStyle().boxShadow).toBeUndefined();
