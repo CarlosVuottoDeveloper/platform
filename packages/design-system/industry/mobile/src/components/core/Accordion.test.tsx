@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import type { ReactTestRendererJSON } from 'react-test-renderer';
+import { color, radii } from '@industry/tokens';
 import { Accordion } from './Accordion';
 
 const ITEMS = [
@@ -96,5 +98,17 @@ describe('Accordion', () => {
   it('works without a testID', () => {
     render(<Accordion items={ITEMS} defaultOpenKeys={['a']} />);
     expect(screen.getByText('Conteúdo A')).toBeTruthy();
+  });
+
+  it('is a rounded surface with divider-colored separators', () => {
+    render(<Accordion items={ITEMS} testID="acc" />);
+
+    const style = StyleSheet.flatten(screen.getByTestId('acc').props.style);
+    expect(style.borderRadius).toBe(radii.md);
+    expect(style.backgroundColor).toBe(color.surface);
+    expect(style.overflow).toBe('hidden');
+    const root = screen.toJSON() as ReactTestRendererJSON;
+    const section = root.children?.[0] as ReactTestRendererJSON;
+    expect(StyleSheet.flatten(section.props.style).borderColor).toBe(color.divider);
   });
 });

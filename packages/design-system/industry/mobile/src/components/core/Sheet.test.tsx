@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text } from 'react-native';
-import { color } from '@industry/tokens';
+import { StyleSheet, Text } from 'react-native';
+import { alpha, color, fontSize, gradient, radii } from '@industry/tokens';
 import { Sheet } from './Sheet';
 
 describe('Sheet', () => {
@@ -65,5 +65,23 @@ describe('Sheet', () => {
 
     const styles = [getByText('Título').props.style].flat();
     expect(styles.some((s) => s?.color === color.text)).toBe(true);
+  });
+
+  it('rounds only its top corners on a gradient surface with a soft border', () => {
+    const { getByTestId } = render(<Sheet testID="status-sheet" />);
+
+    const style = StyleSheet.flatten(getByTestId('status-sheet-surface').props.style);
+    expect(style.borderRadius).toBe(radii.lg);
+    expect(style.borderBottomLeftRadius).toBe(0);
+    expect(style.borderBottomRightRadius).toBe(0);
+    expect(style.backgroundColor).toBe(gradient.surface.colors[0]);
+    expect(style.borderWidth).toBe(1);
+    expect(style.borderColor).toBe(alpha(color.text, 8));
+  });
+
+  it('sizes the title with the h4 token', () => {
+    const { getByText } = render(<Sheet title="Título" />);
+
+    expect(StyleSheet.flatten(getByText('Título').props.style).fontSize).toBe(fontSize.h4);
   });
 });

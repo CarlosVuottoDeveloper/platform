@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Modal, Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, alpha, color, control, shadow, space } from '@industry/tokens';
+import { accentRamp, alpha, color, control, radii, shadow, space } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface MenuItem {
@@ -82,39 +82,39 @@ export function Menu({
                 top: position.top,
                 right: position.right,
                 minWidth: 200,
-                backgroundColor: color.surface,
-                borderWidth: 1,
-                borderColor: color.dividerStrong,
-                paddingVertical: space[1],
+                backgroundColor: color.surface2,
+                borderRadius: radii.md,
               },
               shadow.md,
             ]}
           >
-            {header ? (
-              <Text
-                style={{
-                  fontSize: 11,
-                  letterSpacing: 1.1,
-                  textTransform: 'uppercase',
-                  color: alpha(color.text, 50),
-                  paddingHorizontal: space[4],
-                  paddingTop: space[2],
-                  paddingBottom: space[1],
-                }}
-              >
-                {header}
-              </Text>
-            ) : null}
-            {items.map((item, index) => (
-              <MenuItemRow
-                key={item.key ?? index}
-                item={item}
-                onSelect={() => {
-                  item.onSelect?.();
-                  setOpen(false);
-                }}
-              />
-            ))}
+            <View style={{ paddingVertical: space[1], borderRadius: radii.md, overflow: 'hidden' }}>
+              {header ? (
+                <Text
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: 1.1,
+                    textTransform: 'uppercase',
+                    color: alpha(color.text, 50),
+                    paddingHorizontal: space[4],
+                    paddingTop: space[2],
+                    paddingBottom: space[1],
+                  }}
+                >
+                  {header}
+                </Text>
+              ) : null}
+              {items.map((item, index) => (
+                <MenuItemRow
+                  key={item.key ?? index}
+                  item={item}
+                  onSelect={() => {
+                    item.onSelect?.();
+                    setOpen(false);
+                  }}
+                />
+              ))}
+            </View>
           </View>
         </Pressable>
       </Modal>

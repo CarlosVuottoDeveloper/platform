@@ -1,5 +1,7 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { semanticColor } from '@industry/tokens';
+import { StyleSheet } from 'react-native';
+import type { ReactTestRendererJSON } from 'react-test-renderer';
+import { color, radii, semanticColor } from '@industry/tokens';
 import { Toast } from './Toast';
 
 describe('Toast', () => {
@@ -50,5 +52,13 @@ describe('Toast', () => {
     const { getByText: getWarningText } = render(<Toast tone="warning" title="Atenção" />);
     const warningStyles = [getWarningText('Atenção').props.style].flat();
     expect(warningStyles.some((s) => s?.color === semanticColor.warning)).toBe(true);
+  });
+
+  it('is a rounded surface2 card', () => {
+    const { toJSON } = render(<Toast title="Salvo" />);
+
+    const style = StyleSheet.flatten((toJSON() as ReactTestRendererJSON).props.style);
+    expect(style.borderRadius).toBe(radii.md);
+    expect(style.backgroundColor).toBe(color.surface2);
   });
 });

@@ -2,7 +2,8 @@ import { Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, fontFamily, fontWeight, shadow, space } from '@industry/tokens';
+import { alpha, color, fontFamily, fontSize, fontWeight, shadow, space } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
 
 export interface SheetProps {
   open?: boolean;
@@ -34,45 +35,47 @@ export function Sheet({
         onPress={onDismiss}
         style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: alpha(color.bg, 60) }}
       >
-        <View
-          testID={testID}
-          onStartShouldSetResponder={() => true}
-          style={[
-            {
-              gap: space[3],
-              paddingHorizontal: space[4],
-              paddingTop: space[3],
-              paddingBottom: space[6] + insets.bottom,
-              backgroundColor: color.surface,
-              borderTopWidth: 1,
-              borderTopColor: color.dividerStrong,
-            },
-            shadow.lg,
-            style,
-          ]}
-        >
-          <View
-            style={{
-              width: 44,
-              height: 3,
-              backgroundColor: color.dividerStrong,
-              alignSelf: 'center',
-            }}
-          />
-          {title ? (
-            <Text
+        <View testID={testID} onStartShouldSetResponder={() => true} style={shadow.lg}>
+          <GradientSurface
+            variant="surface"
+            testID={testID ? `${testID}-surface` : undefined}
+            style={[
+              {
+                gap: space[3],
+                paddingHorizontal: space[4],
+                paddingTop: space[3],
+                paddingBottom: space[6] + insets.bottom,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                borderWidth: 1,
+                borderColor: alpha(color.text, 8),
+              },
+              style,
+            ]}
+          >
+            <View
               style={{
-                fontFamily: fontFamily.heading,
-                fontWeight: fontWeight.heading,
-                fontSize: 21,
-                color: color.text,
+                width: 44,
+                height: 3,
+                backgroundColor: color.dividerStrong,
+                alignSelf: 'center',
               }}
-            >
-              {title}
-            </Text>
-          ) : null}
-          {children}
-          {actions}
+            />
+            {title ? (
+              <Text
+                style={{
+                  fontFamily: fontFamily.heading,
+                  fontWeight: fontWeight.heading,
+                  fontSize: fontSize.h4,
+                  color: color.text,
+                }}
+              >
+                {title}
+              </Text>
+            ) : null}
+            {children}
+            {actions}
+          </GradientSurface>
         </View>
       </Pressable>
     </Modal>

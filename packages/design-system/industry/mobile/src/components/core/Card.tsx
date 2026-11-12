@@ -2,6 +2,7 @@ import { Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import { accentRamp, alpha, color, fontFamily, fontWeight, shadow, space } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
 
 export type CardElevation = 'sm' | 'md' | 'lg';
 
@@ -18,16 +19,15 @@ export interface CardProps {
 
 export function Card({ kicker, title, body, meta, elevation, children, style, testID }: CardProps) {
   return (
-    <View
+    <GradientSurface
+      variant="surface"
       testID={testID}
       style={[
         {
           gap: space[2],
           padding: space[4],
-          borderRadius: 0,
-          backgroundColor: 'transparent',
           borderWidth: 1,
-          borderColor: color.divider,
+          borderColor: alpha(color.text, 8),
         },
         elevation ? shadow[elevation] : null,
         style,
@@ -37,8 +37,6 @@ export function Card({ kicker, title, body, meta, elevation, children, style, te
         <Text
           style={{
             fontSize: 11,
-            letterSpacing: 1.1,
-            textTransform: 'uppercase',
             color: accentRamp['300'],
           }}
         >
@@ -65,6 +63,6 @@ export function Card({ kicker, title, body, meta, elevation, children, style, te
           <Text style={{ fontSize: 12, color: alpha(color.text, 50) }}>{meta}</Text>
         </View>
       ) : null}
-    </View>
+    </GradientSurface>
   );
 }

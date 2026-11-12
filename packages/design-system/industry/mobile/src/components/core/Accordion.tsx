@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { color, space } from '@industry/tokens';
+import { color, radii, space } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface AccordionItem {
@@ -43,7 +43,13 @@ export function Accordion({
   }
 
   return (
-    <View testID={testID} style={[{ borderTopWidth: 1, borderColor: color.divider }, style]}>
+    <View
+      testID={testID}
+      style={[
+        { borderRadius: radii.md, backgroundColor: color.surface, overflow: 'hidden' },
+        style,
+      ]}
+    >
       {items.map((item) => (
         <AccordionSection
           key={item.key}

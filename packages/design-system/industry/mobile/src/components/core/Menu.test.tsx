@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
-import { accentRamp, alpha, color } from '@industry/tokens';
+import { StyleSheet, Text, View } from 'react-native';
+import { accentRamp, alpha, color, radii } from '@industry/tokens';
 import { Menu, resolveMenuPosition } from './Menu';
 
 function mockMeasureInWindow(x: number, y: number, width: number, height: number) {
@@ -243,5 +243,17 @@ describe('Menu', () => {
     expect(getByTestId('menu-item-edit').props.style).toMatchObject({
       backgroundColor: expect.any(String),
     });
+  });
+
+  it('renders the panel as a rounded surface2 card', () => {
+    const { getByTestId } = render(
+      <Menu trigger={<Text>Ações</Text>} items={ITEMS} testID="menu" />,
+    );
+
+    fireEvent.press(getByTestId('menu'));
+
+    const style = StyleSheet.flatten(getByTestId('menu-panel').props.style);
+    expect(style.borderRadius).toBe(radii.md);
+    expect(style.backgroundColor).toBe(color.surface2);
   });
 });
