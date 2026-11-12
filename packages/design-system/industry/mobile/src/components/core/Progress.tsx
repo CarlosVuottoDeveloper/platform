@@ -2,7 +2,10 @@ import { useEffect, useRef } from 'react';
 import { ActivityIndicator, Animated, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, fontFamily } from '@industry/tokens';
+import { color, fontFamily, fontSize, neutral, radii, space } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
+
+const AnimatedGradientSurface = Animated.createAnimatedComponent(GradientSurface);
 
 export interface ProgressProps {
   value?: number;
@@ -35,15 +38,17 @@ export function Progress({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginBottom: 5,
+            marginBottom: space[1],
           }}
         >
-          <Text style={{ fontFamily: fontFamily.body, fontSize: 11, color: alpha(color.text, 60) }}>
+          <Text
+            style={{ fontFamily: fontFamily.body, fontSize: fontSize.h6, color: neutral['400'] }}
+          >
             {label}
           </Text>
           {showValue ? (
             <Text
-              style={{ fontFamily: fontFamily.body, fontSize: 11, color: alpha(color.text, 60) }}
+              style={{ fontFamily: fontFamily.body, fontSize: fontSize.h6, color: neutral['400'] }}
             >
               {Math.round(pct)}%
             </Text>
@@ -55,12 +60,19 @@ export function Progress({
         accessible
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max, now: value }}
-        style={{ height: 4, backgroundColor: alpha(color.text, 12), overflow: 'hidden' }}
+        style={{
+          height: 8,
+          backgroundColor: color.surface2,
+          borderRadius: radii.pill,
+          overflow: 'hidden',
+        }}
       >
-        <Animated.View
+        <AnimatedGradientSurface
+          testID={testID ? `${testID}-fill` : undefined}
+          variant="primary"
+          radius={radii.pill}
           style={{
             height: '100%',
-            backgroundColor: color.accent,
             width: width.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
           }}
         />

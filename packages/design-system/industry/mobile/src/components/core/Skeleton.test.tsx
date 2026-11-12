@@ -1,5 +1,6 @@
 import { render, waitFor } from '@testing-library/react-native';
-import { AccessibilityInfo, Animated } from 'react-native';
+import { AccessibilityInfo, Animated, StyleSheet } from 'react-native';
+import { color, radii } from '@industry/tokens';
 import { Skeleton } from './Skeleton';
 
 describe('Skeleton', () => {
@@ -47,5 +48,22 @@ describe('Skeleton', () => {
 
     expect(getByTestId('skeleton-line-0').props.style).toMatchObject({ width: '100%' });
     expect(getByTestId('skeleton-line-1').props.style).toMatchObject({ width: '62%' });
+  });
+});
+
+describe('Skeleton look', () => {
+  it('fills with surface2 and rounds with radii.md', () => {
+    const { getByTestId } = render(<Skeleton testID="skeleton" />);
+
+    expect(StyleSheet.flatten(getByTestId('skeleton').props.style)).toMatchObject({
+      backgroundColor: color.surface2,
+      borderRadius: radii.md,
+    });
+  });
+
+  it('lets a consumer style override the radius', () => {
+    const { getByTestId } = render(<Skeleton testID="skeleton" style={{ borderRadius: 4 }} />);
+
+    expect(StyleSheet.flatten(getByTestId('skeleton').props.style).borderRadius).toBe(4);
   });
 });

@@ -1,7 +1,16 @@
 import { FlatList, Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, alpha, color, control, space } from '@industry/tokens';
+import {
+  accentRamp,
+  color,
+  control,
+  fontSize,
+  fontWeight,
+  neutral,
+  radii,
+  space,
+} from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface Column<Row extends Record<string, ReactNode> = Record<string, ReactNode>> {
@@ -46,63 +55,71 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
     <View style={style}>
       {toolbar ? <View style={{ paddingBottom: space[3] }}>{toolbar}</View> : null}
       <View
-        style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: color.divider }}
+        testID="data-table-surface"
+        style={{ backgroundColor: color.surface, borderRadius: radii.lg, overflow: 'hidden' }}
       >
-        {columns.map((column) => (
-          <View
-            key={column.key}
-            style={{
-              width: column.width,
-              flex: column.width ? undefined : 1,
-              paddingVertical: space[2],
-              paddingHorizontal: space[3],
-            }}
-          >
-            {column.sortable === false ? (
-              <ColumnLabel>{column.label}</ColumnLabel>
-            ) : (
-              <SortHeader
-                columnKey={column.key}
-                active={sort?.key === column.key}
-                direction={sort?.key === column.key ? sort.dir : undefined}
-                onPress={onSort ? () => onSort(column.key) : undefined}
-              >
-                {column.label}
-              </SortHeader>
-            )}
-          </View>
-        ))}
+        <View
+          testID="data-table-header"
+          style={{ flexDirection: 'row', backgroundColor: color.surface2 }}
+        >
+          {columns.map((column) => (
+            <View
+              key={column.key}
+              style={{
+                width: column.width,
+                flex: column.width ? undefined : 1,
+                paddingHorizontal: space[3],
+              }}
+            >
+              {column.sortable === false ? (
+                <ColumnLabel>{column.label}</ColumnLabel>
+              ) : (
+                <SortHeader
+                  columnKey={column.key}
+                  active={sort?.key === column.key}
+                  direction={sort?.key === column.key ? sort.dir : undefined}
+                  onPress={onSort ? () => onSort(column.key) : undefined}
+                >
+                  {column.label}
+                </SortHeader>
+              )}
+            </View>
+          ))}
+        </View>
+        <FlatList
+          data={rows}
+          keyExtractor={(row, index) => String((row.id as string | number | undefined) ?? index)}
+          renderItem={({ item: row, index }) => (
+            <View
+              testID={`data-table-row-${index}`}
+              style={{
+                flexDirection: 'row',
+                borderBottomWidth: index < rows.length - 1 ? 1 : undefined,
+                borderBottomColor: color.divider,
+              }}
+            >
+              {columns.map((column) => (
+                <View
+                  key={column.key}
+                  style={{
+                    width: column.width,
+                    flex: column.width ? undefined : 1,
+                    padding: space[3],
+                  }}
+                >
+                  {column.render ? (
+                    <Cell>{column.render(row)}</Cell>
+                  ) : (
+                    <Text style={{ fontSize: fontSize.body, color: color.text }}>
+                      {row[column.key]}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        />
       </View>
-      <FlatList
-        data={rows}
-        keyExtractor={(row, index) => String((row.id as string | number | undefined) ?? index)}
-        renderItem={({ item: row }) => (
-          <View
-            style={{
-              flexDirection: 'row',
-              borderBottomWidth: 1,
-              borderBottomColor: alpha(color.text, 8),
-            }}
-          >
-            {columns.map((column) => (
-              <View
-                key={column.key}
-                style={{
-                  width: column.width,
-                  flex: column.width ? undefined : 1,
-                  padding: space[3],
-                }}
-              >
-                {column.render ? (
-                  <Cell>{column.render(row)}</Cell>
-                ) : (
-                  <Text style={{ fontSize: 15, color: color.text }}>{row[column.key]}</Text>
-                )}
-              </View>
-            ))}
-          </View>
-        )}
-      />
       {pageCount > 1 ? (
         <Pagination page={page} pageCount={pageCount} total={total} onPage={onPage} />
       ) : null}
@@ -112,7 +129,7 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
 
 function Cell({ children }: { children?: ReactNode }) {
   return typeof children === 'string' || typeof children === 'number' ? (
-    <Text style={{ fontSize: 15, color: color.text }}>{children}</Text>
+    <Text style={{ fontSize: fontSize.body, color: color.text }}>{children}</Text>
   ) : (
     <>{children}</>
   );
@@ -120,16 +137,11 @@ function Cell({ children }: { children?: ReactNode }) {
 
 function ColumnLabel({ children }: { children?: ReactNode }) {
   return (
-    <Text
-      style={{
-        fontSize: 11,
-        letterSpacing: 0.9,
-        textTransform: 'uppercase',
-        color: alpha(color.text, 60),
-      }}
-    >
-      {children}
-    </Text>
+    <View style={{ minHeight: control.heightSm, justifyContent: 'center' }}>
+      <Text style={{ fontSize: fontSize.h6, fontWeight: fontWeight.medium, color: neutral['400'] }}>
+        {children}
+      </Text>
+    </View>
   );
 }
 
@@ -152,14 +164,19 @@ function SortHeader({
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       onPress={onPress}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space[1],
+        minHeight: control.tap,
+        opacity: pressed ? 0.6 : 1,
+      })}
     >
       <Text
         style={{
-          fontSize: 11,
-          letterSpacing: 0.9,
-          textTransform: 'uppercase',
-          color: active ? accentRamp['200'] : alpha(color.text, 60),
+          fontSize: fontSize.h6,
+          fontWeight: fontWeight.medium,
+          color: active ? accentRamp['200'] : neutral['400'],
         }}
       >
         {children}
@@ -190,7 +207,7 @@ function Pagination({
     <View
       style={{ flexDirection: 'row', alignItems: 'center', gap: space[2], paddingTop: space[3] }}
     >
-      <Text style={{ flex: 1, fontSize: 13, color: alpha(color.text, 55) }}>
+      <Text style={{ flex: 1, fontSize: fontSize.h6, color: neutral['400'] }}>
         {total != null ? `${total} registros` : `Página ${page} de ${pageCount}`}
       </Text>
       <PagerButton disabled={page <= 1} onPress={onPage ? () => onPage(page - 1) : undefined}>
@@ -233,19 +250,22 @@ function PagerButton({
       accessibilityRole="button"
       accessibilityState={{ disabled, selected: current }}
       onPress={onPress}
-      style={{
-        minWidth: control.heightSm,
-        minHeight: control.heightSm,
+      style={({ pressed }) => ({
+        minWidth: control.tap,
+        minHeight: control.tap,
         paddingHorizontal: space[2],
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: radii.pill,
         backgroundColor: current ? color.accent : 'transparent',
         borderWidth: 1,
-        borderColor: current ? color.accent : color.divider,
-        opacity: disabled ? 0.35 : 1,
-      }}
+        borderColor: current ? color.accent : color.controlBorder,
+        opacity: disabled ? 0.35 : pressed ? 0.7 : 1,
+      })}
     >
-      <Text style={{ fontSize: 14, color: current ? color.bg : color.text }}>{children}</Text>
+      <Text style={{ fontSize: fontSize.h6, color: current ? color.bg : color.text }}>
+        {children}
+      </Text>
     </Pressable>
   );
 }

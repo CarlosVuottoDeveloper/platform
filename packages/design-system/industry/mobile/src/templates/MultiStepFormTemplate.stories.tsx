@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Button, Stepper, TextField } from '../components/core';
-import { color, space } from '@industry/tokens';
+import { color, fontSize, neutral, space } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Templates/Multi-step Form',
@@ -45,7 +45,7 @@ function MultiStepFormScreen() {
         </View>
       ) : null}
       {step === 2 ? (
-        <Text style={{ fontSize: 14, color: color.text }}>
+        <Text style={{ fontSize: fontSize.body, color: neutral['200'] }}>
           Revise os dados e confirme para concluir o cadastro.
         </Text>
       ) : null}

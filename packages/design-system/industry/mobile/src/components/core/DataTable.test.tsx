@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { accentRamp, color, control, neutral, radii } from '@industry/tokens';
 import { DataTable } from './DataTable';
 
 const COLUMNS = [
@@ -177,5 +178,72 @@ describe('DataTable', () => {
     fireEvent.press(getByTestId('pager-btn-Próxima'));
 
     expect(onPage).toHaveBeenCalledWith(3);
+  });
+});
+
+const grant = {
+  nativeEvent: { touches: [], changedTouches: [], timestamp: 0 },
+  persist: jest.fn(),
+};
+
+describe('DataTable look', () => {
+  const flat = (node: { props: { style?: unknown } }) =>
+    StyleSheet.flatten(node.props.style as never) as Record<string, unknown>;
+
+  it('draws a clipped rounded surface around the header and rows', () => {
+    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} />);
+
+    expect(flat(getByTestId('data-table-surface'))).toMatchObject({
+      backgroundColor: color.surface,
+      borderRadius: radii.lg,
+      overflow: 'hidden',
+    });
+  });
+
+  it('puts the header row on surface2 with sentence-case muted labels', () => {
+    const { getByTestId, getByText } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'asc' }} />,
+    );
+
+    expect(flat(getByTestId('data-table-header')).backgroundColor).toBe(color.surface2);
+    const label = flat(getByText('Cargo'));
+    expect(label.color).toBe(neutral['400']);
+    expect(label.textTransform).toBeUndefined();
+    expect(label.letterSpacing).toBeUndefined();
+    expect(flat(getByText('Nome')).color).toBe(accentRamp['200']);
+  });
+
+  it('separates rows with the divider color and leaves the last row without one', () => {
+    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} />);
+
+    expect(flat(getByTestId('data-table-row-0'))).toMatchObject({
+      borderBottomWidth: 1,
+      borderBottomColor: color.divider,
+    });
+    expect(flat(getByTestId('data-table-row-1')).borderBottomWidth).toBeUndefined();
+  });
+
+  it('gives sortable headers a tap-size target and press feedback', () => {
+    const { getByTestId } = render(<DataTable columns={COLUMNS} rows={ROWS} onSort={jest.fn()} />);
+    const header = getByTestId('sort-header-name');
+
+    expect(flat(header).minHeight).toBe(control.tap);
+    expect(flat(header).opacity).toBe(1);
+    fireEvent(header, 'responderGrant', grant);
+    expect(flat(getByTestId('sort-header-name')).opacity).toBeLessThan(1);
+  });
+
+  it('renders the pager buttons as pills with readable text on the current page', () => {
+    const { getByTestId, getByText } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} page={1} pageCount={2} />,
+    );
+
+    expect(flat(getByTestId('pager-btn-1'))).toMatchObject({
+      borderRadius: radii.pill,
+      backgroundColor: color.accent,
+      minHeight: control.tap,
+    });
+    expect(flat(getByText('1')).color).toBe(color.bg);
+    expect(flat(getByTestId('pager-btn-2')).borderColor).toBe(color.controlBorder);
   });
 });

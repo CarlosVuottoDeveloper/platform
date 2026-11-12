@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { View, Text } from 'react-native';
-import { color, space, control, radii, shadow } from '@industry/tokens';
+import { color, space, control, glow, radii, shadow } from '@industry/tokens';
+import { GradientSurface } from '../components/core';
 
 const meta: Meta = {
   title: 'Foundations/Spacing & Elevation',
@@ -20,7 +21,14 @@ export const Spacing: Story = {
           <Text style={{ width: 84, fontSize: 10, opacity: 0.45, color: color.text }}>
             space.{step}
           </Text>
-          <View style={{ height: 12, borderRadius: 2, backgroundColor: color.accent, width: px }} />
+          <View
+            style={{
+              height: 12,
+              borderRadius: radii.pill,
+              backgroundColor: color.accent,
+              width: px,
+            }}
+          />
         </View>
       ))}
     </View>
@@ -34,8 +42,9 @@ export const TouchTargets: Story = {
         <View
           style={{
             height: control.height,
+            borderRadius: radii.md,
             borderWidth: 1,
-            borderColor: color.divider,
+            borderColor: color.controlBorder,
             backgroundColor: color.surface,
             alignItems: 'center',
             justifyContent: 'center',
@@ -51,8 +60,9 @@ export const TouchTargets: Story = {
         <View
           style={{
             height: control.heightSm,
+            borderRadius: radii.md,
             borderWidth: 1,
-            borderColor: color.divider,
+            borderColor: color.controlBorder,
             backgroundColor: color.surface,
             alignItems: 'center',
             justifyContent: 'center',
@@ -77,7 +87,7 @@ export const Radius: Story = {
             style={{
               height: 56,
               borderWidth: 1,
-              borderColor: color.divider,
+              borderColor: color.controlBorder,
               backgroundColor: color.surface,
               borderRadius: value,
             }}
@@ -106,6 +116,25 @@ export const Elevation: Story = {
           }}
         />
       ))}
+    </View>
+  ),
+};
+
+export const Glow: Story = {
+  parameters: { gradientKnownIssue: true },
+  render: () => (
+    <View style={{ flexDirection: 'row', gap: 16, padding: space[4] }}>
+      <View style={{ flex: 1 }}>
+        <GradientSurface
+          variant="primary"
+          radius={radii.pill}
+          glow
+          style={{ height: control.height }}
+        />
+        <Text style={{ fontSize: 10, opacity: 0.5, marginTop: 10, color: color.text }}>
+          glow.accent · {glow.accent}
+        </Text>
+      </View>
     </View>
   ),
 };

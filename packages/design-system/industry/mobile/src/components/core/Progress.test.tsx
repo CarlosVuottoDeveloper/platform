@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react-native';
-import { alpha, color } from '@industry/tokens';
+import { StyleSheet } from 'react-native';
+import { color, gradient, neutral, radii } from '@industry/tokens';
 import { Progress, Spinner } from './Progress';
 
 describe('Progress', () => {
@@ -51,15 +52,6 @@ describe('Progress', () => {
 
     expect(getByText('100%')).toBeTruthy();
   });
-
-  it('colors the label and percentage with the theme text color, not the default black', () => {
-    const { getByText } = render(<Progress value={33} label="Enviando" />);
-
-    const labelStyles = [getByText('Enviando').props.style].flat();
-    const valueStyles = [getByText('33%').props.style].flat();
-    expect(labelStyles.some((s) => s?.color === alpha(color.text, 60))).toBe(true);
-    expect(valueStyles.some((s) => s?.color === alpha(color.text, 60))).toBe(true);
-  });
 });
 
 describe('Spinner', () => {
@@ -67,5 +59,38 @@ describe('Spinner', () => {
     const { getByLabelText } = render(<Spinner />);
 
     expect(getByLabelText('Carregando')).toBeTruthy();
+  });
+});
+
+describe('Progress look', () => {
+  const flat = (node: { props: { style?: unknown } }) =>
+    StyleSheet.flatten(node.props.style as never) as Record<string, unknown>;
+
+  it('draws a pill track on surface2', () => {
+    const { getByTestId } = render(<Progress value={40} testID="progress" />);
+
+    expect(flat(getByTestId('progress'))).toMatchObject({
+      backgroundColor: color.surface2,
+      borderRadius: radii.pill,
+      overflow: 'hidden',
+    });
+  });
+
+  it('fills the track with the primary gradient, clipped to the animated width', () => {
+    const { getByTestId } = render(<Progress value={40} testID="progress" />);
+    const fill = flat(getByTestId('progress-fill'));
+
+    expect(fill.borderRadius).toBe(radii.pill);
+    expect(fill.width).toBe('40%');
+    expect(fill.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
+    expect(fill.experimental_backgroundImage).toContain(gradient.primary.colors[1]);
+    expect(fill.boxShadow).toBeUndefined();
+  });
+
+  it('mutes the label and the percentage with neutral 400', () => {
+    const { getByText } = render(<Progress value={33} label="Enviando" />);
+
+    expect(flat(getByText('Enviando')).color).toBe(neutral['400']);
+    expect(flat(getByText('33%')).color).toBe(neutral['400']);
   });
 });

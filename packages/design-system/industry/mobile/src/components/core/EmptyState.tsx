@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, fontFamily, fontWeight, space } from '@industry/tokens';
+import { color, fontFamily, fontSize, fontWeight, neutral, radii, space } from '@industry/tokens';
 
 export interface EmptyStateProps {
   icon?: ReactNode;
@@ -23,9 +23,10 @@ export function EmptyState({ icon, title, body, action, style, testID }: EmptySt
           gap: space[3],
           paddingVertical: space[12],
           paddingHorizontal: space[6],
+          borderRadius: radii.lg,
           borderWidth: 1,
           borderStyle: 'dashed',
-          borderColor: color.divider,
+          borderColor: color.dividerStrong,
         },
         style,
       ]}
@@ -36,7 +37,7 @@ export function EmptyState({ icon, title, body, action, style, testID }: EmptySt
           style={{
             fontFamily: fontFamily.heading,
             fontWeight: fontWeight.heading,
-            fontSize: 21,
+            fontSize: fontSize.h4,
             textAlign: 'center',
             color: color.text,
           }}
@@ -45,7 +46,7 @@ export function EmptyState({ icon, title, body, action, style, testID }: EmptySt
         </Text>
       ) : null}
       {body ? (
-        <Text style={{ fontSize: 14, textAlign: 'center', color: alpha(color.text, 60) }}>
+        <Text style={{ fontSize: fontSize.h6, textAlign: 'center', color: neutral['400'] }}>
           {body}
         </Text>
       ) : null}

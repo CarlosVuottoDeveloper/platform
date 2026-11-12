@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react-native';
-import { Text } from 'react-native';
-import { color } from '@industry/tokens';
+import { StyleSheet, Text } from 'react-native';
+import { color, fontSize, neutral, radii } from '@industry/tokens';
 import { EmptyState } from './EmptyState';
 
 describe('EmptyState', () => {
@@ -43,5 +43,28 @@ describe('EmptyState', () => {
 
     const styles = [getByText('Nenhum formulário').props.style].flat();
     expect(styles.some((s) => s?.color === color.text)).toBe(true);
+  });
+});
+
+describe('EmptyState look', () => {
+  it('draws a rounded dashed outline with the divider color', () => {
+    const { getByTestId } = render(<EmptyState title="Vazio" testID="empty" />);
+
+    expect(StyleSheet.flatten(getByTestId('empty').props.style)).toMatchObject({
+      borderRadius: radii.lg,
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: color.dividerStrong,
+    });
+  });
+
+  it('sizes the title from the type scale and mutes the body', () => {
+    const { getByText } = render(<EmptyState title="Vazio" body="Corpo" />);
+
+    expect(StyleSheet.flatten(getByText('Vazio').props.style).fontSize).toBe(fontSize.h4);
+    expect(StyleSheet.flatten(getByText('Corpo').props.style)).toMatchObject({
+      color: neutral['400'],
+      fontSize: fontSize.h6,
+    });
   });
 });

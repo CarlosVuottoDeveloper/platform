@@ -1,5 +1,5 @@
 import { create } from '@storybook/theming/create';
-import { color, neutral, accentRamp } from '@industry/tokens';
+import { accentRamp, color, fontFamily, neutral, radii } from '@industry/tokens';
 
 export const industryTheme = create({
   base: 'dark',
@@ -9,7 +9,7 @@ export const industryTheme = create({
   appContentBg: color.bg,
   appPreviewBg: color.bg,
   appBorderColor: color.divider,
-  appBorderRadius: 2,
+  appBorderRadius: radii.md,
 
   barBg: color.surface,
   barTextColor: neutral['400'],
@@ -23,13 +23,13 @@ export const industryTheme = create({
   textMutedColor: neutral['400'],
 
   inputBg: color.surface2,
-  inputBorder: color.divider,
+  inputBorder: color.controlBorder,
   inputTextColor: color.text,
-  inputBorderRadius: 2,
+  inputBorderRadius: radii.sm,
 
   booleanBg: color.surface2,
   booleanSelectedBg: accentRamp['700'],
 
-  fontBase: 'system-ui, sans-serif',
+  fontBase: `${fontFamily.body}, system-ui, sans-serif`,
   fontCode: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 });
