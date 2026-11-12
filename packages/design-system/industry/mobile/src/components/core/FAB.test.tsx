@@ -1,7 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
-import { glow, radii } from '@industry/tokens';
+import { glow, radii, shadow } from '@industry/tokens';
 import { FAB } from './FAB';
+import { PRIMARY_ACTION_FILL } from './PrimaryActionSurface';
+
+const grant = {
+  nativeEvent: { touches: [], changedTouches: [], timestamp: 0 },
+  persist: jest.fn(),
+};
 
 describe('FAB', () => {
   it('renders with its accessible label', () => {
@@ -37,6 +43,14 @@ describe('FAB', () => {
     );
   });
 
+  it('keeps an opaque fill and the large elevation on the container', () => {
+    render(<FAB label="Novo chamado" />);
+    expect(StyleSheet.flatten(screen.getByLabelText('Novo chamado').props.style)).toMatchObject({
+      backgroundColor: PRIMARY_ACTION_FILL,
+      elevation: shadow.lg.elevation,
+    });
+  });
+
   it('shows no glow and dims when disabled', () => {
     render(<FAB label="Novo chamado" disabled />);
     expect(
@@ -54,7 +68,7 @@ describe('FAB', () => {
       StyleSheet.flatten(screen.getByTestId('fab-surface').props.style).opacity;
     expect(surfaceOpacity()).toBe(1);
 
-    fireEvent(screen.getByLabelText('Novo chamado'), 'pressIn');
+    fireEvent(screen.getByLabelText('Novo chamado'), 'responderGrant', grant);
 
     expect(surfaceOpacity()).toBe(0.85);
     expect(onPressIn).toHaveBeenCalled();

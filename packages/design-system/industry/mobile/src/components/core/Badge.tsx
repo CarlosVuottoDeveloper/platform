@@ -39,7 +39,6 @@ const SOLID_BACKGROUND: Partial<Record<BadgeTone, string>> = {
   danger: semanticColor.danger,
 };
 
-/** A status pill with a leading dot marker. */
 export function Badge({ tone = 'neutral', solid, children, style, testID }: BadgeProps) {
   const textColor = solid ? color.bg : OUTLINE_COLOR[tone];
 

@@ -1,7 +1,14 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { accentRamp, alpha, color, control, danger, glow, radii } from '@industry/tokens';
+import type { ComponentProps } from 'react';
 import { Button } from './Button';
+import { PRIMARY_ACTION_FILL } from './PrimaryActionSurface';
+
+const grant = {
+  nativeEvent: { touches: [], changedTouches: [], timestamp: 0 },
+  persist: jest.fn(),
+};
 
 describe('Button', () => {
   it('renders string children wrapped in Text', () => {
@@ -55,7 +62,7 @@ describe('Button', () => {
     const { getByTestId } = render(<Button variant="primary">Save</Button>);
     expect(StyleSheet.flatten(getByTestId('button-surface').props.style).opacity).toBe(1);
 
-    fireEvent(getByTestId('button-root'), 'pressIn');
+    fireEvent(getByTestId('button-root'), 'responderGrant', grant);
 
     expect(StyleSheet.flatten(getByTestId('button-surface').props.style).opacity).toBe(0.85);
   });
@@ -69,9 +76,9 @@ describe('Button', () => {
     expect(queryByTestId('button-surface')).toBeNull();
   });
 
-  it('keeps a long label on one line inside the pill', () => {
+  it('caps a long label at two lines inside the pill', () => {
     const { getByText } = render(<Button>{'a'.repeat(200)}</Button>);
-    expect(getByText('a'.repeat(200)).props.numberOfLines).toBe(1);
+    expect(getByText('a'.repeat(200)).props.numberOfLines).toBe(2);
   });
 
   it.each([
@@ -109,6 +116,25 @@ describe('Button', () => {
     expect(StyleSheet.flatten(getByText('Delete').props.style).color).toBe(danger['300']);
   });
 
+  it('gives every skin the same border width so the box never shifts', () => {
+    const borderWidthOf = (props: Partial<ComponentProps<typeof Button>>) => {
+      const { getByTestId, unmount } = render(<Button {...props}>Save</Button>);
+      const width = StyleSheet.flatten(getByTestId('button-root').props.style).borderWidth;
+      unmount();
+      return width;
+    };
+    const secondary = borderWidthOf({});
+    expect(borderWidthOf({ variant: 'primary' })).toBe(secondary);
+    expect(borderWidthOf({ variant: 'primary', selected: true })).toBe(secondary);
+  });
+
+  it('keeps an opaque base fill under the primary gradient', () => {
+    const { getByTestId } = render(<Button variant="primary">Save</Button>);
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor).toBe(
+      PRIMARY_ACTION_FILL,
+    );
+  });
+
   it('dims a disabled button', () => {
     const { getByTestId } = render(<Button disabled>Save</Button>);
     expect(StyleSheet.flatten(getByTestId('button-root').props.style).opacity).toBe(0.45);
@@ -143,7 +169,7 @@ describe('Button', () => {
     const fill = () => StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor;
     expect(fill()).toBe(alpha(color.accent, 16));
 
-    fireEvent(getByTestId('button-root'), 'pressIn');
+    fireEvent(getByTestId('button-root'), 'responderGrant', grant);
 
     expect(fill()).toBe(alpha(color.accent, 28));
   });

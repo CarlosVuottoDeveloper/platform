@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
-import type { GestureResponderEvent, PressableProps, StyleProp, ViewStyle } from 'react-native';
-import { color, radii } from '@industry/tokens';
-import { GradientSurface } from './GradientSurface';
+import { Pressable } from 'react-native';
+import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
+import { color, radii, shadow } from '@industry/tokens';
+import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
 import { Icon, type IconName } from './Icon';
 
 export type FABSize = 'md' | 'lg';
@@ -24,12 +23,9 @@ export function FAB({
   label,
   size = 'lg',
   disabled = false,
-  onPressIn,
-  onPressOut,
   style,
   ...rest
 }: FABProps) {
-  const [pressed, setPressed] = useState(false);
   const box = BOX[size];
 
   return (
@@ -37,14 +33,6 @@ export function FAB({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      onPressIn={(e: GestureResponderEvent) => {
-        setPressed(true);
-        onPressIn?.(e);
-      }}
-      onPressOut={(e: GestureResponderEvent) => {
-        setPressed(false);
-        onPressOut?.(e);
-      }}
       style={[
         {
           width: box,
@@ -52,21 +40,20 @@ export function FAB({
           alignItems: 'center' as const,
           justifyContent: 'center' as const,
           borderRadius: radii.pill,
+          backgroundColor: PRIMARY_ACTION_FILL,
           opacity: disabled ? 0.45 : 1,
         },
+        shadow.lg,
         style,
       ]}
       {...rest}
     >
-      <GradientSurface
-        testID="fab-surface"
-        variant="primary"
-        radius={radii.pill}
-        glow={!disabled}
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { opacity: pressed && !disabled ? 0.85 : 1 }]}
-      />
-      <Icon name={icon} size={size === 'lg' ? 'md' : 'sm'} color={color.text} />
+      {({ pressed }) => (
+        <>
+          <PrimaryActionSurface testID="fab-surface" pressed={pressed} disabled={disabled} />
+          <Icon name={icon} size={size === 'lg' ? 'md' : 'sm'} color={color.text} />
+        </>
+      )}
     </Pressable>
   );
 }

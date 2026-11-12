@@ -1,12 +1,5 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
-import type {
-  GestureResponderEvent,
-  PressableProps,
-  StyleProp,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import { Pressable, Text } from 'react-native';
+import type { PressableProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import {
   color,
@@ -20,7 +13,7 @@ import {
   radii,
   space,
 } from '@industry/tokens';
-import { GradientSurface } from './GradientSurface';
+import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -51,7 +44,7 @@ function resolveVariantStyle(
   }
   if (variant === 'primary') {
     return {
-      container: { backgroundColor: 'transparent', borderColor: 'transparent' },
+      container: { backgroundColor: PRIMARY_ACTION_FILL, borderColor: 'transparent' },
       text: { color: color.text },
     };
   }
@@ -90,16 +83,11 @@ export function Button({
   iconOnly,
   disabled,
   accessibilityState,
-  onPressIn,
-  onPressOut,
   children,
   style,
   ...rest
 }: ButtonProps) {
-  const [pressed, setPressed] = useState(false);
   const height = size === 'sm' ? control.heightSm : control.height;
-  const isPressed = pressed && !disabled;
-  const { container, text } = resolveVariantStyle(variant, isPressed, Boolean(selected));
   const hasGradient = variant === 'primary' && !selected;
 
   return (
@@ -112,15 +100,7 @@ export function Button({
         disabled: Boolean(disabled),
         selected: Boolean(selected),
       }}
-      onPressIn={(e: GestureResponderEvent) => {
-        setPressed(true);
-        onPressIn?.(e);
-      }}
-      onPressOut={(e: GestureResponderEvent) => {
-        setPressed(false);
-        onPressOut?.(e);
-      }}
-      style={[
+      style={({ pressed }) => [
         {
           flexDirection: 'row',
           alignItems: 'center',
@@ -129,42 +109,47 @@ export function Button({
           minHeight: height,
           width: iconOnly ? height : block ? '100%' : undefined,
           paddingHorizontal: iconOnly ? 0 : size === 'sm' ? space[3] : space[4],
-          borderWidth: hasGradient ? 0 : 1,
+          borderWidth: 1,
           borderRadius: radii.pill,
           opacity: disabled ? 0.45 : 1,
         },
-        container,
+        resolveVariantStyle(variant, pressed && !disabled, Boolean(selected)).container,
         style,
       ]}
       {...rest}
     >
-      {hasGradient ? (
-        <GradientSurface
-          testID="button-surface"
-          variant="primary"
-          radius={radii.pill}
-          glow={!disabled}
-          pointerEvents="none"
-          style={[StyleSheet.absoluteFill, { opacity: isPressed ? 0.85 : 1 }]}
-        />
-      ) : null}
-      {typeof children === 'string' ? (
-        <Text
-          numberOfLines={1}
-          style={[
-            {
-              fontFamily: fontFamily.heading,
-              fontWeight: fontWeight.heading,
-              fontSize: size === 'sm' ? fontSize.h6 : fontSize.body,
-            },
-            text,
-          ]}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {({ pressed }) => {
+        const { text } = resolveVariantStyle(variant, pressed && !disabled, Boolean(selected));
+        return (
+          <>
+            {hasGradient ? (
+              <PrimaryActionSurface
+                testID="button-surface"
+                pressed={pressed}
+                disabled={Boolean(disabled)}
+              />
+            ) : null}
+            {typeof children === 'string' ? (
+              <Text
+                numberOfLines={2}
+                style={[
+                  {
+                    fontFamily: fontFamily.heading,
+                    fontWeight: fontWeight.heading,
+                    fontSize: size === 'sm' ? fontSize.h6 : fontSize.body,
+                    textAlign: 'center',
+                  },
+                  text,
+                ]}
+              >
+                {children}
+              </Text>
+            ) : (
+              children
+            )}
+          </>
+        );
+      }}
     </Pressable>
   );
 }
