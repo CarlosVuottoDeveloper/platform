@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { radii, space } from '@industry/tokens';
+import { fontFamily, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -20,12 +20,12 @@ export const styles = StyleSheet.create({
     paddingVertical: space[3],
     borderBottomWidth: 1,
   },
-  scopeCount: { fontSize: 13 },
+  scopeCount: { fontFamily: fontFamily.body, fontSize: 13 },
   scopeTag: {
     borderRadius: radii.pill,
     paddingHorizontal: space[3],
     paddingVertical: space[1],
   },
   scopeTagOutline: { borderWidth: 1 },
-  scopeTagText: { fontSize: 13 },
+  scopeTagText: { fontFamily: fontFamily.body, fontSize: 13 },
 });

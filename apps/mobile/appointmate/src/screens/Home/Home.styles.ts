@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontFamily, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1 },
@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: space[6],
     paddingVertical: space[4],
   },
-  countText: { fontSize: 13 },
+  countText: { fontFamily: fontFamily.body, fontSize: 13 },
   listContent: {
     paddingTop: space[3],
     paddingHorizontal: space[6],

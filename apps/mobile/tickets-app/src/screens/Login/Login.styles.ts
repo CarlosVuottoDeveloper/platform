@@ -17,11 +17,12 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   kicker: {
+    fontFamily: fontFamily.body,
     fontSize: fontSize.h6,
   },
   form: { gap: space[3] },
   helperRow: { flexDirection: 'row', justifyContent: 'flex-end' },
-  link: { fontSize: 15, textDecorationLine: 'underline' },
+  link: { fontFamily: fontFamily.body, fontSize: 15, textDecorationLine: 'underline' },
   orRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -30,6 +31,7 @@ export const styles = StyleSheet.create({
   },
   orDivider: { flex: 1, height: 1 },
   orLabel: {
+    fontFamily: fontFamily.body,
     fontSize: 12,
   },
   googleMark: {
@@ -54,5 +56,5 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: space[2],
   },
-  footerHint: { fontSize: 15 },
+  footerHint: { fontFamily: fontFamily.body, fontSize: 15 },
 });

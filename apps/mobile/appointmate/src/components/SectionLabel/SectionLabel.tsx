@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, color, fontSize, space } from '@industry/tokens';
+import { accentRamp, color, fontFamily, fontSize, space } from '@industry/tokens';
 
 export interface SectionLabelProps {
   children: string;
@@ -14,6 +14,7 @@ export function SectionLabel({ children, trailing, testID }: SectionLabelProps) 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text
           style={{
+            fontFamily: fontFamily.body,
             fontSize: fontSize.h6,
             color: accentRamp['300'],
           }}

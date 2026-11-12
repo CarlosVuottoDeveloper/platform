@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontSize, radii, space } from '@industry/tokens';
+import { fontFamily, fontSize, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
@@ -15,9 +15,11 @@ export const styles = StyleSheet.create({
     borderRadius: radii.md,
   },
   adminNoticeKicker: {
+    fontFamily: fontFamily.body,
     fontSize: fontSize.h6,
   },
   adminNoticeText: {
+    fontFamily: fontFamily.body,
     fontSize: 13,
     lineHeight: 19,
   },

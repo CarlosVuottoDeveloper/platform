@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontSize, radii, space } from '@industry/tokens';
+import { fontFamily, fontSize, fontWeight, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1 },
@@ -10,13 +10,16 @@ export const styles = StyleSheet.create({
   },
   titleBlock: { gap: space[1] },
   kicker: {
+    fontFamily: fontFamily.body,
     fontSize: fontSize.h6,
   },
   heading: {
+    fontFamily: fontFamily.body,
     fontSize: 30,
     lineHeight: 36,
   },
   updatedAt: {
+    fontFamily: fontFamily.body,
     fontSize: 11,
   },
   summaryGrid: {
@@ -28,16 +31,20 @@ export const styles = StyleSheet.create({
     gap: space[1],
   },
   summaryCellLabel: {
+    fontFamily: fontFamily.body,
     fontSize: fontSize.h6,
   },
   summaryCellValue: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   fieldLabel: {
+    fontFamily: fontFamily.heading,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: fontWeight.heading,
   },
   fieldValue: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   field: {
@@ -48,9 +55,11 @@ export const styles = StyleSheet.create({
     gap: space[2],
   },
   listItemNumber: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   listItem: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   bottomBarPrimary: { flex: 1 },

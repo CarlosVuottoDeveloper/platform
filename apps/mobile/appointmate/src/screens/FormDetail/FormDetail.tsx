@@ -14,7 +14,7 @@ import {
   useTheme,
   useToast,
 } from '@industry/mobile';
-import { alpha, fontFamilyMono } from '@industry/tokens';
+import { alpha, fontFamily, fontFamilyMono } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { deleteForm, getFormRecord, type FormRecord } from '../../services/formsService';
@@ -355,7 +355,7 @@ export function FormDetail({ navigation, route }: Props) {
           </>
         }
       >
-        <Text style={{ color: colors.text }}>
+        <Text style={{ fontFamily: fontFamily.body, color: colors.text }}>
           Tem certeza que deseja excluir este formulário? Essa ação não pode ser desfeita.
         </Text>
       </Sheet>

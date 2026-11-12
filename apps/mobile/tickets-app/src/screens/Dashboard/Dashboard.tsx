@@ -15,7 +15,7 @@ import {
   useTheme,
   useToast,
 } from '@industry/mobile';
-import { accentRamp, alpha, fontFamilyMono, space, viz } from '@industry/tokens';
+import { accentRamp, alpha, fontFamily, fontFamilyMono, space, viz } from '@industry/tokens';
 import { useTicketList } from '../../hooks/useTicketList';
 import { useAuthStore } from '../../store/useAuthStore';
 import { formatDayMonth, truncateTitle } from '../../domain/ticket';
@@ -25,6 +25,7 @@ import { ALL_STATUSES, STATUS_LABELS, STATUS_TONES } from '../../constants/ticke
 import { PRIORITY_LABELS, PRIORITY_TONES, isPriorityMaximum } from '../../constants/ticketPriority';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
+import { SectionLabel } from '../../components/SectionLabel';
 import { styles } from './Dashboard.styles';
 
 const monoFontFamily = Platform.select(fontFamilyMono);
@@ -147,7 +148,9 @@ export function Dashboard({ navigation }: Props) {
         </>
       }
     >
-      <Text style={{ color: colors.text }}>Tem certeza que deseja sair?</Text>
+      <Text style={{ fontFamily: fontFamily.body, color: colors.text }}>
+        Tem certeza que deseja sair?
+      </Text>
     </Sheet>
   );
 
@@ -246,20 +249,22 @@ export function Dashboard({ navigation }: Props) {
             </Pressable>
           </View>
           <View style={styles.sectionPad}>
-            <View style={styles.sectionLabelRow}>
-              <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>
-                Chamados recentes
-              </Text>
-              <Text
-                style={[
-                  styles.sectionLabelCount,
-                  { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
-                ]}
+            <View style={styles.sectionLabelBlock}>
+              <SectionLabel
+                trailing={
+                  <Text
+                    style={[
+                      styles.sectionLabelCount,
+                      { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
+                    ]}
+                  >
+                    {Math.min(total, 3)}
+                  </Text>
+                }
               >
-                {Math.min(total, 3)}
-              </Text>
+                Chamados recentes
+              </SectionLabel>
             </View>
-            <View style={[styles.sectionHairline, { backgroundColor: colors.divider }]} />
             <RecentTicketsCard
               tickets={tickets}
               onPressTicket={(id) => navigation.navigate('TicketDetails', { ticketId: id })}

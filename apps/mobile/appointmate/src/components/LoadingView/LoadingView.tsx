@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { Spinner } from '@industry/mobile';
-import { alpha, color, fontSize, space } from '@industry/tokens';
+import { alpha, color, fontFamily, fontSize, space } from '@industry/tokens';
 
 export interface LoadingViewProps {
   message?: string;
@@ -25,6 +25,7 @@ export function LoadingView({ message, testID }: LoadingViewProps) {
       {message ? (
         <Text
           style={{
+            fontFamily: fontFamily.body,
             fontSize: fontSize.body,
             color: alpha(color.text, 70),
             textAlign: 'center',
