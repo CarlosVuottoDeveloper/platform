@@ -27,4 +27,20 @@ describe('Skeleton', () => {
     expect(lines[0]).toHaveStyle({ width: '100%' });
     expect(lines[1]).toHaveStyle({ width: '62%' });
   });
+
+  it('draws blocks on surface-2 with the medium radius', () => {
+    const { container } = render(<Skeleton />);
+    const block = container.firstChild as HTMLElement;
+
+    expect(block.style.backgroundImage).toContain('var(--color-surface-2)');
+    expect(block.style.borderRadius).toBe('var(--radius-md)');
+  });
+
+  it('draws text lines with the same surface and radius', () => {
+    const { container } = render(<Skeleton lines={2} />);
+    const line = container.firstChild?.firstChild as HTMLElement;
+
+    expect(line.style.backgroundImage).toContain('var(--color-surface-2)');
+    expect(line.style.borderRadius).toBe('var(--radius-md)');
+  });
 });

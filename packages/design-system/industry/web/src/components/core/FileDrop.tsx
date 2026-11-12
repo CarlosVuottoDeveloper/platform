@@ -55,7 +55,7 @@ export function partitionFiles(
   return { accepted, rejected };
 }
 
-/** Dashed drop zone for file uploads — the only dashed border in the system, reserve it for drop targets. */
+/** Dashed drop zone for file uploads. */
 export const FileDrop = forwardRef<HTMLLabelElement, FileDropProps>(function FileDrop(
   {
     label = 'Arraste um arquivo ou clique para escolher',
@@ -129,7 +129,7 @@ export const FileDrop = forwardRef<HTMLLabelElement, FileDropProps>(function Fil
           alignItems: 'center',
           justifyContent: 'center',
           gap: 'var(--space-2)',
-          padding: 'var(--space-8) var(--space-5)',
+          padding: 'var(--space-8) var(--space-6)',
           textAlign: 'center',
           borderRadius: 'var(--radius-lg)',
           background: over ? 'var(--color-surface-2)' : 'var(--color-surface)',

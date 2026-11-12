@@ -23,11 +23,11 @@ function MultiStepFormScreen() {
         alignItems: 'center',
         justifyContent: 'center',
         background: 'var(--color-bg)',
-        padding: 'var(--space-5)',
+        padding: 'var(--space-4)',
       }}
     >
       <Card style={{ width: 420 }}>
-        <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
           <Stepper steps={STEPS} current={step} />
 
           {step === 0 ? (
@@ -43,7 +43,7 @@ function MultiStepFormScreen() {
             </div>
           ) : null}
           {step === 2 ? (
-            <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text)' }}>
+            <p style={{ margin: 0, fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
               Revise os dados e confirme para concluir o cadastro.
             </p>
           ) : null}
