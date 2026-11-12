@@ -1,6 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { StyleSheet, Text } from 'react-native';
-import type { ReactTestRendererJSON } from 'react-test-renderer';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { color, control, gradient, neutral, radii } from '@industry/tokens';
 import { Tabs } from './Tabs';
 
@@ -78,20 +77,20 @@ describe('Tabs', () => {
   });
 
   it('wraps the tabs in a surface pill', () => {
-    const { toJSON } = render(<Tabs items={ITEMS} />);
-    const list = toJSON() as ReactTestRendererJSON;
+    const { UNSAFE_getByType } = render(<Tabs items={ITEMS} />);
 
-    expect(StyleSheet.flatten(list.props.style)).toMatchObject({
+    expect(
+      StyleSheet.flatten(UNSAFE_getByType(ScrollView).props.contentContainerStyle),
+    ).toMatchObject({
       backgroundColor: color.surface,
       borderRadius: radii.pill,
     });
   });
 
   it('keeps scrolling horizontally', () => {
-    const { toJSON } = render(<Tabs items={ITEMS} />);
-    const list = toJSON() as ReactTestRendererJSON;
+    const { UNSAFE_getByType } = render(<Tabs items={ITEMS} />);
 
-    expect(list.props.horizontal).toBe(true);
+    expect(UNSAFE_getByType(ScrollView).props.horizontal).toBe(true);
   });
 
   it('paints only the active tab with the primary gradient and no glow', () => {
@@ -125,5 +124,30 @@ describe('Tabs', () => {
       backgroundColor: color.surface2,
       borderRadius: radii.pill,
     });
+  });
+
+  it('wraps fragment and array labels in a Text with the state colour', () => {
+    const { getByTestId } = render(
+      <Tabs
+        current="open"
+        items={[
+          { id: 'open', label: <>Abertos</> },
+          { id: 'closed', label: ['Fechados ', 2] as unknown as string },
+        ]}
+      />,
+    );
+
+    const open = getByTestId('tab-open').findByType(Text);
+    const closed = getByTestId('tab-closed').findByType(Text);
+    expect(open.props.style).toMatchObject({ color: color.text });
+    expect(closed.props.style).toMatchObject({ color: neutral['400'] });
+  });
+
+  it('renders no label element for an empty label', () => {
+    const { getByTestId } = render(
+      <Tabs items={[{ id: 'home', label: '', icon: <View testID="i" /> }]} />,
+    );
+
+    expect(getByTestId('tab-home').findAllByType(Text)).toHaveLength(0);
   });
 });

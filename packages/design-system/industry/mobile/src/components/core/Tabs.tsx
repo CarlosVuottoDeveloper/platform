@@ -22,14 +22,36 @@ function resolveTab(item: string | TabItem): TabItem {
   return typeof item === 'string' ? { id: item, label: item } : item;
 }
 
+function TabCount({ count }: { count: number }) {
+  return (
+    <Text
+      style={{
+        fontSize: 12,
+        paddingHorizontal: space[2],
+        paddingVertical: space[1],
+        borderRadius: radii.pill,
+        overflow: 'hidden',
+        backgroundColor: color.surface2,
+        color: neutral['200'],
+      }}
+    >
+      {count}
+    </Text>
+  );
+}
+
 export function Tabs({ items = [], current, onSelect, style }: TabsProps) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       accessibilityRole="tablist"
-      style={[{ flexGrow: 0, backgroundColor: color.surface, borderRadius: radii.pill }, style]}
-      contentContainerStyle={{ flexDirection: 'row' }}
+      style={[{ flexGrow: 0 }, style]}
+      contentContainerStyle={{
+        flexDirection: 'row',
+        backgroundColor: color.surface,
+        borderRadius: radii.pill,
+      }}
     >
       {items.map((item, index) => {
         const tab = resolveTab(item);
@@ -46,23 +68,7 @@ export function Tabs({ items = [], current, onSelect, style }: TabsProps) {
             accessibilityState={{ selected: active }}
             icon={tab.icon}
             label={tab.label}
-            trailing={
-              tab.count != null ? (
-                <Text
-                  style={{
-                    fontSize: 12,
-                    paddingHorizontal: space[2],
-                    paddingVertical: space[1],
-                    borderRadius: radii.pill,
-                    overflow: 'hidden',
-                    backgroundColor: color.surface2,
-                    color: neutral['200'],
-                  }}
-                >
-                  {tab.count}
-                </Text>
-              ) : undefined
-            }
+            trailing={tab.count != null ? <TabCount count={tab.count} /> : undefined}
           />
         );
       })}

@@ -2,7 +2,16 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, control, fontSize, neutral, radii } from '@industry/tokens';
+import {
+  accentRamp,
+  color,
+  control,
+  fontSize,
+  fontWeight,
+  neutral,
+  radii,
+  space,
+} from '@industry/tokens';
 import { PrimaryActionSurface } from './PrimaryActionSurface';
 
 export interface TabBarItem {
@@ -24,13 +33,15 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
 
   return (
     <View
+      accessibilityRole="tablist"
       style={[
         {
           flexDirection: 'row',
           borderTopLeftRadius: radii.lg,
           borderTopRightRadius: radii.lg,
           backgroundColor: color.surface,
-          paddingBottom: insets.bottom,
+          paddingTop: space[2],
+          paddingBottom: space[2] + insets.bottom,
         },
         style,
       ]}
@@ -49,6 +60,7 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
               flex: 1,
               alignItems: 'center',
               justifyContent: 'center',
+              gap: space[1],
               minHeight: control.tap,
             }}
           >
@@ -62,6 +74,7 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
                       height: control.tap,
                       alignItems: 'center',
                       justifyContent: 'center',
+                      opacity: active ? 1 : 0.6,
                     }}
                   >
                     {active ? (
@@ -78,7 +91,8 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
                   <Text
                     style={{
                       fontSize: fontSize.h6,
-                      color: active ? color.text : neutral['400'],
+                      color: active ? accentRamp['300'] : neutral['400'],
+                      fontWeight: active ? fontWeight.medium : undefined,
                     }}
                   >
                     {item.label}

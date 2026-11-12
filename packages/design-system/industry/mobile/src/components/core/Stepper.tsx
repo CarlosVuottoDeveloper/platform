@@ -60,7 +60,7 @@ export function Stepper({ steps = [], current = 0, style }: StepperProps) {
                 style={{
                   fontSize: fontSize.h6,
                   textAlign: 'center',
-                  color: isCurrent ? color.text : neutral['400'],
+                  color: isCurrent ? color.text : done ? neutral['200'] : neutral['400'],
                 }}
               >
                 {label}

@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import type { AccessibilityRole, AccessibilityState } from 'react-native';
+import { Fragment, isValidElement } from 'react';
 import type { ReactNode } from 'react';
 import { color, control, neutral, radii, space } from '@industry/tokens';
 import { PrimaryActionSurface } from './PrimaryActionSurface';
@@ -13,6 +14,14 @@ const ACTIVE_PILL_INSET = {
   left: ACTIVE_PILL_MARGIN,
   right: ACTIVE_PILL_MARGIN,
 } as const;
+
+function isEmptyLabel(label: ReactNode): boolean {
+  return label === '' || label == null || label === false;
+}
+
+function isStandaloneElement(label: ReactNode): boolean {
+  return isValidElement(label) && label.type !== Fragment;
+}
 
 interface PillSegmentProps {
   active: boolean;
@@ -66,12 +75,12 @@ export function PillSegment({
             </View>
           ) : null}
           {icon}
-          {typeof label === 'string' || typeof label === 'number' ? (
+          {isEmptyLabel(label) ? null : isStandaloneElement(label) ? (
+            label
+          ) : (
             <Text style={{ fontSize: 14, color: active ? color.text : neutral['400'] }}>
               {label}
             </Text>
-          ) : (
-            label
           )}
           {trailing}
         </>

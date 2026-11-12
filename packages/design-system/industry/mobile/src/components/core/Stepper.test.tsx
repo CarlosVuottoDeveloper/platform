@@ -73,6 +73,7 @@ describe('Stepper', () => {
     const { getByText } = render(<Stepper steps={STEPS} current={1} />);
 
     expect(getByText('Endereço').props.style).toMatchObject({ color: color.text });
-    expect(getByText('Conta').props.style).toMatchObject({ color: neutral['400'] });
+    expect(getByText('Conta').props.style).toMatchObject({ color: neutral['200'] });
+    expect(getByText('Confirmação').props.style).toMatchObject({ color: neutral['400'] });
   });
 });
