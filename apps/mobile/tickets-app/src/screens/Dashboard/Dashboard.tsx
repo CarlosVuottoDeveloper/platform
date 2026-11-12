@@ -67,7 +67,7 @@ function RecentTicketsCard({
     <View style={styles.recentList}>
       {tickets.slice(0, 3).map((t) => (
         <Pressable key={t.id} onPress={() => onPressTicket(t.id)}>
-          <Card framed style={styles.recentItem}>
+          <Card style={styles.recentItem}>
             <View style={styles.recentHeader}>
               <Text style={[styles.recentTitle, { color: colors.text }]}>
                 {truncateTitle(t.title)}
@@ -175,7 +175,7 @@ export function Dashboard({ navigation }: Props) {
               title="Nenhum chamado ainda"
               body="Quando alguém do workspace abrir um chamado, ele aparece aqui com o status e a prioridade."
               action={
-                <Button variant="primary" framed onPress={() => navigation.navigate('NewTicket')}>
+                <Button variant="primary" onPress={() => navigation.navigate('NewTicket')}>
                   Abrir o primeiro
                 </Button>
               }

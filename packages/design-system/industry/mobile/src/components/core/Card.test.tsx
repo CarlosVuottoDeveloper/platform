@@ -32,19 +32,6 @@ describe('Card', () => {
     expect(queryByText('há 2h')).toBeNull();
   });
 
-  it('renders blueprint corner marks when framed', () => {
-    const { getByTestId } = render(<Card title="Framed" framed />);
-
-    expect(getByTestId('frame-corner-tl')).toBeTruthy();
-    expect(getByTestId('frame-corner-br')).toBeTruthy();
-  });
-
-  it('does not render corner marks by default', () => {
-    const { queryByTestId } = render(<Card title="Sem marcas" />);
-
-    expect(queryByTestId('frame-corner-tl')).toBeNull();
-  });
-
   it('applies the elevation shadow when given', () => {
     const { getByTestId } = render(<Card testID="elevated-card" elevation="md" />);
 

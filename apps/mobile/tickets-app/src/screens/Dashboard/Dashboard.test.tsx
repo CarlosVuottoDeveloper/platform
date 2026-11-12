@@ -157,7 +157,7 @@ describe('Dashboard', () => {
     expect(mockNavigation.navigate).toHaveBeenCalledWith('NewTicket');
   });
 
-  it('renders each recent ticket in its own framed card', () => {
+  it('renders each recent ticket in its own card', () => {
     mockUseTicketList.mockReturnValue(
       mockTicketListReturn({
         tickets: [
@@ -171,8 +171,8 @@ describe('Dashboard', () => {
 
     render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
 
-    const framedCards = screen.UNSAFE_getAllByType(Card).filter((card) => card.props.framed);
-    expect(framedCards).toHaveLength(3);
+    const cards = screen.UNSAFE_getAllByType(Card);
+    expect(cards).toHaveLength(3);
     expect(screen.queryByText('Chamado 4')).toBeNull();
   });
 

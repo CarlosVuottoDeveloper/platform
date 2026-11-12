@@ -159,7 +159,7 @@ export function Home({ navigation }: Props) {
         {appBar}
         <View testID="home-loading" style={styles.loadingContainer}>
           {[0, 1, 2].map((index) => (
-            <Card key={index} framed style={styles.skeletonCard}>
+            <Card key={index} style={styles.skeletonCard}>
               <Skeleton lines={3} />
             </Card>
           ))}
@@ -223,7 +223,6 @@ export function Home({ navigation }: Props) {
               action={
                 <Button
                   variant="primary"
-                  framed
                   onPress={() => navigation.navigate('FormEntry', undefined)}
                   testID="home-empty-cta-button"
                 >

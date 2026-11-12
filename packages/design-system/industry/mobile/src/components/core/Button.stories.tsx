@@ -41,12 +41,8 @@ export const IconOnly: Story = {
   ),
 };
 
-export const Framed: Story = {
-  render: () => (
-    <Button variant="primary" framed>
-      Framed
-    </Button>
-  ),
+export const Selected: Story = {
+  render: () => <Button selected>Selecionado</Button>,
 };
 
 export const Disabled: Story = {

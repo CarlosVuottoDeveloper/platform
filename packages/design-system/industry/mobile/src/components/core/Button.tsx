@@ -18,7 +18,6 @@ import {
   fontWeight,
   space,
 } from '@industry/tokens';
-import { BlueprintMarks } from './BlueprintMarks';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -27,7 +26,7 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   variant?: ButtonVariant;
   size?: ButtonSize;
   block?: boolean;
-  framed?: boolean;
+  selected?: boolean;
   iconOnly?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -73,11 +72,16 @@ function resolveVariantStyle(
   };
 }
 
+const selectedContainerStyle: ViewStyle = {
+  backgroundColor: alpha(color.accent, 16),
+  borderColor: accentRamp['400'],
+};
+
 export function Button({
   variant = 'secondary',
   size = 'md',
   block,
-  framed,
+  selected,
   iconOnly,
   disabled,
   onPressIn,
@@ -95,7 +99,7 @@ export function Button({
       testID="button-root"
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled: Boolean(disabled) }}
+      accessibilityState={{ disabled: Boolean(disabled), selected: Boolean(selected) }}
       onPressIn={(e: GestureResponderEvent) => {
         setPressed(true);
         onPressIn?.(e);
@@ -106,7 +110,6 @@ export function Button({
       }}
       style={[
         {
-          position: framed ? 'relative' : undefined,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -119,11 +122,11 @@ export function Button({
           opacity: disabled ? 0.45 : 1,
         },
         container,
+        selected ? selectedContainerStyle : null,
         style,
       ]}
       {...rest}
     >
-      {framed ? <BlueprintMarks /> : null}
       {typeof children === 'string' ? (
         <Text
           style={[

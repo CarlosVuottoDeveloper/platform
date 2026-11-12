@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, Frame, TextField } from '../components/core';
+import { Button, TextField } from '../components/core';
 import { color, space } from '@industry/tokens';
 
 const meta: Meta = {
@@ -28,7 +28,7 @@ function LoginScreen() {
         paddingHorizontal: space[4],
       }}
     >
-      <Frame style={{ padding: space[4], gap: space[4] }}>
+      <View style={{ padding: space[4], gap: space[4] }}>
         <View style={{ gap: space[1] }}>
           <Text style={{ fontSize: 22, fontWeight: '600', color: color.text }}>Entrar</Text>
           <Text style={{ fontSize: 13, color: color.text }}>Acesse sua conta para continuar</Text>
@@ -51,7 +51,7 @@ function LoginScreen() {
         <Button variant="primary" block>
           Entrar
         </Button>
-      </Frame>
+      </View>
     </View>
   );
 }

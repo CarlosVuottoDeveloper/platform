@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
-import { accentRamp, color } from '@industry/tokens';
+import { accentRamp, alpha, color } from '@industry/tokens';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -38,6 +38,21 @@ describe('Button', () => {
 
     expect(getByTestId('button-root').props.style).toContainEqual(
       expect.objectContaining({ backgroundColor: accentRamp['500'] }),
+    );
+  });
+
+  it('exposes the selected state to assistive tech', () => {
+    const { getByRole } = render(<Button selected>Admin</Button>);
+    expect(getByRole('button').props.accessibilityState).toMatchObject({ selected: true });
+  });
+
+  it('highlights the border and background when selected', () => {
+    const { getByTestId } = render(<Button selected>Admin</Button>);
+    expect(getByTestId('button-root').props.style).toContainEqual(
+      expect.objectContaining({
+        borderColor: accentRamp['400'],
+        backgroundColor: alpha(color.accent, 16),
+      }),
     );
   });
 });
