@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Breadcrumbs } from './Breadcrumbs';
 
 const ITEMS = [
@@ -41,5 +41,30 @@ describe('Breadcrumbs', () => {
   it('renders a separator between items but not after the last one', () => {
     const { container } = render(<Breadcrumbs items={ITEMS} />);
     expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(ITEMS.length - 1);
+  });
+
+  it('colours the current crumb with the text colour and previous ones neutral', () => {
+    render(<Breadcrumbs items={ITEMS} />);
+
+    expect(screen.getByText('Detalhes').style.color).toBe('var(--color-text)');
+    expect(screen.getByText('Início').style.color).toBe('var(--color-neutral-400)');
+  });
+
+  it('brightens a previous crumb on hover', () => {
+    render(<Breadcrumbs items={ITEMS} />);
+    const link = screen.getByRole('link', { name: 'Início' });
+
+    fireEvent.mouseEnter(link);
+    expect(link.style.color).toBe('var(--color-neutral-200)');
+
+    fireEvent.mouseLeave(link);
+    expect(link.style.color).toBe('var(--color-neutral-400)');
+  });
+
+  it('draws the separators in a quiet neutral', () => {
+    const { container } = render(<Breadcrumbs items={ITEMS} />);
+    const separator = container.querySelector('[aria-hidden="true"]') as HTMLElement;
+
+    expect(separator.style.color).toBe('var(--color-neutral-600)');
   });
 });

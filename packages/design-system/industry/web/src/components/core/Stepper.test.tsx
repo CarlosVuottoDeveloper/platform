@@ -39,4 +39,43 @@ describe('Stepper', () => {
 
     expect(screen.getAllByText('✓')).toHaveLength(STEPS.length);
   });
+
+  const markerOf = (label: string) =>
+    screen.getByText(label).previousElementSibling as HTMLElement as HTMLElement;
+
+  it('fills the active marker with the accent and a bg-coloured number', () => {
+    render(<Stepper steps={STEPS} current={1} />);
+    const marker = markerOf('Endereço');
+
+    expect(marker.style.background).toBe('var(--color-accent)');
+    expect(marker.style.color).toBe('var(--color-bg)');
+    expect(marker.style.borderRadius).toBe('var(--radius-pill)');
+  });
+
+  it('fills completed markers with the deep accent and a text-coloured check', () => {
+    render(<Stepper steps={STEPS} current={1} />);
+    const marker = markerOf('Conta');
+
+    expect(marker.style.background).toBe('var(--color-accent-700)');
+    expect(marker.style.color).toBe('var(--color-text)');
+  });
+
+  it('outlines upcoming markers on surface-2 with the control border', () => {
+    render(<Stepper steps={STEPS} current={1} />);
+    const marker = markerOf('Confirmação');
+
+    expect(marker.style.background).toBe('var(--color-surface-2)');
+    expect(marker.style.borderColor).toBe('var(--color-control-border)');
+    expect(marker.style.borderWidth).toBe('1px');
+    expect(marker.style.color).toBe('var(--color-neutral-400)');
+    expect(markerOf('Endereço').style.borderWidth).toBe('0px');
+  });
+
+  it('colours the labels at three levels', () => {
+    render(<Stepper steps={STEPS} current={1} />);
+
+    expect(screen.getByText('Endereço').style.color).toBe('var(--color-text)');
+    expect(screen.getByText('Conta').style.color).toBe('var(--color-neutral-200)');
+    expect(screen.getByText('Confirmação').style.color).toBe('var(--color-neutral-400)');
+  });
 });

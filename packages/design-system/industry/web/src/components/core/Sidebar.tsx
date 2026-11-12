@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import type { CSSProperties, MouseEvent, ReactNode } from 'react';
+import { TEXT_TINT_FILLS, resolveFill } from './stateFills';
+import type { StateFills } from './stateFills';
 
 export interface SidebarItem {
   id?: string;
@@ -23,15 +25,19 @@ export interface SidebarProps {
 const BRAND_STYLE: CSSProperties = {
   fontFamily: 'var(--font-heading)',
   fontWeight: 'var(--font-heading-weight)',
-  fontSize: 19,
+  fontSize: 'var(--text-h4)',
   padding: '0 var(--space-2) var(--space-4)',
 };
 
+const ACTIVE_FILLS: StateFills = {
+  rest: 'var(--color-accent-800)',
+  hovered: 'var(--color-accent-700)',
+  pressed: 'var(--color-accent-600)',
+};
+
 const SECTION_STYLE: CSSProperties = {
-  fontSize: 11,
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-  opacity: 0.45,
+  fontSize: 'var(--text-h6)',
+  color: 'var(--color-neutral-400)',
   padding: 'var(--space-4) var(--space-2) var(--space-1)',
 };
 
@@ -43,7 +49,7 @@ export function Sidebar({ brand, items = [], current, onSelect, footer, style }:
         flexDirection: 'column',
         gap: 'var(--space-1)',
         padding: 'var(--space-4) var(--space-3)',
-        borderRight: '1px solid var(--color-divider)',
+        background: 'var(--color-surface)',
         ...style,
       }}
     >
@@ -81,13 +87,19 @@ function SidebarLink({
   onSelect?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
 
   return (
     <a
       href={item.href ?? '#'}
       aria-current={active ? 'page' : undefined}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => {
+        setHovered(false);
+        setPressed(false);
+      }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
       onClick={
         onSelect
           ? (e: MouseEvent<HTMLAnchorElement>) => {
@@ -101,16 +113,16 @@ function SidebarLink({
         alignItems: 'center',
         gap: 'var(--space-3)',
         minHeight: 'var(--tap)',
-        padding: '0 var(--space-2)',
-        color: active ? 'var(--color-accent-200)' : 'inherit',
-        textDecoration: 'none',
-        fontSize: 15,
-        borderLeft: `2px solid ${active ? 'var(--color-accent)' : 'transparent'}`,
-        background: active
-          ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)'
+        padding: '0 var(--space-3)',
+        borderRadius: 'var(--radius-pill)',
+        color: active
+          ? 'var(--color-text)'
           : hovered
-            ? 'color-mix(in srgb, var(--color-text) 6%, transparent)'
-            : 'transparent',
+            ? 'var(--color-neutral-200)'
+            : 'var(--color-neutral-400)',
+        textDecoration: 'none',
+        fontSize: 'var(--text-body)',
+        background: resolveFill(active ? ACTIVE_FILLS : TEXT_TINT_FILLS, hovered, pressed),
       }}
     >
       {item.icon}

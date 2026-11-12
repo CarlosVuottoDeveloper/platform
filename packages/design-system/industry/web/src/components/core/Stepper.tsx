@@ -70,30 +70,33 @@ export function Stepper({ steps = [], current = 0, style }: StepperProps) {
                 height: 28,
                 display: 'grid',
                 placeItems: 'center',
-                background: done ? 'var(--color-accent)' : 'var(--color-bg)',
-                border: `1px solid ${done || isCurrent ? 'var(--color-accent)' : 'var(--color-divider-strong)'}`,
-                boxShadow: isCurrent
-                  ? '0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent)'
-                  : 'none',
-                fontFamily: 'var(--font-mono)',
+                borderRadius: 'var(--radius-pill)',
+                background: isCurrent
+                  ? 'var(--color-accent)'
+                  : done
+                    ? 'var(--color-accent-700)'
+                    : 'var(--color-surface-2)',
+                borderWidth: isCurrent || done ? 0 : 1,
+                borderStyle: 'solid',
+                borderColor: 'var(--color-control-border)',
                 fontSize: 12,
-                color: done
+                color: isCurrent
                   ? 'var(--color-bg)'
-                  : isCurrent
-                    ? 'var(--color-accent-200)'
-                    : 'color-mix(in srgb, var(--color-text) 60%, transparent)',
+                  : done
+                    ? 'var(--color-text)'
+                    : 'var(--color-neutral-400)',
               }}
             >
               {done ? '✓' : index + 1}
             </div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 'var(--text-h6)',
                 color: isCurrent
                   ? 'var(--color-text)'
                   : done
-                    ? 'color-mix(in srgb, var(--color-text) 75%, transparent)'
-                    : 'color-mix(in srgb, var(--color-text) 55%, transparent)',
+                    ? 'var(--color-neutral-200)'
+                    : 'var(--color-neutral-400)',
               }}
             >
               {label}
