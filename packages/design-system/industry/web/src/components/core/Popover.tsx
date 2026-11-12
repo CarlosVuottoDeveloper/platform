@@ -120,7 +120,6 @@ export function Popover({
             padding: 'var(--space-3)',
             background: 'var(--color-surface-2)',
             borderRadius: 'var(--radius-md)',
-            overflow: 'hidden',
             boxShadow: 'var(--shadow-md)',
             ...SIDE_STYLE[resolvedSide],
             ...alignStyle(resolvedSide, align),

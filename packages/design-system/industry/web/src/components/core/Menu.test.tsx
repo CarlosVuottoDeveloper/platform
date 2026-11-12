@@ -87,7 +87,6 @@ describe('Menu', () => {
       background: 'var(--color-surface-2)',
       borderRadius: 'var(--radius-md)',
       boxShadow: 'var(--shadow-md)',
-      overflow: 'hidden',
     });
   });
 
@@ -139,11 +138,11 @@ describe('Menu', () => {
       />,
     );
     fireEvent.click(screen.getByText('Ações'));
-    const selected = screen.getByRole('menuitem', { name: 'A' });
-    const other = screen.getByRole('menuitem', { name: 'B' });
+    const selected = screen.getByRole('menuitemradio', { name: 'A' });
+    const other = screen.getByRole('menuitemradio', { name: 'B' });
 
-    expect(selected).toHaveAttribute('aria-current', 'true');
-    expect(other).not.toHaveAttribute('aria-current');
+    expect(selected).toHaveAttribute('aria-checked', 'true');
+    expect(other).toHaveAttribute('aria-checked', 'false');
     expect(selected.style.background).toBe(
       'color-mix(in srgb, var(--color-accent) 22%, transparent)',
     );
@@ -162,5 +161,31 @@ describe('Menu', () => {
 
     fireEvent.mouseLeave(row);
     expect(row.style.background).toBe('transparent');
+  });
+
+  it('reserves the check slot only when some item uses selected', () => {
+    const { unmount } = render(<Menu trigger="Ações" items={ITEMS} />);
+    fireEvent.click(screen.getByText('Ações'));
+    expect(screen.getByRole('menuitem', { name: 'Editar' }).querySelector('span')).toBeNull();
+    unmount();
+
+    render(<Menu trigger="Ações" items={[{ label: 'A', selected: true }, { label: 'B' }]} />);
+    fireEvent.click(screen.getByText('Ações'));
+    expect(screen.getByRole('menuitemradio', { name: 'B' }).querySelector('span')).not.toBeNull();
+  });
+
+  it('uses plain menu items when no item takes part in a selection', () => {
+    render(<Menu trigger="Ações" items={ITEMS} />);
+    fireEvent.click(screen.getByText('Ações'));
+
+    expect(screen.queryByRole('menuitemradio')).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Editar' })).not.toHaveAttribute('aria-checked');
+  });
+
+  it('labels the menu with its header', () => {
+    render(<Menu trigger="Ações" header="Período" items={ITEMS} />);
+    fireEvent.click(screen.getByText('Ações'));
+
+    expect(screen.getByRole('menu', { name: 'Período' })).toBeInTheDocument();
   });
 });

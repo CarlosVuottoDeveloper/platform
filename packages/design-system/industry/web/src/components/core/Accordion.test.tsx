@@ -100,7 +100,7 @@ describe('Accordion', () => {
     expect(panel).toHaveAttribute('aria-labelledby', headerA.id);
   });
 
-  it('is a rounded clipped surface without an outer rule', async () => {
+  it('is a rounded surface without an outer rule or clipping', async () => {
     const { container } = render(<Accordion items={ITEMS} />);
     await screen.findByText('Item A');
 
@@ -108,8 +108,8 @@ describe('Accordion', () => {
     expect(root).toHaveStyle({
       background: 'var(--color-surface)',
       borderRadius: 'var(--radius-md)',
-      overflow: 'hidden',
     });
+    expect(root.style.overflow).toBe('');
     expect(root.style.borderTop).toBe('');
   });
 

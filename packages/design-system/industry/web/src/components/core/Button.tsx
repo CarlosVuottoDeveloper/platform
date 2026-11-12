@@ -19,15 +19,36 @@ function tint(colorVar: string, percent: number) {
   return `color-mix(in srgb, ${colorVar} ${percent}%, transparent)`;
 }
 
-function pick(
-  pressed: boolean,
-  hovered: boolean,
-  pressedValue: number,
-  hoveredValue: number,
-  rest: number,
-) {
-  return pressed ? pressedValue : hovered ? hoveredValue : rest;
+interface StateFills {
+  rest: string;
+  hovered: string;
+  pressed: string;
 }
+
+function resolveFill(fills: StateFills, hovered: boolean, pressed: boolean) {
+  return pressed ? fills.pressed : hovered ? fills.hovered : fills.rest;
+}
+
+function tintedFills(colorVar: string, rest: number, hovered: number, pressed: number): StateFills {
+  return {
+    rest: tint(colorVar, rest),
+    hovered: tint(colorVar, hovered),
+    pressed: tint(colorVar, pressed),
+  };
+}
+
+const SELECTED_FILLS = tintedFills('var(--color-accent)', 16, 22, 28);
+const DANGER_FILLS = tintedFills('var(--color-danger-400)', 16, 22, 28);
+const GHOST_FILLS: StateFills = {
+  rest: 'transparent',
+  hovered: tint('var(--color-accent)', 14),
+  pressed: tint('var(--color-accent)', 22),
+};
+const SECONDARY_FILLS: StateFills = {
+  rest: 'var(--color-surface-2)',
+  hovered: 'color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2))',
+  pressed: 'var(--color-surface)',
+};
 
 function skin(
   variant: ButtonVariant,
@@ -39,7 +60,7 @@ function skin(
     return {
       color: 'var(--color-text)',
       borderColor: 'var(--color-accent-400)',
-      background: tint('var(--color-accent)', pick(pressed, hovered, 28, 22, 16)),
+      background: resolveFill(SELECTED_FILLS, hovered, pressed),
     };
   }
   if (variant === 'primary') {
@@ -53,28 +74,26 @@ function skin(
     return {
       color: 'var(--color-accent-300)',
       borderColor: 'transparent',
-      background:
-        pressed || hovered
-          ? tint('var(--color-accent)', pick(pressed, hovered, 22, 14, 0))
-          : 'transparent',
+      background: resolveFill(GHOST_FILLS, hovered, pressed),
     };
   }
   if (variant === 'danger') {
     return {
       color: 'var(--color-danger-300)',
       borderColor: 'transparent',
-      background: tint('var(--color-danger-400)', pick(pressed, hovered, 28, 22, 16)),
+      background: resolveFill(DANGER_FILLS, hovered, pressed),
     };
   }
   return {
     color: 'var(--color-text)',
     borderColor: tint('var(--color-text)', 10),
-    background: pressed
-      ? 'var(--color-surface)'
-      : hovered
-        ? 'color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2))'
-        : 'var(--color-surface-2)',
+    background: resolveFill(SECONDARY_FILLS, hovered, pressed),
   };
+}
+
+function isTextLabel(children: ReactNode) {
+  const isText = (node: ReactNode) => typeof node === 'string' || typeof node === 'number';
+  return isText(children) || (Array.isArray(children) && children.every(isText));
 }
 
 export function Button({
@@ -140,7 +159,7 @@ export function Button({
           disabled={Boolean(disabled)}
         />
       ) : null}
-      {typeof children === 'string' ? (
+      {isTextLabel(children) ? (
         <span
           style={{
             display: '-webkit-box',

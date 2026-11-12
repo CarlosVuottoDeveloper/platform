@@ -2,13 +2,18 @@ import { render, screen } from '@testing-library/react';
 import { GradientSurface } from './GradientSurface';
 
 describe('GradientSurface', () => {
-  it('clips its content to the default large radius', () => {
+  it('rounds to the default large radius without clipping its content', () => {
     render(<GradientSurface data-testid="s">x</GradientSurface>);
 
-    expect(screen.getByTestId('s')).toHaveStyle({
-      borderRadius: 'var(--radius-lg)',
-      overflow: 'hidden',
-    });
+    const surface = screen.getByTestId('s');
+    expect(surface).toHaveStyle({ borderRadius: 'var(--radius-lg)' });
+    expect(surface.style.overflow).toBe('');
+  });
+
+  it('lets the consumer opt in to clipping', () => {
+    render(<GradientSurface data-testid="s" style={{ overflow: 'hidden' }} />);
+
+    expect(screen.getByTestId('s').style.overflow).toBe('hidden');
   });
 
   it('renders its children', () => {
@@ -44,13 +49,10 @@ describe('GradientSurface', () => {
     expect(screen.getByTestId('s').style.boxShadow).toBe('');
   });
 
-  it('draws the glow on the same clipped element', () => {
+  it('draws the glow on the element itself', () => {
     render(<GradientSurface data-testid="s" glow />);
 
-    expect(screen.getByTestId('s')).toHaveStyle({
-      boxShadow: 'var(--glow-accent)',
-      overflow: 'hidden',
-    });
+    expect(screen.getByTestId('s')).toHaveStyle({ boxShadow: 'var(--glow-accent)' });
   });
 
   it('lets consumer style override and extend the surface', () => {

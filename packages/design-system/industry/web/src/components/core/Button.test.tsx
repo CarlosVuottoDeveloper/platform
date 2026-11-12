@@ -132,6 +132,22 @@ describe('Button', () => {
     expect(label.style.getPropertyValue('-webkit-line-clamp')).toBe('2');
   });
 
+  it.each([
+    ['a number', 3],
+    ['an array of strings and numbers', ['Salvar ', 3]],
+  ])('clamps %s label like a string', (_name, children) => {
+    render(<Button>{children}</Button>);
+
+    const label = screen.getByRole('button').firstElementChild as HTMLElement;
+    expect(label.style.getPropertyValue('-webkit-line-clamp')).toBe('2');
+  });
+
+  it('leaves an array that holds an element unwrapped', () => {
+    render(<Button>{['Salvar ', <b key="b">3</b>]}</Button>);
+
+    expect(screen.getByText('3').parentElement).toBe(screen.getByRole('button'));
+  });
+
   it('renders non-string children without wrapping them', () => {
     render(
       <Button>

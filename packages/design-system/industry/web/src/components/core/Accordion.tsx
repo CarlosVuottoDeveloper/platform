@@ -42,7 +42,6 @@ export function Accordion({
       style={{
         background: 'var(--color-surface)',
         borderRadius: 'var(--radius-md)',
-        overflow: 'hidden',
         ...style,
       }}
     >

@@ -65,7 +65,7 @@ export function Toast({ tone = 'accent', title, onDismiss, children, style }: To
           <div
             style={{
               fontSize: 13,
-              color: `color-mix(in srgb, ${ACCENT_COLOR[tone]} 65%, transparent)`,
+              color: 'var(--color-neutral-300)',
             }}
           >
             {children}
@@ -82,6 +82,7 @@ export function Toast({ tone = 'accent', title, onDismiss, children, style }: To
             background: 'none',
             border: 'none',
             padding: 4,
+            outlineOffset: -2,
             cursor: 'pointer',
             color: 'var(--color-text)',
           }}

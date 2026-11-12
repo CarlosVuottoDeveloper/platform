@@ -123,8 +123,8 @@ describe('Popover', () => {
       background: 'var(--color-surface-2)',
       borderRadius: 'var(--radius-md)',
       boxShadow: 'var(--shadow-md)',
-      overflow: 'hidden',
     });
+    expect(panel.style.overflow).toBe('');
     expect(panel.style.border).toBe('');
   });
 });

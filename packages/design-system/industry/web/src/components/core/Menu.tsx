@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Icon } from './Icon';
 import { Popover } from './Popover';
@@ -38,6 +38,8 @@ export function Menu({
 }: MenuProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
+  const headerId = useId();
+  const selectable = items.some((item) => item.selected !== undefined);
 
   function setOpen(next: boolean) {
     if (controlledOpen === undefined) setUncontrolledOpen(next);
@@ -55,10 +57,12 @@ export function Menu({
     >
       <div
         role="menu"
+        aria-labelledby={header ? headerId : undefined}
         style={{ display: 'flex', flexDirection: 'column', margin: 'calc(var(--space-3) * -1)' }}
       >
         {header ? (
           <div
+            id={headerId}
             style={{
               padding: 'var(--space-2) var(--space-4) var(--space-1)',
               fontSize: 11,
@@ -72,6 +76,7 @@ export function Menu({
           <MenuItemButton
             key={item.key ?? index}
             item={item}
+            selectable={selectable}
             onSelect={() => {
               item.onSelect?.();
               setOpen(false);
@@ -83,14 +88,22 @@ export function Menu({
   );
 }
 
-function MenuItemButton({ item, onSelect }: { item: MenuItem; onSelect: () => void }) {
+function MenuItemButton({
+  item,
+  selectable,
+  onSelect,
+}: {
+  item: MenuItem;
+  selectable: boolean;
+  onSelect: () => void;
+}) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <button
       type="button"
-      role="menuitem"
-      aria-current={item.selected ? 'true' : undefined}
+      role={selectable ? 'menuitemradio' : 'menuitem'}
+      aria-checked={selectable ? Boolean(item.selected) : undefined}
       disabled={item.disabled}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -117,9 +130,11 @@ function MenuItemButton({ item, onSelect }: { item: MenuItem; onSelect: () => vo
         color: item.selected ? 'var(--color-accent-300)' : 'var(--color-text)',
       }}
     >
-      <span style={{ display: 'flex', width: 16, flex: 'none' }}>
-        {item.selected ? <Icon name="check" size={16} /> : null}
-      </span>
+      {selectable ? (
+        <span style={{ display: 'flex', width: 16, flex: 'none' }}>
+          {item.selected ? <Icon name="check" size={16} /> : null}
+        </span>
+      ) : null}
       {item.label}
     </button>
   );

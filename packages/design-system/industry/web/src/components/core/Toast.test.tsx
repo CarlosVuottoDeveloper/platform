@@ -58,4 +58,21 @@ describe('Toast', () => {
     expect(bar).toHaveAttribute('aria-hidden', 'true');
     expect(screen.getByText('Salvo')).toHaveStyle({ color: tint });
   });
+
+  it('keeps the body neutral and only tints the title', () => {
+    render(
+      <Toast tone="danger" title="Erro">
+        Detalhes
+      </Toast>,
+    );
+
+    expect(screen.getByText('Detalhes')).toHaveStyle({ color: 'var(--color-neutral-300)' });
+    expect(screen.getByText('Erro')).toHaveStyle({ color: 'var(--color-danger)' });
+  });
+
+  it('keeps the dismiss focus ring inside the clipped toast', () => {
+    render(<Toast title="Salvo" onDismiss={() => {}} />);
+
+    expect(screen.getByRole('button', { name: 'Dispensar' }).style.outlineOffset).toBe('-2px');
+  });
 });

@@ -29,7 +29,10 @@ export function PrimaryActionSurface({
       glow={glow && !disabled}
       style={{
         position: 'absolute',
-        inset: 0,
+        top: -1,
+        right: -1,
+        bottom: -1,
+        left: -1,
         // zIndex -1 only stays above the parent's own background when the parent sets isolation: isolate
         zIndex: -1,
         pointerEvents: 'none',
