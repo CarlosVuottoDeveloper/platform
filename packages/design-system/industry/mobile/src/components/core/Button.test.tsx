@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { accentRamp, alpha, color } from '@industry/tokens';
 import { Button } from './Button';
 
@@ -54,5 +54,37 @@ describe('Button', () => {
         backgroundColor: alpha(color.accent, 16),
       }),
     );
+  });
+
+  it('uses the regular label colour when selected, even for the primary variant', () => {
+    const { getByText } = render(
+      <Button variant="primary" selected>
+        Admin
+      </Button>,
+    );
+    expect(StyleSheet.flatten(getByText('Admin').props.style).color).toBe(color.text);
+  });
+
+  it('gives the selected skin its own pressed state', () => {
+    const { getByTestId } = render(<Button selected>Admin</Button>);
+    const fill = () => StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor;
+    expect(fill()).toBe(alpha(color.accent, 16));
+
+    fireEvent(getByTestId('button-root'), 'pressIn');
+
+    expect(fill()).toBe(alpha(color.accent, 28));
+  });
+
+  it('merges a caller accessibilityState with the computed one', () => {
+    const { getByTestId } = render(
+      <Button disabled accessibilityState={{ busy: true }}>
+        Save
+      </Button>,
+    );
+    expect(getByTestId('button-root').props.accessibilityState).toEqual({
+      busy: true,
+      disabled: true,
+      selected: false,
+    });
   });
 });

@@ -35,7 +35,17 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
 function resolveVariantStyle(
   variant: ButtonVariant,
   pressed: boolean,
+  selected: boolean,
 ): { container: ViewStyle; text: TextStyle } {
+  if (selected) {
+    return {
+      container: {
+        backgroundColor: alpha(color.accent, pressed ? 28 : 16),
+        borderColor: accentRamp['400'],
+      },
+      text: { color: color.text },
+    };
+  }
   if (variant === 'primary') {
     return {
       container: {
@@ -72,11 +82,6 @@ function resolveVariantStyle(
   };
 }
 
-const selectedContainerStyle: ViewStyle = {
-  backgroundColor: alpha(color.accent, 16),
-  borderColor: accentRamp['400'],
-};
-
 export function Button({
   variant = 'secondary',
   size = 'md',
@@ -84,6 +89,7 @@ export function Button({
   selected,
   iconOnly,
   disabled,
+  accessibilityState,
   onPressIn,
   onPressOut,
   children,
@@ -92,14 +98,18 @@ export function Button({
 }: ButtonProps) {
   const [pressed, setPressed] = useState(false);
   const height = size === 'sm' ? control.heightSm : control.height;
-  const { container, text } = resolveVariantStyle(variant, pressed && !disabled);
+  const { container, text } = resolveVariantStyle(variant, pressed && !disabled, Boolean(selected));
 
   return (
     <Pressable
       testID="button-root"
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled: Boolean(disabled), selected: Boolean(selected) }}
+      accessibilityState={{
+        ...accessibilityState,
+        disabled: Boolean(disabled),
+        selected: Boolean(selected),
+      }}
       onPressIn={(e: GestureResponderEvent) => {
         setPressed(true);
         onPressIn?.(e);
@@ -122,7 +132,6 @@ export function Button({
           opacity: disabled ? 0.45 : 1,
         },
         container,
-        selected ? selectedContainerStyle : null,
         style,
       ]}
       {...rest}

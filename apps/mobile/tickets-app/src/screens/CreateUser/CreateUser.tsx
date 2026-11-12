@@ -110,9 +110,8 @@ export function CreateUser({ navigation }: Props) {
               <Button
                 key={option.value}
                 style={styles.roleButton}
-                variant={selected ? 'primary' : 'secondary'}
+                variant="secondary"
                 selected={selected}
-                accessibilityState={{ selected }}
                 onPress={() => setRole(option.value)}
               >
                 {option.label}

@@ -1,4 +1,4 @@
-import { Card, PieChart } from '@industry/mobile';
+import { PieChart } from '@industry/mobile';
 import { color } from '@industry/tokens';
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
@@ -157,7 +157,7 @@ describe('Dashboard', () => {
     expect(mockNavigation.navigate).toHaveBeenCalledWith('NewTicket');
   });
 
-  it('renders each recent ticket in its own card', () => {
+  it('renders each recent ticket in only the three most recent tickets', () => {
     mockUseTicketList.mockReturnValue(
       mockTicketListReturn({
         tickets: [
@@ -171,8 +171,9 @@ describe('Dashboard', () => {
 
     render(<Dashboard navigation={mockNavigation} route={mockRoute} />);
 
-    const cards = screen.UNSAFE_getAllByType(Card);
-    expect(cards).toHaveLength(3);
+    expect(screen.getByText('Chamado 1')).toBeTruthy();
+    expect(screen.getByText('Chamado 2')).toBeTruthy();
+    expect(screen.getByText('Chamado 3')).toBeTruthy();
     expect(screen.queryByText('Chamado 4')).toBeNull();
   });
 

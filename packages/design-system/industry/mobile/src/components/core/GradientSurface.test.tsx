@@ -49,39 +49,31 @@ describe('GradientSurface', () => {
   it('adds the accent glow only when asked', () => {
     render(<GradientSurface testID="s" />);
     expect(flatStyle('s').boxShadow).toBeUndefined();
-    expect(screen.queryByTestId('s-glow')).toBeNull();
   });
 
-  it('puts the glow on an outer wrapper that follows the radius', () => {
+  it('draws the glow on the same clipped view', () => {
     render(<GradientSurface testID="s" glow radius={16} />);
-    expect(flatStyle('s-glow')).toMatchObject({ boxShadow: glow.accent, borderRadius: 16 });
-    expect(flatStyle('s').boxShadow).toBeUndefined();
-    expect(flatStyle('s')).toMatchObject({ overflow: 'hidden' });
+    expect(flatStyle('s')).toMatchObject({
+      boxShadow: glow.accent,
+      borderRadius: 16,
+      overflow: 'hidden',
+    });
   });
 
-  it('applies consumer layout style to the outermost view without glow', () => {
-    render(<GradientSurface testID="s" style={{ width: 120, margin: 4 }} />);
-    expect(flatStyle('s')).toMatchObject({ width: 120, margin: 4 });
-  });
-
-  it('applies consumer layout style to the outermost view with glow', () => {
-    render(<GradientSurface testID="s" glow style={{ width: 120, margin: 4 }} />);
-    expect(flatStyle('s-glow')).toMatchObject({ width: 120, margin: 4 });
-    expect(flatStyle('s').width).toBeUndefined();
-  });
-
-  it('keeps padding on the clipped view with glow', () => {
-    render(<GradientSurface testID="s" glow style={{ padding: 8, paddingHorizontal: 4 }} />);
-    expect(flatStyle('s')).toMatchObject({ padding: 8, paddingHorizontal: 4 });
-    expect(flatStyle('s-glow').padding).toBeUndefined();
-  });
-
-  it('renders the glow wrapper without a testID', () => {
+  it('lets consumer style override and extend the surface', () => {
     render(
-      <GradientSurface glow>
-        <Text>sem id</Text>
-      </GradientSurface>,
+      <GradientSurface
+        testID="s"
+        glow
+        style={{ width: 120, margin: 4, flexDirection: 'row', gap: 8, borderRadius: 4 }}
+      />,
     );
-    expect(screen.getByText('sem id')).toBeTruthy();
+    expect(flatStyle('s')).toMatchObject({
+      width: 120,
+      margin: 4,
+      flexDirection: 'row',
+      gap: 8,
+      borderRadius: 4,
+    });
   });
 });

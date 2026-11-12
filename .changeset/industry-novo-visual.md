@@ -13,3 +13,5 @@ Industry passa a ter uma única aparência e uma nova paleta, que já aparece no
 A família tipográfica dos tokens passa a ser Inter. Os apps precisam carregar a fonte; até lá o texto cai para a fonte do sistema.
 
 `colors.css` e `gradients.css` passam a ser gerados por `scripts/build-tokens.mjs`.
+
+`@industry/mobile` (breaking): `Frame`, `FrameProps` e as marcas de registro (`BlueprintMarks`) foram removidos, assim como a prop `framed` de `Button` e `Card`. `Button` ganha a prop `selected` (estado selecionado exposto a tecnologias assistivas, com borda, fundo e rótulo próprios). Nova primitiva `GradientSurface`, que desenha o gradiente e o brilho dos tokens. O peer dependency `react-native` sobe para `>=0.76`, porque gradiente e brilho dependem da New Architecture.

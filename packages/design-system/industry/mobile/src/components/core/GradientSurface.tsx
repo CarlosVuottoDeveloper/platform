@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import { glow as glowToken, gradient, radii } from '@industry/tokens';
@@ -13,15 +13,6 @@ export interface GradientSurfaceProps {
   testID?: string;
 }
 
-function splitPadding(style: StyleProp<ViewStyle>): { padding: ViewStyle; layout: ViewStyle } {
-  const padding: Record<string, unknown> = {};
-  const layout: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(StyleSheet.flatten(style) ?? {})) {
-    (key.startsWith('padding') ? padding : layout)[key] = value;
-  }
-  return { padding, layout };
-}
-
 export function GradientSurface({
   variant = 'surface',
   radius = radii.lg,
@@ -31,30 +22,21 @@ export function GradientSurface({
   testID,
 }: GradientSurfaceProps) {
   const { colors, angle } = gradient[variant];
-  const surfaceStyle: ViewStyle = {
-    borderRadius: radius,
-    overflow: 'hidden',
-    backgroundColor: colors[0],
-    experimental_backgroundImage: `linear-gradient(${angle}deg, ${colors[0]}, ${colors[1]})`,
-  };
-
-  if (!glow) {
-    return (
-      <View testID={testID} style={[surfaceStyle, style]}>
-        {children}
-      </View>
-    );
-  }
-
-  const { padding, layout } = splitPadding(style);
   return (
     <View
-      testID={testID ? `${testID}-glow` : undefined}
-      style={[{ borderRadius: radius, boxShadow: glowToken.accent }, layout]}
+      testID={testID}
+      style={[
+        {
+          borderRadius: radius,
+          overflow: 'hidden',
+          backgroundColor: colors[0],
+          experimental_backgroundImage: `linear-gradient(${angle}deg, ${colors[0]}, ${colors[1]})`,
+          boxShadow: glow ? glowToken.accent : undefined,
+        },
+        style,
+      ]}
     >
-      <View testID={testID} style={[surfaceStyle, { flexGrow: 1 }, padding]}>
-        {children}
-      </View>
+      {children}
     </View>
   );
 }
