@@ -34,6 +34,8 @@ import { Button, Card, TextField } from '@industry/mobile';
 
 **Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `Chip`, `PieChart`, `RingProgress`, `AreaChart`, `StatTile`, `Progress`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
 
+No `PieChart` e no `RingProgress`, `centerLabel` precisa ser um elemento (por exemplo um `<Text>`): número ou texto solto dentro de uma `View` não é válido no React Native.
+
 Em relação ao [`@industry/web`](../web/README.md), este conjunto troca `AppShell`, `Popover` e `Sidebar` — conceitos de janela grande — por `AppBar`, `Chip`, `FAB`, `IconButton` e `PieChart`.
 
 ### `GradientSurface`
