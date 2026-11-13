@@ -3,6 +3,7 @@ import {
   accountBalanceOn,
   accountHasTransactions,
   consolidatedBalanceOn,
+  earliestTransactionDate,
   pendingTotalAfter,
 } from './balance';
 import { tx } from './transaction.test-helpers';
@@ -71,5 +72,11 @@ describe('balance', () => {
     expect(accountHasTransactions('a', list)).toBe(true);
     expect(accountHasTransactions('b', list)).toBe(true);
     expect(accountHasTransactions('z', list)).toBe(false);
+  });
+
+  it('finds the earliest movement of an account, as origin or destination', () => {
+    expect(earliestTransactionDate('a', list)).toBe('2026-01-10');
+    expect(earliestTransactionDate('b', list)).toBe('2026-01-20');
+    expect(earliestTransactionDate('z', list)).toBeNull();
   });
 });

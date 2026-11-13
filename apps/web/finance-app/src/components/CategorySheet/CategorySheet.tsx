@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { Select, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { COLOR_OPTIONS, ICON_OPTIONS } from '../../domain/appearance';
 import type { Category, CategoryInput } from '../../domain/category';
@@ -18,7 +18,7 @@ const KIND_OPTIONS = [
 ];
 
 export function CategorySheet({ category, onClose }: CategorySheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const {
     control,
@@ -34,7 +34,6 @@ export function CategorySheet({ category, onClose }: CategorySheetProps) {
   });
 
   async function save(values: CategoryInput) {
-    if (!user) return;
     const input = { ...values, name: values.name.trim() };
     try {
       if (category) {

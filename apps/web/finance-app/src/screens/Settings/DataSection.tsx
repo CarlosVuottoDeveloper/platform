@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Sheet, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { deleteCurrentUser } from '../../services/authService';
 import { deleteAllUserData, downloadAllData } from '../../services/userDataService';
@@ -8,7 +8,7 @@ import { deleteAllUserData, downloadAllData } from '../../services/userDataServi
 const CONFIRMATION_WORD = 'EXCLUIR';
 
 export function DataSection() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const [confirming, setConfirming] = useState(false);
   const [typed, setTyped] = useState('');
@@ -20,7 +20,6 @@ export function DataSection() {
   }
 
   async function exportData() {
-    if (!user) return;
     try {
       await downloadAllData(user.uid);
     } catch {
@@ -29,7 +28,6 @@ export function DataSection() {
   }
 
   async function deleteEverything() {
-    if (!user) return;
     setDeleting(true);
     try {
       await deleteAllUserData(user.uid);

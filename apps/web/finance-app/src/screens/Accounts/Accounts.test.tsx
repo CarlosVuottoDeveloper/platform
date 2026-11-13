@@ -344,4 +344,83 @@ describe('Accounts', () => {
       expect(deleteAccount).toHaveBeenCalledWith(testUser.uid, 'a2');
     });
   });
+
+  it('refuses an opening date later than a movement the account already has', async () => {
+    mockAccounts([account({ id: 'a1', name: 'Nubank' }), account({ id: 'a2', name: 'Poupança' })]);
+    mockTransactions([
+      tx({ kind: 'transfer', date: '2026-02-10', accountId: 'a2', toAccountId: 'a1' }),
+      tx({ kind: 'expense', date: '2026-05-01', accountId: 'a1' }),
+    ]);
+    jest.mocked(updateAccount).mockResolvedValue();
+    renderSignedIn(<Accounts />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Editar Nubank' }));
+    const openingDate = screen.getByLabelText('Data de abertura');
+    await userEvent.clear(openingDate);
+    await userEvent.type(openingDate, '2026-02-11');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(
+      await screen.findByText('Há movimentações antes dessa data (a primeira é de 10/02/2026)'),
+    ).toBeInTheDocument();
+    expect(updateAccount).not.toHaveBeenCalled();
+
+    await userEvent.clear(openingDate);
+    await userEvent.type(openingDate, '2026-02-10');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(updateAccount).toHaveBeenCalledWith(
+      testUser.uid,
+      'a1',
+      expect.objectContaining({ openingDate: '2026-02-10' }),
+    );
+  });
+
+  it('warns when archiving or deleting fails', async () => {
+    mockAccounts([account({ id: 'a1', name: 'Nubank' })]);
+    jest.mocked(setAccountArchived).mockRejectedValue({ code: 'unavailable' });
+    jest.mocked(deleteAccount).mockRejectedValue({ code: 'unavailable' });
+    renderSignedIn(<Accounts />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Arquivar Nubank' }));
+    expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir Nubank' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+    );
+    expect(await screen.findAllByText('Não foi possível salvar.')).toHaveLength(2);
+  });
+
+  it('keeps the transfer form open and warns when saving fails', async () => {
+    mockAccounts([account({ id: 'a1', name: 'Nubank' }), account({ id: 'a2', name: 'Poupança' })]);
+    jest.mocked(createTransaction).mockRejectedValue({ code: 'unavailable' });
+    renderSignedIn(<Accounts />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Transferir' }));
+    await userEvent.type(screen.getByLabelText('Valor'), '10');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('asks for a real date in the transfer and opening-date fields', async () => {
+    mockAccounts([account({ id: 'a1', name: 'Nubank' }), account({ id: 'a2', name: 'Poupança' })]);
+    renderSignedIn(<Accounts />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Transferir' }));
+    await userEvent.type(screen.getByLabelText('Valor'), '10');
+    await userEvent.clear(screen.getByLabelText('Data'));
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    expect(await screen.findByText('Informe a data')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nova conta' }));
+    await userEvent.type(screen.getByLabelText('Nome'), 'Carteira');
+    await userEvent.clear(screen.getByLabelText('Data de abertura'));
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    expect(await screen.findByText('Informe a data de abertura')).toBeInTheDocument();
+    expect(createAccount).not.toHaveBeenCalled();
+  });
 });

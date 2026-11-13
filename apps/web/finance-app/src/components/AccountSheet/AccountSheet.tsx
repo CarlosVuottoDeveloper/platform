@@ -3,10 +3,12 @@ import { Select, TextField } from '@industry/web';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABELS, isLiability } from '../../domain/account';
 import type { Account, AccountInput, AccountType } from '../../domain/account';
 import { COLOR_OPTIONS, ICON_OPTIONS } from '../../domain/appearance';
-import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
+import { earliestTransactionDate } from '../../domain/balance';
+import { formatDateBR, isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Cents } from '../../domain/money';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
+import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { createAccount, updateAccount } from '../../services/accountsService';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
@@ -56,8 +58,9 @@ function toAccountInput(values: AccountFormValues): AccountInput {
 }
 
 export function AccountSheet({ account, onClose }: AccountSheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
+  const { transactions } = useUserData();
   const {
     control,
     handleSubmit,
@@ -68,8 +71,17 @@ export function AccountSheet({ account, onClose }: AccountSheetProps) {
   const selectedType = watch('type');
   const balanceTouched = watch('balanceTouched');
 
+  function validateOpeningDate(openingDate: string) {
+    if (!isCalendarDate(openingDate)) return 'Informe a data de abertura';
+    const earliest = account ? earliestTransactionDate(account.id, transactions) : null;
+    return (
+      earliest === null ||
+      openingDate <= earliest ||
+      `Há movimentações antes dessa data (a primeira é de ${formatDateBR(earliest)})`
+    );
+  }
+
   async function save(values: AccountFormValues) {
-    if (!user) return;
     try {
       if (account) {
         await updateAccount(user.uid, account.id, toAccountInput(values));
@@ -121,7 +133,7 @@ export function AccountSheet({ account, onClose }: AccountSheetProps) {
       <Controller
         control={control}
         name="openingDate"
-        rules={{ validate: (value) => isCalendarDate(value) || 'Informe a data de abertura' }}
+        rules={{ validate: validateOpeningDate }}
         render={({ field, fieldState }) => (
           <TextField
             label="Data de abertura"

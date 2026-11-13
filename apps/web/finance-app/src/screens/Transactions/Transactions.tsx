@@ -3,7 +3,7 @@ import { EmptyState, SearchField } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
 import { TransactionSheet } from '../../components/TransactionSheet/TransactionSheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import {
@@ -30,7 +30,7 @@ type SheetState =
   | { mode: 'delete'; transaction: Transaction };
 
 export function Transactions() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { accounts, categories, recurrences, transactions } = useUserData();
   const today = toCalendarDate(new Date());
@@ -52,7 +52,6 @@ export function Transactions() {
   }
 
   async function confirmDelete(toDelete: Transaction[]) {
-    if (!user) return;
     closeSheet();
     try {
       await deleteTransactions(

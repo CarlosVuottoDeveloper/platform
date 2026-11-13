@@ -321,6 +321,31 @@ describe('TransactionSheet', () => {
       expect(updateTransaction).not.toHaveBeenCalled();
     });
 
+    it('keeps each following instalment at its own amount when the amount was not edited', async () => {
+      jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
+      jest.mocked(updateTransactions).mockResolvedValue();
+      renderSignedIn(<TransactionSheet transaction={first} onClose={onClose} />);
+
+      await userEvent.type(screen.getByLabelText('Descrição (opcional)'), 'Notebook');
+      await userEvent.selectOptions(screen.getByLabelText('Aplicar a'), 'Esta e as seguintes');
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(updateTransactions).toHaveBeenCalledWith(testUser.uid, [
+        {
+          id: 'i1',
+          input: expect.objectContaining({ amountCents: 3334, description: 'Notebook' }),
+        },
+        {
+          id: 'i2',
+          input: expect.objectContaining({ amountCents: 3333, description: 'Notebook' }),
+        },
+        {
+          id: 'i3',
+          input: expect.objectContaining({ amountCents: 3333, description: 'Notebook' }),
+        },
+      ]);
+    });
+
     it('edits only this instalment by default', async () => {
       jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
       jest.mocked(updateTransaction).mockResolvedValue();

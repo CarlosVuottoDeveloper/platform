@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Goal } from '../../domain/goal';
@@ -15,7 +15,7 @@ interface ContributionSheetProps {
 }
 
 export function ContributionSheet({ goal, onClose }: ContributionSheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const {
     control,
@@ -26,7 +26,7 @@ export function ContributionSheet({ goal, onClose }: ContributionSheetProps) {
   });
 
   async function save(values: { amountCents: Cents | null; date: string }) {
-    if (!user || values.amountCents === null) return;
+    if (values.amountCents === null) return;
     try {
       await addContribution(user.uid, goal.id, {
         amountCents: values.amountCents,

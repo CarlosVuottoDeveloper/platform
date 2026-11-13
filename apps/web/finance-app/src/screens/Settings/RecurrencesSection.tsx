@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { RecurrenceSheet } from '../../components/RecurrenceSheet/RecurrenceSheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { formatCents } from '../../domain/money';
@@ -17,14 +17,13 @@ type SheetState =
   | { mode: 'delete'; recurrence: Recurrence };
 
 export function RecurrencesSection() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { accounts, categories, recurrences } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
   const closeSheet = () => setSheet({ mode: 'closed' });
 
   async function confirmDelete(recurrence: Recurrence) {
-    if (!user) return;
     closeSheet();
     try {
       await deleteRecurrence(user.uid, recurrence.id);

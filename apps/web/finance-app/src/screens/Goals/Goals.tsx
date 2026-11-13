@@ -3,7 +3,7 @@ import { Button, EmptyState } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { ContributionSheet } from '../../components/ContributionSheet/ContributionSheet';
 import { GoalSheet } from '../../components/GoalSheet/GoalSheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import type { Goal } from '../../domain/goal';
@@ -16,7 +16,7 @@ type SheetState =
   | { mode: 'edit' | 'contribute' | 'delete'; goal: Goal };
 
 export function Goals() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { goals } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
@@ -24,7 +24,6 @@ export function Goals() {
   const sorted = [...goals].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
   async function confirmDelete(goal: Goal) {
-    if (!user) return;
     closeSheet();
     try {
       await deleteGoal(user.uid, goal.id);

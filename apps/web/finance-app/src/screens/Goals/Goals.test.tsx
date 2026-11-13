@@ -6,6 +6,7 @@ import {
   createGoal,
   deleteContribution,
   deleteGoal,
+  subscribeToContributions,
   updateGoal,
 } from '../../services/goalsService';
 import { createTransaction } from '../../services/transactionsService';
@@ -147,6 +148,58 @@ describe('Goals', () => {
     await userEvent.type(screen.getByLabelText('Valor'), '300');
     await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
 
+    expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
+  });
+
+  it('warns when deleting a goal or removing a contribution fails', async () => {
+    jest.mocked(deleteGoal).mockRejectedValue({ code: 'unavailable' });
+    jest.mocked(deleteContribution).mockRejectedValue({ code: 'unavailable' });
+    renderSignedIn(<Goals />);
+
+    await userEvent.click(card('g1').getByRole('button', { name: 'Remover aporte de 01/02/2026' }));
+    expect(await screen.findByText('Não foi possível excluir.')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir Viagem de Férias' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+    );
+    expect(await screen.findAllByText('Não foi possível excluir.')).toHaveLength(2);
+  });
+
+  it('warns when the contributions of a goal cannot be loaded', () => {
+    jest
+      .mocked(subscribeToContributions)
+      .mockImplementation((_uid, _goalId, _onChange, onError) => {
+        onError('permission-denied');
+        return jest.fn();
+      });
+
+    renderSignedIn(<Goals />);
+
+    expect(screen.getAllByText('Não foi possível carregar seus dados.').length).toBeGreaterThan(0);
+  });
+
+  it('validates the contribution and the goal deadline, and warns when saving a goal fails', async () => {
+    jest.mocked(createGoal).mockRejectedValue({ code: 'unavailable' });
+    renderSignedIn(<Goals />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Aportar em Reserva de Emergência' }));
+    await userEvent.clear(screen.getByLabelText('Data'));
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    expect(await screen.findByText('Informe o valor')).toBeInTheDocument();
+    expect(screen.getByText('Informe a data')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nova meta' }));
+    await userEvent.type(screen.getByLabelText('Nome'), 'Carro');
+    await userEvent.type(screen.getByLabelText('Valor alvo'), '50.000');
+    await userEvent.type(screen.getByLabelText('Prazo (opcional)'), '2027-06-30');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(createGoal).toHaveBeenCalledWith(
+      testUser.uid,
+      expect.objectContaining({ deadline: '2027-06-30' }),
+    );
     expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
   });
 });

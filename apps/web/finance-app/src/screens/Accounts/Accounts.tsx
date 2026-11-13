@@ -4,7 +4,7 @@ import type { IconName } from '@industry/web';
 import { AccountSheet } from '../../components/AccountSheet/AccountSheet';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { TransferSheet } from '../../components/TransferSheet/TransferSheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { ACCOUNT_TYPE_LABELS, groupAccounts, isLiability } from '../../domain/account';
@@ -133,7 +133,7 @@ function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
 }
 
 export function Accounts() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { accounts, transactions } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
@@ -151,12 +151,10 @@ export function Accounts() {
   }
 
   function toggleArchived(account: Account) {
-    if (!user) return;
     void runOrWarn(() => setAccountArchived(user.uid, account.id, !account.archived));
   }
 
   function confirmDelete(account: Account) {
-    if (!user) return;
     closeSheet();
     void runOrWarn(() => deleteAccount(user.uid, account.id));
   }

@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { Select, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import type { Account } from '../../domain/account';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
@@ -23,7 +23,7 @@ interface TransferSheetProps {
 }
 
 export function TransferSheet({ accounts, onClose }: TransferSheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const {
     control,
@@ -52,7 +52,7 @@ export function TransferSheet({ accounts, onClose }: TransferSheetProps) {
   }
 
   async function save(values: TransferFormValues) {
-    if (!user || values.amountCents === null) return;
+    if (values.amountCents === null) return;
     try {
       await createTransaction(user.uid, {
         kind: 'transfer',

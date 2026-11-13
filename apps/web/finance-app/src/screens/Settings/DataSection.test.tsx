@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { deleteCurrentUser } from '../../services/authService';
 import { deleteAllUserData, downloadAllData } from '../../services/userDataService';
-import { mockSignedInAs, renderWithProviders, testUser } from '../../test-utils';
+import { mockSignedInAs, renderForUser, testUser } from '../../test-utils';
 import { DataSection } from './DataSection';
 
 jest.mock('../../services/authService');
@@ -16,7 +16,7 @@ describe('DataSection', () => {
 
   it('exports all of the user data', async () => {
     jest.mocked(downloadAllData).mockResolvedValue();
-    renderWithProviders(<DataSection />);
+    renderForUser(<DataSection />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Exportar meus dados' }));
 
@@ -25,7 +25,7 @@ describe('DataSection', () => {
 
   it('warns when the export fails', async () => {
     jest.mocked(downloadAllData).mockRejectedValue({ code: 'unavailable' });
-    renderWithProviders(<DataSection />);
+    renderForUser(<DataSection />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Exportar meus dados' }));
 
@@ -40,7 +40,7 @@ describe('DataSection', () => {
     jest.mocked(deleteCurrentUser).mockImplementation(async () => {
       calls.push('account');
     });
-    renderWithProviders(<DataSection />);
+    renderForUser(<DataSection />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Excluir minha conta' }));
     const dialog = within(screen.getByRole('dialog'));
@@ -57,7 +57,7 @@ describe('DataSection', () => {
 
   it('keeps the account when erasing the data fails', async () => {
     jest.mocked(deleteAllUserData).mockRejectedValue({ code: 'unavailable' });
-    renderWithProviders(<DataSection />);
+    renderForUser(<DataSection />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Excluir minha conta' }));
     await userEvent.type(screen.getByLabelText('Digite EXCLUIR para confirmar'), 'EXCLUIR');
@@ -72,7 +72,7 @@ describe('DataSection', () => {
   it('explains what happened when the data is gone but the account could not be removed', async () => {
     jest.mocked(deleteAllUserData).mockResolvedValue();
     jest.mocked(deleteCurrentUser).mockRejectedValue({ code: 'auth/popup-closed-by-user' });
-    renderWithProviders(<DataSection />);
+    renderForUser(<DataSection />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Excluir minha conta' }));
     await userEvent.type(screen.getByLabelText('Digite EXCLUIR para confirmar'), 'EXCLUIR');
@@ -86,7 +86,7 @@ describe('DataSection', () => {
   });
 
   it('closes without deleting when cancelled', async () => {
-    renderWithProviders(<DataSection />);
+    renderForUser(<DataSection />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Excluir minha conta' }));
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));

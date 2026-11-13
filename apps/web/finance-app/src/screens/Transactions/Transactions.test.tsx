@@ -292,4 +292,17 @@ describe('Transactions', () => {
     expect(within(row).getByText('Prevista')).toBeInTheDocument();
     expect(within(row).queryByRole('button')).not.toBeInTheDocument();
   });
+
+  it('warns when deleting fails', async () => {
+    jest.mocked(deleteTransactions).mockRejectedValue({ code: 'unavailable' });
+    mockTransactions([tx({ id: 't1', date: firstOfMonth, description: 'Padaria' })]);
+    renderSignedIn(<Transactions />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir Padaria' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+    );
+
+    expect(await screen.findByText('Não foi possível excluir.')).toBeInTheDocument();
+  });
 });

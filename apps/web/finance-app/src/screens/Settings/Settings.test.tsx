@@ -140,4 +140,19 @@ describe('Settings — categories', () => {
     expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
     expect(screen.getByLabelText('Nome')).toHaveValue('Pets');
   });
+
+  it('warns when archiving a category fails', async () => {
+    jest.mocked(setCategoryArchived).mockRejectedValue({ code: 'unavailable' });
+    renderSignedIn(<Settings />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Arquivar Alimentação' }));
+
+    expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
+  });
+
+  it('shows the signed-in e-mail', () => {
+    renderSignedIn(<Settings />);
+
+    expect(screen.getByText('ana@example.com')).toBeInTheDocument();
+  });
 });

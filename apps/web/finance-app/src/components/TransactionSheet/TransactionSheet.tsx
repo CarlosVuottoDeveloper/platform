@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SegmentedControl, Select, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
@@ -83,7 +83,7 @@ function initialValues(transaction: Transaction | undefined): TransactionFormVal
 }
 
 export function TransactionSheet({ transaction, onClose }: TransactionSheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { accounts, categories, transactions } = useUserData();
   const activeAccounts = accounts.filter((account) => !account.archived);
@@ -126,17 +126,23 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
       await updateTransaction(uid, transaction.id, input);
       return;
     }
+    const amountWasEdited = input.amountCents !== transaction.amountCents;
     await updateTransactions(uid, [
       { id: transaction.id, input },
       ...followingInstallments.map((following) => ({
         id: following.id,
-        input: { ...input, date: following.date, installment: following.installment },
+        input: {
+          ...input,
+          amountCents: amountWasEdited ? input.amountCents : following.amountCents,
+          date: following.date,
+          installment: following.installment,
+        },
       })),
     ]);
   }
 
   async function save(values: TransactionFormValues) {
-    if (!user || values.amountCents === null) return;
+    if (values.amountCents === null) return;
     const input: TransactionInput = {
       kind: values.kind,
       amountCents: values.amountCents,

@@ -54,3 +54,16 @@ export function accountHasTransactions(accountId: string, transactions: Transact
     (transaction) => transaction.accountId === accountId || transaction.toAccountId === accountId,
   );
 }
+
+export function earliestTransactionDate(
+  accountId: string,
+  transactions: Transaction[],
+): CalendarDate | null {
+  const dates = transactions
+    .filter(
+      (transaction) => transaction.accountId === accountId || transaction.toAccountId === accountId,
+    )
+    .map((transaction) => transaction.date)
+    .sort();
+  return dates[0] ?? null;
+}

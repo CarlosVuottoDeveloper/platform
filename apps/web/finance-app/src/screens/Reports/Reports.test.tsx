@@ -10,6 +10,7 @@ jest.mock('../../services/authService');
 jest.mock('../../services/accountsService');
 jest.mock('../../services/budgetsService');
 jest.mock('../../services/categoriesService');
+jest.mock('../../services/exportService');
 jest.mock('../../services/goalsService');
 jest.mock('../../services/recurrencesService');
 jest.mock('../../services/transactionsService');
@@ -174,5 +175,36 @@ describe('Reports — net worth', () => {
     expect(
       screen.getByText('Cadastre uma conta para acompanhar seu patrimônio'),
     ).toBeInTheDocument();
+  });
+});
+
+describe('Reports — tabs and edge months', () => {
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers().setSystemTime(new Date(2026, 2, 15, 12));
+    mockSignedInAs(testUser);
+    mockUserData({ accounts, categories, transactions });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('opens the filtered report tab', async () => {
+    renderSignedIn(<Reports />);
+
+    await user.click(screen.getByRole('tab', { name: 'Relatório' }));
+
+    expect(screen.getByLabelText('De')).toHaveValue('2026-03-01');
+  });
+
+  it('explains that a future month has no balance history yet', async () => {
+    renderSignedIn(<Reports />);
+
+    await user.click(screen.getByRole('button', { name: 'Próximo mês' }));
+
+    expect(screen.getByText('Este mês ainda não começou')).toBeInTheDocument();
   });
 });

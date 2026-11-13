@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { isCalendarDate } from '../../domain/calendarDate';
 import type { Goal } from '../../domain/goal';
@@ -21,7 +21,7 @@ interface GoalSheetProps {
 }
 
 export function GoalSheet({ goal, onClose }: GoalSheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const {
     control,
