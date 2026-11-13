@@ -1,32 +1,52 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Account } from '../../domain/account';
+import type { Transaction } from '../../domain/transaction';
 import { subscribeToAccounts } from '../../services/accountsService';
+import { subscribeToTransactions } from '../../services/transactionsService';
 import { useAuth } from '../AuthContext/AuthContext';
 import { useToast } from '../ToastContext/ToastContext';
 
 interface UserDataContextValue {
   accounts: Account[];
+  transactions: Transaction[];
   loading: boolean;
 }
 
+type Subscribe<T> = (
+  uid: string,
+  onChange: (items: T[]) => void,
+  onError: (code: string) => void,
+) => () => void;
+
 const UserDataContext = createContext<UserDataContextValue | null>(null);
 
-export function UserDataProvider({ children }: { children: ReactNode }) {
+function useUserCollection<T>(subscribe: Subscribe<T>): T[] | null {
   const { user } = useAuth();
   const { showToast } = useToast();
   const uid = user?.uid;
-  const [accounts, setAccounts] = useState<Account[] | null>(null);
+  const [items, setItems] = useState<T[] | null>(null);
 
   useEffect(() => {
     if (!uid) return undefined;
     const onError = () => showToast('danger', 'Não foi possível carregar seus dados.');
-    return subscribeToAccounts(uid, setAccounts, onError);
-  }, [uid, showToast]);
+    return subscribe(uid, setItems, onError);
+  }, [uid, showToast, subscribe]);
+
+  return items;
+}
+
+export function UserDataProvider({ children }: { children: ReactNode }) {
+  const accounts = useUserCollection(subscribeToAccounts);
+  const transactions = useUserCollection(subscribeToTransactions);
 
   const value = useMemo(
-    () => ({ accounts: accounts ?? [], loading: accounts === null }),
-    [accounts],
+    () => ({
+      accounts: accounts ?? [],
+      transactions: transactions ?? [],
+      loading: accounts === null || transactions === null,
+    }),
+    [accounts, transactions],
   );
 
   return <UserDataContext.Provider value={value}>{children}</UserDataContext.Provider>;

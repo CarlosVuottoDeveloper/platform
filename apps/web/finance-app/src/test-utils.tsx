@@ -47,3 +47,7 @@ export function renderWithProviders(ui: ReactElement, { route = '/' }: { route?:
 export function renderSignedIn(ui: ReactElement, options: { route?: string } = {}) {
   return renderWithProviders(<UserDataProvider>{ui}</UserDataProvider>, options);
 }
+
+export function money(expected: string) {
+  return (content: string) => content.replace(/\s/g, ' ') === expected;
+}

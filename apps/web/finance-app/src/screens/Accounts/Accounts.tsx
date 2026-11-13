@@ -1,30 +1,62 @@
 import { useState } from 'react';
-import { Button, EmptyState, Icon } from '@industry/web';
+import { Button, EmptyState, Icon, StatTile } from '@industry/web';
 import type { IconName } from '@industry/web';
 import { AccountSheet } from '../../components/AccountSheet/AccountSheet';
+import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
+import { TransferSheet } from '../../components/TransferSheet/TransferSheet';
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import { ACCOUNT_TYPE_LABELS, groupAccounts } from '../../domain/account';
+import { ACCOUNT_TYPE_LABELS, groupAccounts, isLiability } from '../../domain/account';
 import type { Account } from '../../domain/account';
 import { colorVariable } from '../../domain/appearance';
-import { setAccountArchived } from '../../services/accountsService';
+import {
+  accountBalanceOn,
+  accountHasTransactions,
+  consolidatedBalanceOn,
+  pendingTotalAfter,
+} from '../../domain/balance';
+import { toCalendarDate } from '../../domain/calendarDate';
+import { formatCents } from '../../domain/money';
+import type { Transaction } from '../../domain/transaction';
+import { deleteAccount, setAccountArchived } from '../../services/accountsService';
 
-type SheetState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; account: Account };
+type SheetState =
+  | { mode: 'closed' }
+  | { mode: 'create' }
+  | { mode: 'transfer' }
+  | { mode: 'edit'; account: Account }
+  | { mode: 'delete'; account: Account };
 
-interface AccountRowProps {
-  account: Account;
-  onEdit: () => void;
-  onToggleArchived: () => void;
+interface AccountActions {
+  onEdit: (account: Account) => void;
+  onToggleArchived: (account: Account) => void;
+  onDelete: (account: Account) => void;
 }
 
-function AccountRow({ account, onEdit, onToggleArchived }: AccountRowProps) {
+interface AccountRowProps extends AccountActions {
+  account: Account;
+  transactions: Transaction[];
+  today: string;
+}
+
+function AccountRow({
+  account,
+  transactions,
+  today,
+  onEdit,
+  onToggleArchived,
+  onDelete,
+}: AccountRowProps) {
   const archiveLabel = account.archived ? 'Desarquivar' : 'Arquivar';
+  const pending = isLiability(account.type) ? pendingTotalAfter(account, transactions, today) : 0;
 
   return (
     <li
+      data-testid={`account-${account.id}`}
       style={{
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         gap: 'var(--space-3)',
         padding: 'var(--space-3) 0',
@@ -38,29 +70,54 @@ function AccountRow({ account, onEdit, onToggleArchived }: AccountRowProps) {
           {ACCOUNT_TYPE_LABELS[account.type]}
         </div>
       </div>
-      <Button size="sm" variant="ghost" aria-label={`Editar ${account.name}`} onClick={onEdit}>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontWeight: 'var(--font-medium-weight)' }}>
+          {formatCents(accountBalanceOn(account, transactions, today))}
+        </div>
+        {pending !== 0 ? (
+          <div style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
+            {`A vencer: ${formatCents(pending)}`}
+          </div>
+        ) : null}
+      </div>
+      <Button
+        size="sm"
+        variant="ghost"
+        aria-label={`Editar ${account.name}`}
+        onClick={() => onEdit(account)}
+      >
         Editar
       </Button>
       <Button
         size="sm"
         variant="ghost"
         aria-label={`${archiveLabel} ${account.name}`}
-        onClick={onToggleArchived}
+        onClick={() => onToggleArchived(account)}
       >
         {archiveLabel}
       </Button>
+      {accountHasTransactions(account.id, transactions) ? null : (
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={`Excluir ${account.name}`}
+          onClick={() => onDelete(account)}
+        >
+          Excluir
+        </Button>
+      )}
     </li>
   );
 }
 
-interface AccountSectionProps {
+interface AccountSectionProps extends AccountActions {
   title: string;
   accounts: Account[];
-  onEdit: (account: Account) => void;
-  onToggleArchived: (account: Account) => void;
+  transactions: Transaction[];
+  today: string;
 }
 
-function AccountSection({ title, accounts, onEdit, onToggleArchived }: AccountSectionProps) {
+function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
   if (accounts.length === 0) return null;
 
   return (
@@ -68,12 +125,7 @@ function AccountSection({ title, accounts, onEdit, onToggleArchived }: AccountSe
       <h2 style={{ fontSize: 'var(--text-h4)' }}>{title}</h2>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {accounts.map((account) => (
-          <AccountRow
-            key={account.id}
-            account={account}
-            onEdit={() => onEdit(account)}
-            onToggleArchived={() => onToggleArchived(account)}
-          />
+          <AccountRow key={account.id} account={account} {...rowProps} />
         ))}
       </ul>
     </section>
@@ -83,45 +135,93 @@ function AccountSection({ title, accounts, onEdit, onToggleArchived }: AccountSe
 export function Accounts() {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { accounts } = useUserData();
+  const { accounts, transactions } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
+  const today = toCalendarDate(new Date());
   const groups = groupAccounts(accounts);
+  const activeAccounts = [...groups.assets, ...groups.liabilities];
+  const closeSheet = () => setSheet({ mode: 'closed' });
 
-  async function toggleArchived(account: Account) {
-    if (!user) return;
+  async function runOrWarn(action: () => Promise<void>) {
     try {
-      await setAccountArchived(user.uid, account.id, !account.archived);
+      await action();
     } catch {
       showToast('danger', 'Não foi possível salvar.');
     }
   }
 
+  function toggleArchived(account: Account) {
+    if (!user) return;
+    void runOrWarn(() => setAccountArchived(user.uid, account.id, !account.archived));
+  }
+
+  function confirmDelete(account: Account) {
+    if (!user) return;
+    closeSheet();
+    void runOrWarn(() => deleteAccount(user.uid, account.id));
+  }
+
   const sectionProps = {
+    transactions,
+    today,
     onEdit: (account: Account) => setSheet({ mode: 'edit', account }),
     onToggleArchived: toggleArchived,
+    onDelete: (account: Account) => setSheet({ mode: 'delete', account }),
   };
 
   return (
     <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          justifyContent: 'space-between',
+        }}
+      >
         <h1 style={{ margin: 0 }}>Contas</h1>
-        <Button variant="primary" onClick={() => setSheet({ mode: 'create' })}>
-          Nova conta
-        </Button>
+        <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+          <Button
+            variant="secondary"
+            disabled={activeAccounts.length < 2}
+            onClick={() => setSheet({ mode: 'transfer' })}
+          >
+            Transferir
+          </Button>
+          <Button variant="primary" onClick={() => setSheet({ mode: 'create' })}>
+            Nova conta
+          </Button>
+        </div>
       </div>
       {accounts.length === 0 ? (
         <EmptyState
           title="Nenhuma conta cadastrada"
           body="Cadastre seu banco, carteira ou cartão para começar a registrar movimentações."
         />
-      ) : null}
+      ) : (
+        <StatTile
+          testID="consolidated-balance"
+          icon={<Icon name="wallet" />}
+          label="Saldo consolidado"
+          value={formatCents(consolidatedBalanceOn(accounts, transactions, today))}
+        />
+      )}
       <AccountSection title="Ativos" accounts={groups.assets} {...sectionProps} />
       <AccountSection title="Passivos" accounts={groups.liabilities} {...sectionProps} />
       <AccountSection title="Arquivadas" accounts={groups.archived} {...sectionProps} />
-      {sheet.mode !== 'closed' ? (
-        <AccountSheet
-          account={sheet.mode === 'edit' ? sheet.account : undefined}
-          onClose={() => setSheet({ mode: 'closed' })}
+      {sheet.mode === 'create' ? <AccountSheet onClose={closeSheet} /> : null}
+      {sheet.mode === 'edit' ? <AccountSheet account={sheet.account} onClose={closeSheet} /> : null}
+      {sheet.mode === 'transfer' ? (
+        <TransferSheet accounts={activeAccounts} onClose={closeSheet} />
+      ) : null}
+      {sheet.mode === 'delete' ? (
+        <ConfirmSheet
+          title="Excluir conta"
+          message={`A conta "${sheet.account.name}" não tem movimentações e será excluída.`}
+          confirmLabel="Excluir"
+          onConfirm={() => confirmDelete(sheet.account)}
+          onDismiss={closeSheet}
         />
       ) : null}
     </div>

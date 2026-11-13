@@ -4,15 +4,20 @@ import type { Account } from '../../domain/account';
 import { toCalendarDate } from '../../domain/calendarDate';
 import {
   createAccount,
+  deleteAccount,
   setAccountArchived,
   subscribeToAccounts,
   updateAccount,
 } from '../../services/accountsService';
-import { mockSignedInAs, renderSignedIn, testUser } from '../../test-utils';
+import { tx } from '../../domain/transaction.test-helpers';
+import type { Transaction } from '../../domain/transaction';
+import { createTransaction, subscribeToTransactions } from '../../services/transactionsService';
+import { mockSignedInAs, money, renderSignedIn, testUser } from '../../test-utils';
 import { Accounts } from './Accounts';
 
 jest.mock('../../services/authService');
 jest.mock('../../services/accountsService');
+jest.mock('../../services/transactionsService');
 
 const account = (overrides: Partial<Account>): Account => ({
   id: 'a1',
@@ -33,6 +38,13 @@ function mockAccounts(accounts: Account[]) {
   });
 }
 
+function mockTransactions(transactions: Transaction[]) {
+  jest.mocked(subscribeToTransactions).mockImplementation((_uid, onChange) => {
+    onChange(transactions);
+    return jest.fn();
+  });
+}
+
 const sectionOf = (name: string) => screen.getByRole('region', { name });
 
 describe('Accounts', () => {
@@ -40,6 +52,7 @@ describe('Accounts', () => {
     jest.clearAllMocks();
     mockSignedInAs(testUser);
     mockAccounts([]);
+    mockTransactions([]);
   });
 
   it('invites the user to create the first account', () => {
@@ -207,5 +220,128 @@ describe('Accounts', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(createAccount).not.toHaveBeenCalled();
+  });
+
+  describe('balances and transfers', () => {
+    const nubank = account({ id: 'a1', name: 'Nubank', initialBalanceCents: 100000 });
+    const poupanca = account({ id: 'a2', name: 'Poupança', initialBalanceCents: 0 });
+    const cartao = account({
+      id: 'a3',
+      name: 'Cartão',
+      type: 'credit_card',
+      initialBalanceCents: 0,
+    });
+
+    it('shows each balance and a consolidated total that a transfer does not change', () => {
+      mockAccounts([nubank, poupanca]);
+      mockTransactions([
+        tx({
+          kind: 'transfer',
+          amountCents: 30000,
+          date: '2026-01-20',
+          accountId: 'a1',
+          toAccountId: 'a2',
+        }),
+      ]);
+
+      renderSignedIn(<Accounts />);
+
+      expect(
+        within(screen.getByTestId('account-a1')).getByText(money('R$ 700,00')),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('account-a2')).getByText(money('R$ 300,00')),
+      ).toBeInTheDocument();
+      expect(
+        within(screen.getByTestId('consolidated-balance')).getByText(money('R$ 1.000,00')),
+      ).toBeInTheDocument();
+    });
+
+    it('leaves future movements out of the balance and shows them as upcoming on a liability', () => {
+      mockAccounts([cartao]);
+      mockTransactions([
+        tx({ kind: 'expense', amountCents: 25000, date: '2999-01-01', accountId: 'a3' }),
+      ]);
+
+      renderSignedIn(<Accounts />);
+
+      const row = screen.getByTestId('account-a3');
+      expect(within(row).getByText(money('R$ 0,00'))).toBeInTheDocument();
+      expect(within(row).getByText(money('A vencer: -R$ 250,00'))).toBeInTheDocument();
+    });
+
+    it('records a transfer between two accounts', async () => {
+      mockAccounts([nubank, poupanca, account({ id: 'a9', name: 'Arquivada', archived: true })]);
+      jest.mocked(createTransaction).mockResolvedValue('t-new');
+      renderSignedIn(<Accounts />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Transferir' }));
+      const dialog = screen.getByRole('dialog');
+      expect(within(dialog).queryByRole('option', { name: 'Arquivada' })).not.toBeInTheDocument();
+      await userEvent.selectOptions(within(dialog).getByLabelText('Origem'), 'Nubank');
+      await userEvent.selectOptions(within(dialog).getByLabelText('Destino'), 'Poupança');
+      await userEvent.type(within(dialog).getByLabelText('Valor'), '300');
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Salvar' }));
+
+      expect(createTransaction).toHaveBeenCalledWith(testUser.uid, {
+        kind: 'transfer',
+        amountCents: 30000,
+        date: toCalendarDate(new Date()),
+        accountId: 'a1',
+        toAccountId: 'a2',
+        categoryId: null,
+        description: '',
+        tags: [],
+        recurrenceId: null,
+        installment: null,
+      });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('refuses a transfer to the same account, without an amount or before an account opened', async () => {
+      mockAccounts([nubank, poupanca]);
+      renderSignedIn(<Accounts />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Transferir' }));
+      await userEvent.selectOptions(screen.getByLabelText('Destino'), 'Nubank');
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(await screen.findByText('Escolha contas diferentes')).toBeInTheDocument();
+      expect(screen.getByText('Informe o valor')).toBeInTheDocument();
+
+      await userEvent.selectOptions(screen.getByLabelText('Destino'), 'Poupança');
+      await userEvent.type(screen.getByLabelText('Valor'), '10');
+      const date = screen.getByLabelText('Data');
+      await userEvent.clear(date);
+      await userEvent.type(date, '2025-12-31');
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(await screen.findByText('Data anterior à abertura da conta')).toBeInTheDocument();
+      expect(createTransaction).not.toHaveBeenCalled();
+    });
+
+    it('only offers a transfer when there are two active accounts', () => {
+      mockAccounts([nubank]);
+
+      renderSignedIn(<Accounts />);
+
+      expect(screen.getByRole('button', { name: 'Transferir' })).toBeDisabled();
+    });
+
+    it('lets an account without movements be deleted after confirmation', async () => {
+      mockAccounts([nubank, poupanca]);
+      mockTransactions([tx({ kind: 'income', accountId: 'a1' })]);
+      jest.mocked(deleteAccount).mockResolvedValue();
+      renderSignedIn(<Accounts />);
+
+      expect(screen.queryByRole('button', { name: 'Excluir Nubank' })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'Excluir Poupança' }));
+      expect(deleteAccount).not.toHaveBeenCalled();
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+      );
+
+      expect(deleteAccount).toHaveBeenCalledWith(testUser.uid, 'a2');
+    });
   });
 });

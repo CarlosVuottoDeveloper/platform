@@ -41,6 +41,61 @@ service cloud.firestore {
         && data.archived is bool;
     }
 
+    function isId(value) {
+      return isText(value, 1, 128);
+    }
+
+    function isValidInstallment(installment) {
+      return hasExactly(installment, ['groupId', 'index', 'count'])
+        && isId(installment.groupId)
+        && installment.index is int
+        && installment.count is int
+        && installment.index >= 1
+        && installment.index <= installment.count
+        && installment.count <= 48;
+    }
+
+    function isTagOrAbsent(tags, index) {
+      return tags.size() <= index || isText(tags[index], 1, 30);
+    }
+
+    function isValidTags(tags) {
+      return tags is list
+        && tags.size() <= 10
+        && isTagOrAbsent(tags, 0)
+        && isTagOrAbsent(tags, 1)
+        && isTagOrAbsent(tags, 2)
+        && isTagOrAbsent(tags, 3)
+        && isTagOrAbsent(tags, 4)
+        && isTagOrAbsent(tags, 5)
+        && isTagOrAbsent(tags, 6)
+        && isTagOrAbsent(tags, 7)
+        && isTagOrAbsent(tags, 8)
+        && isTagOrAbsent(tags, 9);
+    }
+
+    function hasValidTransactionParties(data) {
+      return data.kind == 'transfer'
+        ? isId(data.toAccountId) && data.toAccountId != data.accountId && data.categoryId == null
+        : data.toAccountId == null && isId(data.categoryId);
+    }
+
+    function isValidTransaction(data) {
+      return hasExactly(data, ['kind', 'amountCents', 'date', 'accountId', 'toAccountId', 'categoryId', 'description', 'tags', 'recurrenceId', 'installment', 'createdAt', 'updatedAt'])
+        && data.kind in ['income', 'expense', 'transfer']
+        && data.amountCents is int
+        && data.amountCents >= 1
+        && data.amountCents <= 99999999999
+        && isCalendarDate(data.date)
+        && isId(data.accountId)
+        && hasValidTransactionParties(data)
+        && isText(data.description, 0, 140)
+        && isValidTags(data.tags)
+        && (data.recurrenceId == null || isId(data.recurrenceId))
+        && (data.installment == null || isValidInstallment(data.installment))
+        && data.updatedAt == request.time;
+    }
+
     match /users/{uid}/{document=**} {
       allow read, delete: if isOwner(uid);
     }
@@ -48,6 +103,11 @@ service cloud.firestore {
     match /users/{uid}/accounts/{accountId} {
       allow create: if isOwner(uid) && isValidAccount(request.resource.data) && isStampedNow();
       allow update: if isOwner(uid) && isValidAccount(request.resource.data) && keepsCreationTime();
+    }
+
+    match /users/{uid}/transactions/{transactionId} {
+      allow create: if isOwner(uid) && isValidTransaction(request.resource.data) && isStampedNow();
+      allow update: if isOwner(uid) && isValidTransaction(request.resource.data) && keepsCreationTime();
     }
   }
 }
