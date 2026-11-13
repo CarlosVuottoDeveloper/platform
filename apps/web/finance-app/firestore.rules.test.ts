@@ -17,6 +17,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { materializeRecurrence } from './src/services/recurrenceMaterializer';
+import { eraseUserTree } from './src/services/userDataEraser';
 
 describe('Firestore security rules — finance-app', () => {
   let testEnv: RulesTestEnvironment;
@@ -606,6 +607,56 @@ describe('Firestore security rules — finance-app', () => {
       await seed(path, { amountCents: 100, date: '2026-01-01' });
 
       await assertFails(updateDoc(doc(ownerDb(alice), path), { amountCents: 999 }));
+    });
+  });
+
+  describe('erasing a user', () => {
+    const paths = [
+      `users/${alice}`,
+      `users/${alice}/accounts/a1`,
+      `users/${alice}/categories/c1`,
+      `users/${alice}/transactions/t1`,
+      `users/${alice}/recurrences/r1`,
+      `users/${alice}/budgets/c1`,
+      `users/${alice}/goals/g1`,
+      `users/${alice}/goals/g1/contributions/k1`,
+    ];
+    const bobAccount = `users/${bob}/accounts/a1`;
+
+    beforeEach(async () => {
+      await Promise.all([...paths, bobAccount].map((path) => seed(path, { any: 'thing' })));
+    });
+
+    it('removes every document of the owner, including contributions, and nothing of anyone else', async () => {
+      await eraseUserTree(ownerDb(alice), alice);
+
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const snapshots = await Promise.all(
+          paths.map((path) => getDoc(doc(context.firestore(), path))),
+        );
+        expect(snapshots.filter((snapshot) => snapshot.exists())).toEqual([]);
+        expect((await getDoc(doc(context.firestore(), bobAccount))).exists()).toBe(true);
+      });
+    });
+
+    it('handles more documents than fit in one batch', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const db = context.firestore();
+        for (let start = 0; start < 520; start += 260) {
+          await Promise.all(
+            Array.from({ length: 260 }, (_, index) =>
+              setDoc(doc(db, `users/${alice}/transactions/bulk-${start + index}`), {
+                any: 'thing',
+              }),
+            ),
+          );
+        }
+      });
+
+      await eraseUserTree(ownerDb(alice), alice);
+
+      const remaining = await getDocs(collection(ownerDb(alice), `users/${alice}/transactions`));
+      expect(remaining.size).toBe(0);
     });
   });
 });

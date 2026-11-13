@@ -1,5 +1,13 @@
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  deleteUser,
+  onAuthStateChanged,
+  reauthenticateWithPopup,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
 import type { User } from 'firebase/auth';
+import { errorCode } from './errorCode';
 import { auth } from './firebase';
 
 export interface AuthUser {
@@ -21,8 +29,7 @@ function toAuthUser(user: User): AuthUser {
 }
 
 function isPopupDismissed(error: unknown): boolean {
-  if (typeof error !== 'object' || error === null || !('code' in error)) return false;
-  return typeof error.code === 'string' && POPUP_DISMISSED_CODES.includes(error.code);
+  return POPUP_DISMISSED_CODES.includes(errorCode(error));
 }
 
 export function subscribeToAuthChanges(onChange: (user: AuthUser | null) => void): () => void {
@@ -41,4 +48,16 @@ export async function loginWithGoogle(): Promise<AuthUser | null> {
 
 export function logout(): Promise<void> {
   return signOut(auth);
+}
+
+export async function deleteCurrentUser(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await deleteUser(user);
+  } catch (error) {
+    if (errorCode(error) !== 'auth/requires-recent-login') throw error;
+    await reauthenticateWithPopup(user, new GoogleAuthProvider());
+    await deleteUser(user);
+  }
 }
