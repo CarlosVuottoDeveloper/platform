@@ -1,11 +1,25 @@
 /* GENERATED FILE — do not edit by hand. Authored in scripts/build-tokens.mjs. */
 :root {
-  --gradient-primary: linear-gradient(180deg, var(--color-accent-600), var(--color-accent-800));
-  --gradient-surface: linear-gradient(180deg, var(--color-surface-2), var(--color-surface));
+  --gradient-primary-start: var(--color-accent-600);
+  --gradient-primary-end: var(--color-accent-800);
+  --gradient-primary: linear-gradient(
+    180deg,
+    var(--gradient-primary-start),
+    var(--gradient-primary-end)
+  );
+  --gradient-surface-start: var(--color-surface-2);
+  --gradient-surface-end: var(--color-surface);
+  --gradient-surface: linear-gradient(
+    180deg,
+    var(--gradient-surface-start),
+    var(--gradient-surface-end)
+  );
+  --gradient-backdrop-start: color-mix(in srgb, var(--color-accent-800) 60%, var(--color-bg));
+  --gradient-backdrop-end: var(--color-bg);
   --gradient-backdrop: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--color-accent-800) 60%, var(--color-bg)),
-    var(--color-bg)
+    var(--gradient-backdrop-start),
+    var(--gradient-backdrop-end)
   );
   --glow-accent: 0px 8px 20px 0px rgba(38, 139, 252, 0.45);
 }

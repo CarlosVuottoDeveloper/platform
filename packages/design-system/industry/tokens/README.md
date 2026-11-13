@@ -83,7 +83,7 @@ O contorno de campos e controles interativos é `color.controlBorder` (`--color-
 
 ## Gradientes e brilho
 
-`gradient` tem três entradas, cada uma com duas cores e um ângulo (todos 180°, de cima para baixo). Na web são `--gradient-primary`, `--gradient-surface` e `--gradient-backdrop`.
+`gradient` tem três entradas, cada uma com duas cores e um ângulo (todos 180°, de cima para baixo). Na web são `--gradient-primary`, `--gradient-surface` e `--gradient-backdrop`; cada um também expõe as duas pontas como `--gradient-<nome>-start` e `--gradient-<nome>-end`, e `--gradient-<nome>` é montado a partir delas.
 
 | Nome       | De                                 | Para              | Uso                             |
 | ---------- | ---------------------------------- | ----------------- | ------------------------------- |

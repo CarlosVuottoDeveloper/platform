@@ -295,9 +295,12 @@ ${Object.entries(vizHues)
 }
 `;
 
-const gradientCssLines = Object.entries(gradientDefinitions).map(
-  ([name, { from, to, angle }]) =>
-    `  --gradient-${name}: linear-gradient(${angle}deg, ${from.css}, ${to.css});`,
+const gradientCssLines = Object.entries(gradientDefinitions).flatMap(
+  ([name, { from, to, angle }]) => [
+    `  --gradient-${name}-start: ${from.css};`,
+    `  --gradient-${name}-end: ${to.css};`,
+    `  --gradient-${name}: linear-gradient(${angle}deg, var(--gradient-${name}-start), var(--gradient-${name}-end));`,
+  ],
 );
 const glowCssLines = Object.entries(glow).map(([name, value]) => `  --glow-${name}: ${value};`);
 
