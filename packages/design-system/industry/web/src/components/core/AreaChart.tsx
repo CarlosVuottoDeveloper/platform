@@ -29,8 +29,8 @@ function defaultValueFormatter(value: number): string {
   return defaultNumberFormat.format(value);
 }
 
-function finitePointsOf(points: readonly AreaChartPoint[]): AreaChartPoint[] {
-  return points.filter((point) => Number.isFinite(point.value));
+function finiteValuesOf(points: readonly { value: number }[]): number[] {
+  return points.map((point) => point.value).filter(Number.isFinite);
 }
 
 function resolveTicks(values: readonly number[]): number[] {
@@ -60,39 +60,56 @@ export function buildAreaPath(
   width: number,
   height: number,
 ): { line: string; area: string } {
-  if (points.length === 0) return { line: '', area: '' };
+  const values = finiteValuesOf(points);
+  if (values.length === 0) return { line: '', area: '' };
 
-  const values = points.map((p) => p.value);
   const min = Math.min(...values);
   const range = Math.max(...values) - min;
   const ratioFromTop = (value: number) => (range === 0 ? 0.5 : 1 - (value - min) / range);
 
-  const coordinates =
-    points.length === 1
-      ? [
-          { x: 0, y: yAt(0.5, height) },
-          { x: width, y: yAt(0.5, height) },
-        ]
-      : points.map((p, i) => ({
-          x: Number(((i * width) / (points.length - 1)).toFixed(2)),
-          y: yAt(ratioFromTop(p.value), height),
-        }));
+  if (points.length === 1) {
+    const y = yAt(0.5, height);
+    const line = `M0 ${y}L${width} ${y}`;
+    return { line, area: `${line}L${width} ${height}L0 ${height}Z` };
+  }
 
-  const line = coordinates.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x} ${c.y}`).join('');
-  return { line, area: `${line}L${width} ${height}L0 ${height}Z` };
+  const segments: { x: number; y: number }[][] = [];
+  let current: { x: number; y: number }[] = [];
+  points.forEach((point, index) => {
+    if (!Number.isFinite(point.value)) {
+      current = [];
+      return;
+    }
+    if (current.length === 0) segments.push(current);
+    current.push({
+      x: Number(((index * width) / (points.length - 1)).toFixed(2)),
+      y: yAt(ratioFromTop(point.value), height),
+    });
+  });
+
+  const lines = segments.map((segment) => {
+    const drawn = segment.length === 1 ? [...segment, ...segment] : segment;
+    return drawn.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x} ${c.y}`).join('');
+  });
+  const areas = segments.map((segment, i) => {
+    const first = segment[0] as { x: number };
+    const last = segment[segment.length - 1] as { x: number };
+    return `${lines[i]}L${last.x} ${height}L${first.x} ${height}Z`;
+  });
+  return { line: lines.join(''), area: areas.join('') };
 }
 
 export function AreaChart({
-  points: allPoints,
+  points,
   height = 180,
   valueFormatter = defaultValueFormatter,
   style,
   testID,
 }: AreaChartProps) {
   const gradientId = useId();
-  const points = finitePointsOf(allPoints);
-  const hasPoints = points.length > 0;
-  const ticks = resolveTicks(points.map((p) => p.value));
+  const finiteValues = finiteValuesOf(points);
+  const hasPoints = finiteValues.length > 0;
+  const ticks = resolveTicks(finiteValues);
   const { line, area } = buildAreaPath(points, VIEW_WIDTH, height);
   const labelStyle: CSSProperties = {
     fontFamily: 'var(--font-body)',
@@ -106,7 +123,12 @@ export function AreaChart({
       role={hasPoints ? 'img' : undefined}
       aria-label={
         hasPoints
-          ? points.map((p) => `${p.label} ${valueFormatter(p.value)}`).join(', ')
+          ? points
+              .map(
+                (p) =>
+                  `${p.label} ${Number.isFinite(p.value) ? valueFormatter(p.value) : 'sem dado'}`,
+              )
+              .join(', ')
           : undefined
       }
       style={style}

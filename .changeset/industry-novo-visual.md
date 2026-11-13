@@ -14,6 +14,8 @@ A família tipográfica dos tokens passa a ser Inter. Os apps precisam carregar 
 
 `colors.css` e `gradients.css` passam a ser gerados por `scripts/build-tokens.mjs`.
 
+`@industry/tokens`: as variáveis de cor do CSS passam a ser valores hex sRGB (antes eram `oklch()`), idênticos às constantes nativas. Em telas de gamut amplo a web deixa de mostrar cores mais saturadas que as do nativo; algumas cores mudam levemente de valor nas duas plataformas.
+
 `@industry/mobile` (breaking): `Frame`, `FrameProps` e as marcas de registro (`BlueprintMarks`) foram removidos, assim como a prop `framed` de `Button` e `Card`. `Button` ganha a prop `selected` (estado selecionado exposto a tecnologias assistivas, com borda, fundo e rótulo próprios). Nova primitiva `GradientSurface`, que desenha o gradiente e o brilho dos tokens. O peer dependency `react-native` sobe para `>=0.76`, porque gradiente e brilho dependem da New Architecture.
 
 `@industry/mobile`: todos os componentes foram reestilizados — superfícies preenchidas e arredondadas, ações primárias com gradiente e brilho, novo desenho dos campos, `DataTable`, `Progress`, `Skeleton`, `EmptyState` e `Duotone` com os raios e superfícies dos tokens. Rótulos e `Badge` passam a usar caixa de frase, e os tamanhos de texto que correspondem a um token passam a lê-lo (com deslocamentos de 1 a 2px); os que não têm token ficam como estavam. Os itens do `TabBar` passam a ter o papel `tab`. As props públicas não mudam.
@@ -25,3 +27,5 @@ A família tipográfica dos tokens passa a ser Inter. Os apps precisam carregar 
 `@industry/mobile` e `@industry/web`: novos componentes `RingProgress` (anel de progresso com arco em gradiente e rótulo central), `AreaChart` (gráfico de área com grade, rótulos nos eixos e `valueFormatter`) e `StatTile` (ícone, valor e legenda de uma métrica), com as mesmas props nas duas plataformas.
 
 `@industry/mobile`: novo componente `SectionLabel` (rótulo de seção com divisória e conteúdo opcional à direita), antes duplicado nos dois apps.
+
+`@industry/web`: as linhas do `Menu` passam a ficar recuadas e com cantos arredondados, em vez de ir até a borda do painel.

@@ -17,7 +17,7 @@ Por isso a origem não é nem o CSS nem o TypeScript: é `scripts/build-tokens.m
 | `src/tokens/colors.css`           | Cores em hex (e `color-mix`) como custom properties                 |
 | `src/tokens/gradients.css`        | `--gradient-*` e `--glow-accent`                                    |
 
-Cada cor é mapeada para o gamut sRGB uma única vez (`clampChroma` do `culori`, mantendo luminosidade e matiz), e as duas saídas derivam dessa mesma cor: o hex nativo e o hex do CSS são idênticos, e a checagem de contraste roda sobre ela. O gerador falha se alguma cor emitida não for exibível em sRGB.
+Cada cor é mapeada para o gamut sRGB uma única vez (`clampChroma` do `culori`, mantendo luminosidade e matiz), e as duas saídas derivam dessa mesma cor: o hex nativo e o hex do CSS são idênticos, e a checagem de contraste roda sobre ela.
 
 Os quatro arquivos são gerados e levam o aviso no topo: **nunca edite à mão**. Mudar uma cor é editar o gerador e rodar `yarn build`; as duas plataformas mudam juntas, por construção. Não há uma segunda lista de valores para alguém esquecer de atualizar.
 

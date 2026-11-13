@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { clampChroma, displayable, formatHex, wcagContrast } from 'culori';
+import { clampChroma, formatHex, wcagContrast } from 'culori';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const nativeDir = join(root, 'src', 'native');
@@ -10,11 +10,7 @@ mkdirSync(nativeDir, { recursive: true });
 mkdirSync(cssDir, { recursive: true });
 
 function hex(l, c, h) {
-  const mapped = clampChroma({ mode: 'oklch', l, c, h }, 'oklch');
-  if (!displayable(mapped)) {
-    throw new Error(`oklch(${l} ${c} ${h}) could not be mapped into sRGB`);
-  }
-  return formatHex(mapped);
+  return formatHex(clampChroma({ mode: 'oklch', l, c, h }, 'oklch'));
 }
 
 function assertContrast(foreground, background, minimum, label) {

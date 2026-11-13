@@ -23,9 +23,7 @@ export function GradientSurface({
       {...rest}
       style={{
         borderRadius: radius,
-        backgroundImage: `var(--gradient-${variant})`,
-        backgroundOrigin: 'border-box',
-        backgroundRepeat: 'no-repeat',
+        background: `var(--gradient-${variant}) border-box no-repeat`,
         boxShadow: glow ? 'var(--glow-accent)' : undefined,
         ...style,
       }}

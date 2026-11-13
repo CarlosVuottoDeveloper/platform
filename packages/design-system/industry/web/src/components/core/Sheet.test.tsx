@@ -56,7 +56,7 @@ describe('Sheet', () => {
     render(<Sheet title="Título">Conteúdo</Sheet>);
 
     expect(screen.getByRole('dialog')).toHaveStyle({
-      backgroundImage: 'var(--gradient-surface)',
+      background: 'var(--gradient-surface) border-box no-repeat',
       borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
       border: '1px solid var(--color-divider)',
     });

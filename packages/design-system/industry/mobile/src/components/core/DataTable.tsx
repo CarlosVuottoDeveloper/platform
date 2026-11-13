@@ -70,36 +70,30 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
           testID={testID ? `${testID}-header` : undefined}
           style={{ flexDirection: 'row', backgroundColor: color.surface2 }}
         >
-          {columns.map((column) => (
-            <View
-              key={column.key}
-              style={{
-                width: column.width,
-                flex: column.width ? undefined : 1,
-                paddingHorizontal: space[3],
-              }}
-            >
-              {column.sortable === false ? (
-                <ColumnLabel>{column.label}</ColumnLabel>
-              ) : onSort ? (
-                <SortHeader
+          {columns.map((column) => {
+            const direction =
+              column.sortable !== false && sort?.key === column.key ? sort.dir : undefined;
+            return (
+              <View
+                key={column.key}
+                style={{
+                  width: column.width,
+                  flex: column.width ? undefined : 1,
+                  paddingHorizontal: space[3],
+                }}
+              >
+                <ColumnHeader
                   columnKey={column.key}
-                  active={sort?.key === column.key}
-                  direction={sort?.key === column.key ? sort.dir : undefined}
-                  onPress={() => onSort(column.key)}
+                  direction={direction}
+                  onPress={
+                    column.sortable !== false && onSort ? () => onSort(column.key) : undefined
+                  }
                 >
                   {column.label}
-                </SortHeader>
-              ) : (
-                <ColumnLabel
-                  active={sort?.key === column.key}
-                  direction={sort?.key === column.key ? sort.dir : undefined}
-                >
-                  {column.label}
-                </ColumnLabel>
-              )}
-            </View>
-          ))}
+                </ColumnHeader>
+              </View>
+            );
+          })}
         </View>
         <FlatList
           data={rows}
@@ -164,18 +158,34 @@ function Cell({ children }: { children?: ReactNode }) {
   );
 }
 
-function HeaderLabel({
-  active = false,
+const DIRECTION_ANNOUNCEMENT = { asc: 'crescente', desc: 'decrescente' } as const;
+
+function ColumnHeader({
+  columnKey,
   direction,
+  onPress,
   children,
 }: {
-  active?: boolean;
+  columnKey: string;
   direction?: 'asc' | 'desc';
+  onPress?: () => void;
   children?: ReactNode;
 }) {
-  return (
+  const active = direction !== undefined;
+  const layout = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[1],
+    minHeight: control.tap,
+  } as const;
+  const content = (
     <>
       <Text
+        accessibilityLabel={
+          active && typeof children === 'string'
+            ? `${children}, ordenado em ordem ${DIRECTION_ANNOUNCEMENT[direction]}`
+            : undefined
+        }
         style={{
           fontFamily: fontFamily.body,
           fontSize: fontSize.h6,
@@ -194,64 +204,19 @@ function HeaderLabel({
       ) : null}
     </>
   );
-}
 
-function ColumnLabel({
-  active,
-  direction,
-  children,
-}: {
-  active?: boolean;
-  direction?: 'asc' | 'desc';
-  children?: ReactNode;
-}) {
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space[1],
-        minHeight: control.tap,
-      }}
-    >
-      <HeaderLabel active={active} direction={direction}>
-        {children}
-      </HeaderLabel>
-    </View>
-  );
-}
-
-function SortHeader({
-  columnKey,
-  active,
-  direction,
-  onPress,
-  children,
-}: {
-  columnKey: string;
-  active: boolean;
-  direction?: 'asc' | 'desc';
-  onPress?: () => void;
-  children?: ReactNode;
-}) {
-  return (
+  return onPress ? (
     <Pressable
       testID={`sort-header-${columnKey}`}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       onPress={onPress}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space[1],
-        minHeight: control.tap,
-        opacity: pressed ? 0.6 : 1,
-      })}
+      style={({ pressed }) => ({ ...layout, opacity: pressed ? 0.6 : 1 })}
     >
-      <HeaderLabel active={active} direction={direction}>
-        {children}
-      </HeaderLabel>
+      {content}
     </Pressable>
+  ) : (
+    <View style={layout}>{content}</View>
   );
 }
 

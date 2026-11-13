@@ -63,7 +63,7 @@ describe('Button', () => {
     const surface = surfaceOf(button) as HTMLElement;
 
     expect(surface).toHaveStyle({
-      backgroundImage: 'var(--gradient-primary)',
+      background: 'var(--gradient-primary) border-box no-repeat',
       boxShadow: 'var(--glow-accent)',
       borderRadius: 'var(--radius-pill)',
     });

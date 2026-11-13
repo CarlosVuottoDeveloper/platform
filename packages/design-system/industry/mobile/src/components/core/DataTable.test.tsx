@@ -127,6 +127,19 @@ describe('DataTable', () => {
       expect(chevrons[0]?.props.name).toBe('ChevronDown');
     });
 
+    it.each([
+      ['asc', 'Nome, ordenado em ordem crescente'],
+      ['desc', 'Nome, ordenado em ordem decrescente'],
+    ] as const)('announces the %s direction on the sorted header', (dir, label) => {
+      const { getByText, getByLabelText } = render(
+        <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir }} />,
+      );
+
+      expect(getByText('Nome').props.accessibilityLabel).toBe(label);
+      expect(getByLabelText(label)).toBeTruthy();
+      expect(getByText('Cargo').props.accessibilityLabel).toBeUndefined();
+    });
+
     it('shows an ascending chevron for dir asc', () => {
       const { UNSAFE_getAllByType } = render(
         <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'asc' }} />,

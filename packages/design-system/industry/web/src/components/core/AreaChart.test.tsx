@@ -277,23 +277,52 @@ describe('AreaChart', () => {
       { label: 'Qua', value: 5 },
     ];
 
-    it('skips the bad point in the path, ticks, x labels and accessible label', () => {
+    it('keeps every x slot and label, leaving a gap at the bad point', () => {
       render(<AreaChart testID="c" points={WITH_NAN} />);
+      const line = screen.getByTestId('c-line').getAttribute('d') as string;
 
-      expect(screen.getByTestId('c-line').getAttribute('d')).not.toContain('NaN');
+      expect(line).not.toContain('NaN');
+      expect(line.match(/M/g)).toHaveLength(2);
+      expect(numbersIn(line)).toEqual(expect.arrayContaining([0, 100]));
       expect(screen.getByTestId('c-area').getAttribute('d')).not.toContain('NaN');
+      expect(screen.getByText('Seg')).toBeTruthy();
+      expect(screen.getByText('Ter')).toBeTruthy();
+      expect(screen.getByText('Qua')).toBeTruthy();
       expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
-      expect(screen.queryByText('Ter')).not.toBeInTheDocument();
-      expect(screen.getByText('Seg')).toBeInTheDocument();
-      expect(screen.getByText('Qua')).toBeInTheDocument();
-      expect(screen.getByRole('img')).toHaveAccessibleName('Seg 3, Qua 5');
     });
 
-    it('draws the remaining points as if the bad one were absent', () => {
+    it('says "sem dado" for the missing point in the accessible label', () => {
       render(<AreaChart testID="c" points={WITH_NAN} />);
-      const clean = buildAreaPath([{ value: 3 }, { value: 5 }], 100, 180);
 
-      expect(screen.getByTestId('c-line').getAttribute('d')).toBe(clean.line);
+      expect(screen.getByRole('img').getAttribute('aria-label')).toBe('Seg 3, Ter sem dado, Qua 5');
+    });
+
+    it('excludes the bad value from the y scale only', () => {
+      render(<AreaChart testID="c" points={WITH_NAN} />);
+
+      expect(screen.getByText('5')).toBeTruthy();
+      expect(screen.getByText('3')).toBeTruthy();
+    });
+
+    it('draws a lone point between gaps as a dot', () => {
+      const { line } = buildAreaPath(
+        [{ value: 1 }, { value: NaN }, { value: 2 }, { value: NaN }, { value: 3 }],
+        100,
+        100,
+      );
+
+      expect(line.match(/M/g)).toHaveLength(3);
+      expect(line).not.toContain('NaN');
+    });
+
+    it('closes the area once per segment', () => {
+      const { area } = buildAreaPath(
+        [{ value: 1 }, { value: 2 }, { value: NaN }, { value: 3 }, { value: 4 }],
+        100,
+        100,
+      );
+
+      expect(area.match(/Z/g)).toHaveLength(2);
     });
 
     it('treats Infinity like a missing value', () => {

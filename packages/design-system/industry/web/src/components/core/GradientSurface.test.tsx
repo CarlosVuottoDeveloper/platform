@@ -28,7 +28,7 @@ describe('GradientSurface', () => {
       render(<GradientSurface data-testid="s" variant={variant} />);
 
       expect(screen.getByTestId('s')).toHaveStyle({
-        backgroundImage: `var(--gradient-${variant})`,
+        background: `var(--gradient-${variant}) border-box no-repeat`,
       });
     },
   );
@@ -36,16 +36,18 @@ describe('GradientSurface', () => {
   it('paints under the border and does not tile the gradient', () => {
     render(<GradientSurface data-testid="s" />);
 
-    expect(screen.getByTestId('s')).toHaveStyle({
-      backgroundOrigin: 'border-box',
-      backgroundRepeat: 'no-repeat',
-    });
+    const { background } = screen.getByTestId('s').style;
+
+    expect(background).toContain('border-box');
+    expect(background).toContain('no-repeat');
   });
 
   it('defaults to the surface gradient', () => {
     render(<GradientSurface data-testid="s" />);
 
-    expect(screen.getByTestId('s')).toHaveStyle({ backgroundImage: 'var(--gradient-surface)' });
+    expect(screen.getByTestId('s')).toHaveStyle({
+      background: 'var(--gradient-surface) border-box no-repeat',
+    });
   });
 
   it('accepts a numeric radius in pixels', () => {
