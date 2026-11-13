@@ -186,18 +186,19 @@ describe('AreaChart', () => {
     expect(screen.getByText('63,3')).toBeInTheDocument();
   });
 
-  it('hands a custom valueFormatter ticks rounded to one decimal', () => {
+  it('hands a custom valueFormatter the exact tick values', () => {
     render(
       <AreaChart
         points={[
-          { label: 'a', value: 40 },
-          { label: 'b', value: 110 },
+          { label: 'a', value: 0.02 },
+          { label: 'b', value: 0.04 },
         ]}
-        valueFormatter={(v) => `#${v}`}
+        valueFormatter={(v) => v.toFixed(3)}
       />,
     );
 
-    expect(screen.getByText('#86.7')).toBeInTheDocument();
+    for (const label of ['0.040', '0.033', '0.027', '0.020'])
+      expect(screen.getByText(label)).toBeInTheDocument();
   });
 
   it('renders every label of a series with repeated labels', () => {

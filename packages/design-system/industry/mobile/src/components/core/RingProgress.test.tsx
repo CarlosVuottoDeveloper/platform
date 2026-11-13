@@ -36,6 +36,12 @@ describe('resolveRingDash', () => {
     });
   });
 
+  it('returns the sanitised max', () => {
+    expect(resolveRingDash(5, -5, 50).max).toBe(0);
+    expect(resolveRingDash(5, Number.NaN, 50).max).toBe(0);
+    expect(resolveRingDash(5, 80, 50).max).toBe(80);
+  });
+
   it('returns the clamped value as now', () => {
     expect(resolveRingDash(250, 100, 50).now).toBe(100);
     expect(resolveRingDash(45, 100, 50).now).toBe(45);
@@ -105,6 +111,15 @@ describe('RingProgress', () => {
     render(<RingProgress value={50} size={20} thickness={40} testID="ring" />);
     expect(screen.getByTestId('ring-track').props.r).toBe(0);
     expect(screen.getByTestId('ring-arc').props.r).toBe(0);
+  });
+
+  it('reports a valid range for a negative max', () => {
+    render(<RingProgress value={3} max={-5} />);
+    expect(screen.getByRole('progressbar').props.accessibilityValue).toEqual({
+      min: 0,
+      max: 0,
+      now: 0,
+    });
   });
 
   it('renders the centerLabel', () => {

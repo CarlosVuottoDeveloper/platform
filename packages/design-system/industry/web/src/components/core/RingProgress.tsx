@@ -20,7 +20,7 @@ export function resolveRingDash(
   value: number,
   max: number,
   radius: number,
-): { dasharray: string; dashoffset: number; fraction: number; now: number } {
+): { dasharray: string; dashoffset: number; fraction: number; now: number; max: number } {
   const circumference = 2 * Math.PI * radius;
   const safeMax = Math.max(finiteOrZero(max), 0);
   const now = Math.min(Math.max(finiteOrZero(value), 0), safeMax);
@@ -30,6 +30,7 @@ export function resolveRingDash(
     dashoffset: circumference * (1 - fraction),
     fraction,
     now,
+    max: safeMax,
   };
 }
 
@@ -46,8 +47,13 @@ export function RingProgress({
   const gradientId = useId();
   const center = size / 2;
   const radius = Math.max((size - thickness) / 2, 0);
-  const safeMax = finiteOrZero(max);
-  const { dasharray, dashoffset, fraction, now } = resolveRingDash(value, safeMax, radius);
+  const {
+    dasharray,
+    dashoffset,
+    fraction,
+    now,
+    max: safeMax,
+  } = resolveRingDash(value, max, radius);
 
   return (
     <div
@@ -105,7 +111,9 @@ export function RingProgress({
           ) : null}
         </g>
       </svg>
-      {centerLabel ? <div style={{ position: 'relative' }}>{centerLabel}</div> : null}
+      {centerLabel != null && centerLabel !== false ? (
+        <div style={{ position: 'relative' }}>{centerLabel}</div>
+      ) : null}
     </div>
   );
 }

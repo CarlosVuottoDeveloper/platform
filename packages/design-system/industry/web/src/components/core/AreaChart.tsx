@@ -24,17 +24,13 @@ const LABEL_SLOT_PERCENT = 100 / MAX_X_LABELS;
 
 const defaultValueFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format;
 
-function roundToTenth(value: number): number {
-  return Math.round(value * 10) / 10;
-}
-
 function resolveTicks(values: readonly number[]): number[] {
   const low = Math.min(...values);
   const high = Math.max(...values);
   const padding = low === high ? Math.max(1, Math.abs(low) * 0.1) : 0;
   const min = low - padding;
   const max = high + padding;
-  return GRID_RATIOS.map((ratio) => roundToTenth(max - ratio * (max - min)));
+  return GRID_RATIOS.map((ratio) => max - ratio * (max - min));
 }
 
 function pointFraction(index: number, count: number): number {

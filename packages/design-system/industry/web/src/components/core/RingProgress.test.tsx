@@ -35,6 +35,12 @@ describe('resolveRingDash', () => {
     });
   });
 
+  it('returns the sanitised max', () => {
+    expect(resolveRingDash(5, -5, 50).max).toBe(0);
+    expect(resolveRingDash(5, Number.NaN, 50).max).toBe(0);
+    expect(resolveRingDash(5, 80, 50).max).toBe(80);
+  });
+
   it('returns the clamped value as now', () => {
     expect(resolveRingDash(250, 100, 50).now).toBe(100);
     expect(resolveRingDash(45, 100, 50).now).toBe(45);
@@ -141,6 +147,18 @@ describe('RingProgress', () => {
 
     expect(stops?.[0]?.style.stopColor).toBe('var(--gradient-primary-start)');
     expect(stops?.[1]?.style.stopColor).toBe('var(--gradient-primary-end)');
+  });
+
+  it('renders a numeric zero centerLabel', () => {
+    render(<RingProgress value={0} centerLabel={0} />);
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  it('reports a valid range for a negative max', () => {
+    render(<RingProgress value={3} max={-5} />);
+    const bar = screen.getByRole('progressbar');
+    expect(bar).toHaveAttribute('aria-valuemax', '0');
+    expect(bar).toHaveAttribute('aria-valuenow', '0');
   });
 
   it('renders the centerLabel', () => {

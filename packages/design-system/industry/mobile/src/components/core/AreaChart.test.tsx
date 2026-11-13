@@ -182,19 +182,19 @@ describe('AreaChart', () => {
     expect(screen.getByText('63,3')).toBeTruthy();
   });
 
-  it('hands a custom valueFormatter ticks rounded to one decimal', () => {
-    const formatter = jest.fn((v: number) => `#${v}`);
+  it('hands a custom valueFormatter the exact tick values', () => {
     render(
       <AreaChart
         points={[
-          { label: 'a', value: 40 },
-          { label: 'b', value: 110 },
+          { label: 'a', value: 0.02 },
+          { label: 'b', value: 0.04 },
         ]}
-        valueFormatter={formatter}
+        valueFormatter={(v) => v.toFixed(3)}
       />,
     );
 
-    expect(screen.getByText('#86.7')).toBeTruthy();
+    for (const label of ['0.040', '0.033', '0.027', '0.020'])
+      expect(screen.getByText(label)).toBeTruthy();
   });
 
   it('renders every label of a series with repeated labels', () => {
