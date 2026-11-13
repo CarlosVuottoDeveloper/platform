@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tickets App",
     "slug": "tickets-app",
-    "version": "1.1.5",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -58,7 +58,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.vt.ticketsapp",
-      "versionCode": 7
+      "versionCode": 8
     },
     "web": {
       "favicon": "./assets/favicon.png"
