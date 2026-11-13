@@ -1,5 +1,5 @@
 import type { TextStyle, ViewStyle } from 'react-native';
-import { alpha, color, danger, fontSize, radii, semanticColor } from '@industry/tokens';
+import { alpha, color, danger, fontFamily, fontSize, radii, semanticColor } from '@industry/tokens';
 
 interface FieldFrameState {
   focused?: boolean;
@@ -21,6 +21,18 @@ export function resolveFieldFrameStyle({
   };
 }
 
-export const fieldLabelStyle: TextStyle = { fontSize: fontSize.h6, color: alpha(color.text, 70) };
-export const fieldHintStyle: TextStyle = { fontSize: 12, color: alpha(color.text, 50) };
-export const fieldErrorStyle: TextStyle = { fontSize: 12, color: danger['300'] };
+export const fieldLabelStyle: TextStyle = {
+  fontFamily: fontFamily.body,
+  fontSize: fontSize.h6,
+  color: alpha(color.text, 70),
+};
+export const fieldHintStyle: TextStyle = {
+  fontFamily: fontFamily.body,
+  fontSize: 12,
+  color: alpha(color.text, 50),
+};
+export const fieldErrorStyle: TextStyle = {
+  fontFamily: fontFamily.body,
+  fontSize: 12,
+  color: danger['300'],
+};

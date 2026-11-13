@@ -3,7 +3,7 @@ import { FlatList, Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { alpha, color, control, fontSize, radii, space } from '@industry/tokens';
+import { alpha, color, control, fontSize, radii, space, fontFamily } from '@industry/tokens';
 import {
   fieldErrorStyle,
   fieldHintStyle,
@@ -73,6 +73,7 @@ export function Select({
       >
         <Text
           style={{
+            fontFamily: fontFamily.body,
             flex: 1,
             fontSize: fontSize.body,
             color: selected ? color.text : alpha(color.text, 50),
@@ -131,7 +132,13 @@ export function Select({
                       borderRadius: radii.sm,
                     }}
                   >
-                    <Text style={{ fontSize: fontSize.body, color: on ? color.bg : color.text }}>
+                    <Text
+                      style={{
+                        fontFamily: fontFamily.body,
+                        fontSize: fontSize.body,
+                        color: on ? color.bg : color.text,
+                      }}
+                    >
                       {item.label}
                     </Text>
                   </Pressable>

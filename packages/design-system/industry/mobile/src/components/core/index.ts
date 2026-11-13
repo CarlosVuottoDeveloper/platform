@@ -81,8 +81,20 @@ export type {
   PieChartSlice,
 } from './PieChart';
 
+export { RingProgress } from './RingProgress';
+export type { RingProgressProps } from './RingProgress';
+
+export { AreaChart } from './AreaChart';
+export type { AreaChartProps, AreaChartPoint } from './AreaChart';
+
+export { StatTile } from './StatTile';
+export type { StatTileProps } from './StatTile';
+
 export { IconButton } from './IconButton';
 export type { IconButtonProps, IconButtonVariant, IconButtonSize } from './IconButton';
 
 export { Chip } from './Chip';
 export type { ChipProps } from './Chip';
+
+export { SectionLabel } from './SectionLabel';
+export type { SectionLabelProps } from './SectionLabel';

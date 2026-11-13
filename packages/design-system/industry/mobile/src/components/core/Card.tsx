@@ -34,12 +34,7 @@ export function Card({ kicker, title, body, meta, elevation, children, style, te
       ]}
     >
       {kicker ? (
-        <Text
-          style={{
-            fontSize: 11,
-            color: accentRamp['300'],
-          }}
-        >
+        <Text style={{ fontFamily: fontFamily.body, fontSize: 11, color: accentRamp['300'] }}>
           {kicker}
         </Text>
       ) : null}
@@ -56,11 +51,17 @@ export function Card({ kicker, title, body, meta, elevation, children, style, te
           {title}
         </Text>
       ) : null}
-      {body ? <Text style={{ fontSize: 14, color: alpha(color.text, 80) }}>{body}</Text> : null}
+      {body ? (
+        <Text style={{ fontFamily: fontFamily.body, fontSize: 14, color: alpha(color.text, 80) }}>
+          {body}
+        </Text>
+      ) : null}
       {children}
       {meta ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-          <Text style={{ fontSize: 12, color: alpha(color.text, 50) }}>{meta}</Text>
+          <Text style={{ fontFamily: fontFamily.body, fontSize: 12, color: alpha(color.text, 50) }}>
+            {meta}
+          </Text>
         </View>
       ) : null}
     </GradientSurface>

@@ -96,7 +96,6 @@ export function Button({
     <button
       type="button"
       disabled={disabled}
-      aria-pressed={selected}
       {...handlers}
       style={{
         position: 'relative',
@@ -126,6 +125,7 @@ export function Button({
         ...style,
       }}
       {...rest}
+      aria-pressed={selected ?? rest['aria-pressed']}
     >
       {hasGradient ? (
         <PrimaryActionSurface

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Platform, View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBar, Button, EmptyState, Icon, Spinner, useTheme, useToast } from '@industry/mobile';
-import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
+import { AppBar, Button, EmptyState, Spinner, useTheme, useToast } from '@industry/mobile';
+import { alpha, fontFamilyMono } from '@industry/tokens';
 import { useTicketList } from '../../hooks/useTicketList';
 import { useAuthStore } from '../../store/useAuthStore';
 import { STATUS_LABELS, STATUS_PLURAL_LABELS } from '../../constants/ticketStatus';
@@ -92,7 +92,6 @@ export function TicketList({ route, navigation }: Props) {
           ListEmptyComponent={
             <View style={styles.center}>
               <EmptyState
-                icon={<Icon name="Plus" size={30} color={accentRamp['400']} />}
                 title="Nada com este status"
                 body={
                   statusPlural

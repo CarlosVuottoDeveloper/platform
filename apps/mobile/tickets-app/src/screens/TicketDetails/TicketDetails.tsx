@@ -12,6 +12,7 @@ import {
   useTheme,
   useToast,
   type AppBarAction,
+  SectionLabel,
 } from '@industry/mobile';
 import { alpha, fontFamily, fontFamilyMono } from '@industry/tokens';
 import { truncateTitle } from '../../domain/ticket';
@@ -35,7 +36,6 @@ import { TicketMetaRow } from './components/TicketMetaRow';
 import { TicketOptionField } from './components/TicketOptionField';
 import { CommentItem } from './components/CommentItem';
 import { CommentInput } from './components/CommentInput';
-import { SectionLabel } from '../../components/SectionLabel';
 import { BottomBar } from '../../components/BottomBar';
 import { styles } from './TicketDetails.styles';
 

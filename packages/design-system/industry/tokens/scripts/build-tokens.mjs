@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { formatHex, oklch, wcagContrast } from 'culori';
+import { clampChroma, formatHex, wcagContrast } from 'culori';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const nativeDir = join(root, 'src', 'native');
@@ -10,7 +10,7 @@ mkdirSync(nativeDir, { recursive: true });
 mkdirSync(cssDir, { recursive: true });
 
 function hex(l, c, h) {
-  return formatHex(oklch({ mode: 'oklch', l, c, h }));
+  return formatHex(clampChroma({ mode: 'oklch', l, c, h }, 'oklch'));
 }
 
 function assertContrast(foreground, background, minimum, label) {
@@ -100,10 +100,6 @@ function resolveRamp(spec) {
   return Object.fromEntries(
     Object.entries(spec).map(([step, { l, c, h }]) => [step, hex(l, c, h)]),
   );
-}
-
-function oklchCss({ l, c, h }) {
-  return `oklch(${l} ${c} ${h})`;
 }
 
 const neutral = resolveRamp(neutralSpec);
@@ -252,9 +248,9 @@ export const glow: Record<'accent', string> = ${JSON.stringify(glow, null, 2)};
 
 const cssHeader = `/* GENERATED FILE — do not edit by hand. Authored in scripts/build-tokens.mjs. */`;
 
-function cssVars(prefix, spec) {
-  return Object.entries(spec)
-    .map(([step, value]) => `  --${prefix}-${step}: ${oklchCss(value)};`)
+function cssVars(prefix, ramp) {
+  return Object.entries(ramp)
+    .map(([step, value]) => `  --${prefix}-${step}: ${cssHex(value)};`)
     .join('\n');
 }
 
@@ -274,30 +270,31 @@ const colorsCss = `${cssHeader}
   --color-divider-strong: color-mix(in srgb, ${cssHex(text)} 16%, transparent);
   --color-control-border: var(--color-neutral-600);
 
-${cssVars('color-neutral', neutralSpec)}
+${cssVars('color-neutral', neutral)}
 
-${cssVars('color-accent', accentSpec)}
+${cssVars('color-accent', accentRamp)}
 
-${cssVars('color-accent-2', accent2Spec)}
+${cssVars('color-accent-2', accent2Ramp)}
 
-${cssVars('color-success', successSpec)}
-${cssVars('color-warning', warningSpec)}
-${cssVars('color-danger', dangerSpec)}
+${cssVars('color-success', success)}
+${cssVars('color-warning', warning)}
+${cssVars('color-danger', danger)}
   --color-success: var(--color-success-400);
   --color-warning: var(--color-warning-400);
   --color-danger: var(--color-danger-400);
   --color-info: var(--color-accent-2-400);
 
-${Object.entries(vizHues)
-  .map(([n, h]) => `  --viz-${n}: ${oklchCss({ l: 0.72, c: 0.14, h })};`)
-  .join('\n')}
+${cssVars('viz', Object.fromEntries(Object.entries(viz).filter(([name]) => name !== 'grid')))}
   --viz-grid: color-mix(in srgb, var(--color-text) 10%, transparent);
 }
 `;
 
-const gradientCssLines = Object.entries(gradientDefinitions).map(
-  ([name, { from, to, angle }]) =>
-    `  --gradient-${name}: linear-gradient(${angle}deg, ${from.css}, ${to.css});`,
+const gradientCssLines = Object.entries(gradientDefinitions).flatMap(
+  ([name, { from, to, angle }]) => [
+    `  --gradient-${name}-start: ${from.css};`,
+    `  --gradient-${name}-end: ${to.css};`,
+    `  --gradient-${name}: linear-gradient(${angle}deg, var(--gradient-${name}-start), var(--gradient-${name}-end));`,
+  ],
 );
 const glowCssLines = Object.entries(glow).map(([name, value]) => `  --glow-${name}: ${value};`);
 

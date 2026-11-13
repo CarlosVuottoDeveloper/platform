@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { alpha, color, control, fontSize, radii, space } from '@industry/tokens';
+import { alpha, color, control, fontSize, radii, space, fontFamily } from '@industry/tokens';
 import {
   fieldErrorStyle,
   fieldHintStyle,
@@ -124,6 +124,7 @@ export function DatePicker({
       >
         <Text
           style={{
+            fontFamily: fontFamily.body,
             flex: 1,
             fontSize: fontSize.body,
             color: value ? color.text : alpha(color.text, 50),
@@ -166,7 +167,7 @@ export function DatePicker({
               }}
             >
               <NavButton icon="ChevronLeft" label="Mês anterior" onPress={() => goToMonth(-1)} />
-              <Text style={{ fontSize: 14, color: color.text }}>
+              <Text style={{ fontFamily: fontFamily.body, fontSize: 14, color: color.text }}>
                 {MONTH_NAMES[viewDate.getMonth()]} {viewDate.getFullYear()}
               </Text>
               <NavButton icon="ChevronRight" label="Próximo mês" onPress={() => goToMonth(1)} />
@@ -176,6 +177,7 @@ export function DatePicker({
                 <Text
                   key={index}
                   style={{
+                    fontFamily: fontFamily.body,
                     flex: 1,
                     textAlign: 'center',
                     fontSize: 11,
@@ -270,7 +272,13 @@ function DayCell({
         opacity: disabled ? 0.35 : 1,
       })}
     >
-      <Text style={{ fontSize: 12, color: selected ? color.bg : color.text }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          fontSize: 12,
+          color: selected ? color.bg : color.text,
+        }}
+      >
         {date.getDate()}
       </Text>
     </Pressable>

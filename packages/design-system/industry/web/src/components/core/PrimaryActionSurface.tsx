@@ -33,7 +33,6 @@ export function PrimaryActionSurface({
         right: 0,
         bottom: 0,
         left: 0,
-        // zIndex -1 only stays above the parent's own background when the parent sets isolation: isolate
         zIndex: -1,
         pointerEvents: 'none',
         opacity: surfaceOpacity(pressed, hovered, disabled),

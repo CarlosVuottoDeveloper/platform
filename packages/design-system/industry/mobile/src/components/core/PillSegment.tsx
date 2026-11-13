@@ -2,7 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 import type { AccessibilityRole, AccessibilityState } from 'react-native';
 import { Fragment, isValidElement } from 'react';
 import type { ReactNode } from 'react';
-import { color, control, neutral, radii, space } from '@industry/tokens';
+import { color, control, neutral, radii, space, fontFamily } from '@industry/tokens';
 import { PrimaryActionSurface } from './PrimaryActionSurface';
 
 const ACTIVE_PILL_MARGIN = (control.height - control.heightSm) / 2;
@@ -78,7 +78,13 @@ export function PillSegment({
           {isEmptyLabel(label) ? null : isStandaloneElement(label) ? (
             label
           ) : (
-            <Text style={{ fontSize: 14, color: active ? color.text : neutral['400'] }}>
+            <Text
+              style={{
+                fontFamily: fontFamily.heading,
+                fontSize: 14,
+                color: active ? color.text : neutral['400'],
+              }}
+            >
               {label}
             </Text>
           )}

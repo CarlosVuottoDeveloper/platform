@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, radii, shadow } from '@industry/tokens';
+import { color, radii, shadow, fontFamily } from '@industry/tokens';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 
@@ -95,7 +95,9 @@ export function Tooltip({ label, side = 'top', children, style, testID }: Toolti
             positionFor(resolvedSide),
           ]}
         >
-          <Text style={{ fontSize: 12, color: color.text }}>{label}</Text>
+          <Text style={{ fontFamily: fontFamily.body, fontSize: 12, color: color.text }}>
+            {label}
+          </Text>
         </View>
       ) : null}
     </Pressable>

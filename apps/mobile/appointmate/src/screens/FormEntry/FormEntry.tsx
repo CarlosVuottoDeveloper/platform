@@ -2,7 +2,16 @@ import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Controller, useFieldArray, useForm, type Control } from 'react-hook-form';
-import { AppBar, Button, Chip, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
+import {
+  AppBar,
+  Button,
+  Chip,
+  Spinner,
+  TextField,
+  useTheme,
+  useToast,
+  SectionLabel,
+} from '@industry/mobile';
 import { alpha, fontFamilyMono, semanticColor } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
@@ -18,7 +27,6 @@ import {
   type FormValues,
 } from '../../domain/form';
 import { LoadingView } from '../../components/LoadingView';
-import { SectionLabel } from '../../components/SectionLabel';
 import { BottomBar } from '../../components/BottomBar';
 import { styles } from './FormEntry.styles';
 import { DynamicListField } from './DynamicListField';

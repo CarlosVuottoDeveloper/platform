@@ -31,7 +31,7 @@ describe('Card', () => {
     render(<Card title="Título" data-testid="card" />);
 
     expect(screen.getByTestId('card')).toHaveStyle({
-      background: 'var(--gradient-surface)',
+      background: 'var(--gradient-surface) border-box no-repeat',
       borderRadius: 'var(--radius-lg)',
       border: '1px solid var(--color-divider)',
     });

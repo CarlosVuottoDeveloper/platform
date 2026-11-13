@@ -11,6 +11,7 @@ import {
   neutral,
   radii,
   space,
+  fontFamily,
 } from '@industry/tokens';
 import { PrimaryActionSurface } from './PrimaryActionSurface';
 
@@ -90,6 +91,7 @@ export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
                 {item.label ? (
                   <Text
                     style={{
+                      fontFamily: fontFamily.body,
                       fontSize: fontSize.h6,
                       color: active ? accentRamp['300'] : neutral['400'],
                       fontWeight: active ? fontWeight.medium : undefined,
