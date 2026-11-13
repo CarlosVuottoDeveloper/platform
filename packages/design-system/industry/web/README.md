@@ -1,6 +1,6 @@
 # @industry/web
 
-**33 componentes React do Industry — implementação própria, sem MUI e sem Emotion.** Superfícies preenchidas e arredondadas, ações com gradiente e brilho, sobre um fundo azul-marinho profundo. Tematizados por [`@industry/tokens`](../tokens/README.md) através de CSS custom properties.
+**Componentes React do Industry — implementação própria, sem MUI e sem Emotion.** Superfícies preenchidas e arredondadas, ações com gradiente e brilho, sobre um fundo azul-marinho profundo. Tematizados por [`@industry/tokens`](../tokens/README.md) através de CSS custom properties.
 
 📖 **[Storybook publicado](https://industry-web-ds.vercel.app)** — com regressão visual no Chromatic a cada push.
 
@@ -87,7 +87,7 @@ A fonte Inter é carregada no preview por `@industry/tokens/styles.css` e na int
 
 ```sh
 yarn workspace @industry/web storybook        # dev em :6010
-yarn workspace @industry/web test             # 357 testes, 36 suítes
+yarn workspace @industry/web test             # Jest
 yarn workspace @industry/web build            # tsup → dist/index.{js,mjs,d.ts}
 yarn workspace @industry/web build-storybook  # estático, usado pelo Chromatic e pelo Vercel
 ```

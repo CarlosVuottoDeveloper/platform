@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import type { ReactTestRendererJSON } from 'react-test-renderer';
 import { viz } from '@industry/tokens';
 import * as components from './index';
@@ -25,6 +25,7 @@ import {
   RadioGroup,
   SearchField,
   SegmentedControl,
+  SectionLabel,
   Select,
   Sheet,
   StatTile,
@@ -171,6 +172,14 @@ const CASES: [string, () => ReactElement, Interaction?][] = [
       <Select testID="select" label={LABEL} hint="Dica" error="Erro" options={OPTIONS} value="Um" />
     ),
     (screen) => fireEvent.press(screen.getByTestId('select')),
+  ],
+  [
+    'SectionLabel',
+    () => (
+      <SectionLabel trailing={<Text style={{ fontFamily: 'Inter' }}>3 itens</Text>}>
+        Seção
+      </SectionLabel>
+    ),
   ],
   [
     'Sheet',

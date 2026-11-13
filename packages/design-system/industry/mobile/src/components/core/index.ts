@@ -95,3 +95,6 @@ export type { IconButtonProps, IconButtonVariant, IconButtonSize } from './IconB
 
 export { Chip } from './Chip';
 export type { ChipProps } from './Chip';
+
+export { SectionLabel } from './SectionLabel';
+export type { SectionLabelProps } from './SectionLabel';

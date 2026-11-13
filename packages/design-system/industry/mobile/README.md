@@ -1,6 +1,6 @@
 # @industry/mobile
 
-**34 componentes React Native do Industry — implementação própria, sem React Native Paper.** Superfícies preenchidas e arredondadas, ações com gradiente e brilho, sobre um fundo azul-marinho profundo. Tematizados por [`@industry/tokens`](../tokens/README.md) via `StyleSheet.create`.
+**Componentes React Native do Industry — implementação própria, sem React Native Paper.** Superfícies preenchidas e arredondadas, ações com gradiente e brilho, sobre um fundo azul-marinho profundo. Tematizados por [`@industry/tokens`](../tokens/README.md) via `StyleSheet.create`.
 
 📖 **[Storybook publicado](https://industry-mobile-ds.vercel.app)** — roda via `react-native-web`, com regressão visual no Chromatic.
 
@@ -30,7 +30,7 @@ import { Button, Card, TextField } from '@industry/mobile';
 
 **Formulários** — `Button`, `TextField`, `SearchField`, `Select`, `Switch`, `Checkbox`, `RadioGroup`, `SegmentedControl`, `DatePicker`, `FileDrop`
 
-**Layout e navegação** — `AppBar`, `TabBar`, `Tabs`, `Breadcrumbs`, `Menu`, `Sheet`, `Stepper`, `Accordion`, `FAB`, `IconButton`
+**Layout e navegação** — `AppBar`, `TabBar`, `Tabs`, `Breadcrumbs`, `Menu`, `Sheet`, `Stepper`, `Accordion`, `FAB`, `IconButton`, `SectionLabel`
 
 **Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `Chip`, `PieChart`, `RingProgress`, `AreaChart`, `StatTile`, `Progress`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
 
@@ -76,7 +76,7 @@ Seis páginas em `Foundations/*` renderizando os tokens reais (cores, `controlBo
 
 ```sh
 yarn workspace @industry/mobile storybook        # dev em :6011
-yarn workspace @industry/mobile test             # 410 testes, 40 suítes
+yarn workspace @industry/mobile test             # Jest
 yarn workspace @industry/mobile build            # tsup → dist/index.{js,mjs,d.ts}
 yarn workspace @industry/mobile build-storybook  # estático, usado pelo Chromatic e pelo Vercel
 ```

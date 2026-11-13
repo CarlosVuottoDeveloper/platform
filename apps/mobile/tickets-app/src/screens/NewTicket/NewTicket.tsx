@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBar, Button, Select, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
+import {
+  AppBar,
+  Button,
+  Select,
+  Spinner,
+  TextField,
+  useTheme,
+  useToast,
+  SectionLabel,
+} from '@industry/mobile';
 import { alpha, fontFamilyMono } from '@industry/tokens';
 import { TICKET_TITLE_MAX_LENGTH } from '../../domain/ticket';
 import { createTicket } from '../../services/ticketService';
@@ -13,7 +22,6 @@ import {
   type TicketPriority,
 } from '../../constants/ticketPriority';
 import { BottomBar } from '../../components/BottomBar';
-import { SectionLabel } from '../../components/SectionLabel';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { styles } from './NewTicket.styles';
