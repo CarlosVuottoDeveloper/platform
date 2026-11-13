@@ -9,7 +9,13 @@ import type { Category, CategoryKind } from '../../domain/category';
 import type { Cents } from '../../domain/money';
 import { knownTags } from '../../domain/tag';
 import type { Transaction, TransactionInput } from '../../domain/transaction';
-import { createTransaction, updateTransaction } from '../../services/transactionsService';
+import { MAX_INSTALLMENTS, installmentsFrom } from '../../domain/installment';
+import {
+  createInstallments,
+  createTransaction,
+  updateTransaction,
+  updateTransactions,
+} from '../../services/transactionsService';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 import { TagsField } from '../TagsField/TagsField';
@@ -22,7 +28,11 @@ interface TransactionFormValues {
   categoryId: string;
   description: string;
   tags: string[];
+  installmentCount: string;
+  editScope: EditScope;
 }
+
+type EditScope = 'only' | 'following';
 
 interface TransactionSheetProps {
   transaction?: Transaction;
@@ -34,6 +44,14 @@ const KIND_OPTIONS = [
   { value: 'income', label: 'Receita' },
 ];
 const UNSELECTED = { value: '', label: 'Selecione' };
+const INSTALLMENT_OPTIONS = Array.from({ length: MAX_INSTALLMENTS }, (_, index) => ({
+  value: String(index + 1),
+  label: index === 0 ? 'À vista' : `${index + 1}x`,
+}));
+const EDIT_SCOPE_OPTIONS = [
+  { value: 'only', label: 'Só esta parcela' },
+  { value: 'following', label: 'Esta e as seguintes' },
+];
 
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, 'pt-BR');
 
@@ -59,6 +77,8 @@ function initialValues(transaction: Transaction | undefined): TransactionFormVal
     categoryId: transaction?.categoryId ?? '',
     description: transaction?.description ?? '',
     tags: transaction?.tags ?? [],
+    installmentCount: '1',
+    editScope: 'only',
   };
 }
 
@@ -82,11 +102,37 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
     if (onlyAccountId && getValues('accountId') === '') setValue('accountId', onlyAccountId);
   }, [onlyAccountId, getValues, setValue]);
   const categoriesOfKind: Category[] = categories.filter((category) => category.kind === kind);
+  const followingInstallments = transaction?.installment
+    ? installmentsFrom(
+        transactions,
+        transaction.installment.groupId,
+        transaction.installment.index + 1,
+      )
+    : [];
 
   function validateDate(date: string) {
     if (!isCalendarDate(date)) return 'Informe a data';
     const account = accounts.find((candidate) => candidate.id === getValues('accountId'));
     return !account || date >= account.openingDate || 'Data anterior à abertura da conta';
+  }
+
+  async function persist(uid: string, input: TransactionInput, values: TransactionFormValues) {
+    if (!transaction) {
+      const count = values.kind === 'expense' ? Number(values.installmentCount) : 1;
+      await (count > 1 ? createInstallments(uid, input, count) : createTransaction(uid, input));
+      return;
+    }
+    if (values.editScope === 'only' || followingInstallments.length === 0) {
+      await updateTransaction(uid, transaction.id, input);
+      return;
+    }
+    await updateTransactions(uid, [
+      { id: transaction.id, input },
+      ...followingInstallments.map((following) => ({
+        id: following.id,
+        input: { ...input, date: following.date, installment: following.installment },
+      })),
+    ]);
   }
 
   async function save(values: TransactionFormValues) {
@@ -104,11 +150,7 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
       installment: transaction?.installment ?? null,
     };
     try {
-      if (transaction) {
-        await updateTransaction(user.uid, transaction.id, input);
-      } else {
-        await createTransaction(user.uid, input);
-      }
+      await persist(user.uid, input, values);
       onClose();
     } catch {
       showToast('danger', 'Não foi possível salvar.');
@@ -184,6 +226,24 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
           />
         )}
       />
+      {!transaction && kind === 'expense' ? (
+        <Controller
+          control={control}
+          name="installmentCount"
+          render={({ field }) => (
+            <Select label="Parcelar em" options={INSTALLMENT_OPTIONS} {...field} />
+          )}
+        />
+      ) : null}
+      {followingInstallments.length > 0 ? (
+        <Controller
+          control={control}
+          name="editScope"
+          render={({ field }) => (
+            <Select label="Aplicar a" options={EDIT_SCOPE_OPTIONS} {...field} />
+          )}
+        />
+      ) : null}
       <Controller
         control={control}
         name="description"

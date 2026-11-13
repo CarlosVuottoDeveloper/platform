@@ -1,10 +1,12 @@
 import { addDoc, collection, doc, onSnapshot, updateDoc, writeBatch } from 'firebase/firestore';
 import {
+  createInstallments,
   createTransaction,
   createTransactions,
   deleteTransactions,
   subscribeToTransactions,
   updateTransaction,
+  updateTransactions,
 } from './transactionsService';
 
 jest.mock('./firebase', () => ({ db: { name: 'db' } }));
@@ -22,7 +24,7 @@ const input = {
   installment: null,
 };
 
-const batch = { set: jest.fn(), delete: jest.fn(), commit: jest.fn() };
+const batch = { set: jest.fn(), update: jest.fn(), delete: jest.fn(), commit: jest.fn() };
 
 describe('transactionsService', () => {
   beforeEach(() => {
@@ -107,6 +109,45 @@ describe('transactionsService', () => {
 
     expect(batch.delete).toHaveBeenCalledWith('ref:t1');
     expect(batch.delete).toHaveBeenCalledWith('ref:t2');
+    expect(batch.commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates an instalment purchase as one movement per month sharing a group id', async () => {
+    jest
+      .mocked(doc)
+      .mockImplementation(((...segments: unknown[]) =>
+        segments.length === 1
+          ? { id: 'generated-id' }
+          : `ref:${String(segments[segments.length - 1])}`) as never);
+
+    await createInstallments('u1', { ...input, amountCents: 10000, date: '2026-01-31' }, 3);
+
+    expect(batch.set).toHaveBeenCalledTimes(3);
+    expect(
+      batch.set.mock.calls.map(([, data]) => [data.date, data.amountCents, data.installment]),
+    ).toEqual([
+      ['2026-01-31', 3334, { groupId: 'generated-id', index: 1, count: 3 }],
+      ['2026-02-28', 3333, { groupId: 'generated-id', index: 2, count: 3 }],
+      ['2026-03-31', 3333, { groupId: 'generated-id', index: 3, count: 3 }],
+    ]);
+    expect(batch.commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates several transactions atomically', async () => {
+    await updateTransactions('u1', [
+      { id: 't1', input },
+      { id: 't2', input: { ...input, date: '2026-04-05' } },
+    ]);
+
+    expect(batch.update).toHaveBeenCalledWith('ref:t1', {
+      ...input,
+      updatedAt: 'SERVER_TIMESTAMP',
+    });
+    expect(batch.update).toHaveBeenCalledWith('ref:t2', {
+      ...input,
+      date: '2026-04-05',
+      updatedAt: 'SERVER_TIMESTAMP',
+    });
     expect(batch.commit).toHaveBeenCalledTimes(1);
   });
 });

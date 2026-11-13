@@ -5,6 +5,7 @@ interface ConfirmSheetProps {
   message: string;
   confirmLabel: string;
   onConfirm: () => void;
+  alternative?: { label: string; onChoose: () => void };
   onDismiss: () => void;
 }
 
@@ -13,6 +14,7 @@ export function ConfirmSheet({
   message,
   confirmLabel,
   onConfirm,
+  alternative,
   onDismiss,
 }: ConfirmSheetProps) {
   return (
@@ -26,6 +28,11 @@ export function ConfirmSheet({
             <Button variant="ghost" onClick={onDismiss}>
               Cancelar
             </Button>
+            {alternative ? (
+              <Button variant="danger" onClick={alternative.onChoose}>
+                {alternative.label}
+              </Button>
+            ) : null}
             <Button variant="danger" onClick={onConfirm}>
               {confirmLabel}
             </Button>

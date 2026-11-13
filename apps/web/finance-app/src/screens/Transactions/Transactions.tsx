@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { formatDateBR, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
+import { installmentsFrom } from '../../domain/installment';
 import type { Transaction } from '../../domain/transaction';
 import {
   groupByDate,
@@ -36,11 +37,20 @@ export function Transactions() {
     matchesSearch(transaction, search),
   );
 
-  async function confirmDelete(transaction: Transaction) {
+  function followingInstallments(transaction: Transaction): Transaction[] {
+    if (!transaction.installment) return [];
+    const { groupId, index } = transaction.installment;
+    return installmentsFrom(transactions, groupId, index + 1);
+  }
+
+  async function confirmDelete(toDelete: Transaction[]) {
     if (!user) return;
     closeSheet();
     try {
-      await deleteTransactions(user.uid, [transaction.id]);
+      await deleteTransactions(
+        user.uid,
+        toDelete.map((transaction) => transaction.id),
+      );
     } catch {
       showToast('danger', 'Não foi possível excluir.');
     }
@@ -95,12 +105,26 @@ export function Transactions() {
       {sheet.mode === 'edit' ? (
         <TransactionSheet transaction={sheet.transaction} onClose={closeSheet} />
       ) : null}
-      {sheet.mode === 'delete' ? (
+      {sheet.mode === 'delete' && followingInstallments(sheet.transaction).length === 0 ? (
         <ConfirmSheet
           title="Excluir movimentação"
           message="A movimentação será excluída e os saldos serão recalculados."
           confirmLabel="Excluir"
-          onConfirm={() => confirmDelete(sheet.transaction)}
+          onConfirm={() => confirmDelete([sheet.transaction])}
+          onDismiss={closeSheet}
+        />
+      ) : null}
+      {sheet.mode === 'delete' && followingInstallments(sheet.transaction).length > 0 ? (
+        <ConfirmSheet
+          title="Excluir parcela"
+          message="Esta compra tem parcelas seguintes. O que você quer excluir?"
+          confirmLabel="Só esta"
+          onConfirm={() => confirmDelete([sheet.transaction])}
+          alternative={{
+            label: 'Esta e as seguintes',
+            onChoose: () =>
+              confirmDelete([sheet.transaction, ...followingInstallments(sheet.transaction)]),
+          }}
           onDismiss={closeSheet}
         />
       ) : null}

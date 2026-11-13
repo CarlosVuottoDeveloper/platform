@@ -7,9 +7,11 @@ import { tx } from '../../domain/transaction.test-helpers';
 import { subscribeToAccounts } from '../../services/accountsService';
 import { seedDefaultCategories, subscribeToCategories } from '../../services/categoriesService';
 import {
+  createInstallments,
   createTransaction,
   subscribeToTransactions,
   updateTransaction,
+  updateTransactions,
 } from '../../services/transactionsService';
 import { mockSignedInAs, renderSignedIn, testUser } from '../../test-utils';
 import { TransactionSheet } from './TransactionSheet';
@@ -223,5 +225,122 @@ describe('TransactionSheet', () => {
     renderSignedIn(<TransactionSheet onClose={onClose} />);
 
     await waitFor(() => expect(screen.getByLabelText('Conta')).toHaveValue('a1'));
+  });
+
+  describe('instalments', () => {
+    it('splits a new expense into monthly instalments', async () => {
+      jest.mocked(createInstallments).mockResolvedValue();
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      await userEvent.type(screen.getByLabelText('Valor'), '100');
+      await userEvent.selectOptions(screen.getByLabelText('Conta'), 'Nubank');
+      await userEvent.selectOptions(screen.getByLabelText('Categoria'), 'Alimentação');
+      await userEvent.selectOptions(screen.getByLabelText('Parcelar em'), '3x');
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(createInstallments).toHaveBeenCalledWith(
+        testUser.uid,
+        expect.objectContaining({ kind: 'expense', amountCents: 10000, installment: null }),
+        3,
+      );
+      expect(createTransaction).not.toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers up to 48 instalments, only for a new expense', async () => {
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      expect(optionsOf('Parcelar em')).toHaveLength(48);
+      expect(optionsOf('Parcelar em').slice(0, 2)).toEqual(['À vista', '2x']);
+
+      await userEvent.click(screen.getByText('Receita'));
+
+      expect(screen.queryByLabelText('Parcelar em')).not.toBeInTheDocument();
+    });
+
+    it('does not offer to split when editing', () => {
+      renderSignedIn(<TransactionSheet transaction={tx({ id: 't1' })} onClose={onClose} />);
+
+      expect(screen.queryByLabelText('Parcelar em')).not.toBeInTheDocument();
+    });
+
+    const first = tx({
+      id: 'i1',
+      amountCents: 3334,
+      date: '2026-01-31',
+      accountId: 'a1',
+      categoryId: 'c1',
+      installment: { groupId: 'g1', index: 1, count: 3 },
+    });
+    const second = tx({
+      id: 'i2',
+      amountCents: 3333,
+      date: '2026-02-28',
+      accountId: 'a1',
+      categoryId: 'c1',
+      installment: { groupId: 'g1', index: 2, count: 3 },
+    });
+    const third = tx({
+      id: 'i3',
+      amountCents: 3333,
+      date: '2026-03-31',
+      accountId: 'a1',
+      categoryId: 'c1',
+      installment: { groupId: 'g1', index: 3, count: 3 },
+    });
+
+    it('applies an edit to this instalment and the following ones, each keeping its date', async () => {
+      jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
+      jest.mocked(updateTransactions).mockResolvedValue();
+      renderSignedIn(<TransactionSheet transaction={second} onClose={onClose} />);
+
+      const amount = screen.getByLabelText('Valor');
+      await userEvent.clear(amount);
+      await userEvent.type(amount, '40');
+      await userEvent.selectOptions(screen.getByLabelText('Aplicar a'), 'Esta e as seguintes');
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(updateTransactions).toHaveBeenCalledWith(testUser.uid, [
+        {
+          id: 'i2',
+          input: expect.objectContaining({
+            amountCents: 4000,
+            date: '2026-02-28',
+            installment: { groupId: 'g1', index: 2, count: 3 },
+          }),
+        },
+        {
+          id: 'i3',
+          input: expect.objectContaining({
+            amountCents: 4000,
+            date: '2026-03-31',
+            installment: { groupId: 'g1', index: 3, count: 3 },
+          }),
+        },
+      ]);
+      expect(updateTransaction).not.toHaveBeenCalled();
+    });
+
+    it('edits only this instalment by default', async () => {
+      jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
+      jest.mocked(updateTransaction).mockResolvedValue();
+      renderSignedIn(<TransactionSheet transaction={second} onClose={onClose} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(updateTransaction).toHaveBeenCalledWith(
+        testUser.uid,
+        'i2',
+        expect.objectContaining({ amountCents: 3333 }),
+      );
+      expect(updateTransactions).not.toHaveBeenCalled();
+    });
+
+    it('does not ask about following instalments on the last one', () => {
+      jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
+      renderSignedIn(<TransactionSheet transaction={third} onClose={onClose} />);
+
+      expect(screen.queryByLabelText('Aplicar a')).not.toBeInTheDocument();
+    });
   });
 });

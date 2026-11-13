@@ -205,4 +205,55 @@ describe('Transactions', () => {
 
     expect(deleteTransactions).toHaveBeenCalledWith(testUser.uid, ['t1']);
   });
+
+  describe('instalments', () => {
+    const instalment = (index: number) =>
+      tx({
+        id: `i${index}`,
+        date: firstOfMonth,
+        description: `Notebook ${index}`,
+        installment: { groupId: 'g1', index, count: 3 },
+      });
+
+    beforeEach(() => {
+      jest.mocked(deleteTransactions).mockResolvedValue();
+      mockTransactions([instalment(1), instalment(2), instalment(3)]);
+    });
+
+    it('shows which instalment each movement is', () => {
+      renderSignedIn(<Transactions />);
+
+      expect(within(screen.getByTestId('transaction-i2')).getByText('2 de 3')).toBeInTheDocument();
+    });
+
+    it('deletes this instalment and the following ones when asked', async () => {
+      renderSignedIn(<Transactions />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Excluir Notebook 2' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Esta e as seguintes' }));
+
+      expect(deleteTransactions).toHaveBeenCalledWith(testUser.uid, ['i2', 'i3']);
+    });
+
+    it('deletes only this instalment when asked', async () => {
+      renderSignedIn(<Transactions />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Excluir Notebook 2' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Só esta' }));
+
+      expect(deleteTransactions).toHaveBeenCalledWith(testUser.uid, ['i2']);
+    });
+
+    it('asks a plain confirmation for the last instalment', async () => {
+      renderSignedIn(<Transactions />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Excluir Notebook 3' }));
+
+      expect(screen.queryByRole('button', { name: 'Esta e as seguintes' })).not.toBeInTheDocument();
+      await userEvent.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+      );
+      expect(deleteTransactions).toHaveBeenCalledWith(testUser.uid, ['i3']);
+    });
+  });
 });
