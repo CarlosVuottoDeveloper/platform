@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontFamily, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1 },
@@ -14,6 +14,7 @@ export const styles = StyleSheet.create({
   },
   fieldRowItem: { flex: 1 },
   sectionPrompt: {
+    fontFamily: fontFamily.body,
     fontSize: 13,
   },
   chipRow: {
@@ -22,6 +23,7 @@ export const styles = StyleSheet.create({
     gap: space[2],
   },
   errorText: {
+    fontFamily: fontFamily.body,
     fontSize: 13,
   },
   dynamicRow: {
@@ -30,6 +32,6 @@ export const styles = StyleSheet.create({
     gap: space[2],
   },
   dynamicRowInput: { flex: 1 },
-  sectionCount: { fontSize: 12 },
+  sectionCount: { fontFamily: fontFamily.body, fontSize: 12 },
   bottomBarButton: { flex: 1 },
 });

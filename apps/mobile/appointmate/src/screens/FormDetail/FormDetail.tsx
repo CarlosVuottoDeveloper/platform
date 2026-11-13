@@ -14,7 +14,7 @@ import {
   useTheme,
   useToast,
 } from '@industry/mobile';
-import { alpha, fontFamilyMono } from '@industry/tokens';
+import { alpha, fontFamily, fontFamilyMono } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { deleteForm, getFormRecord, type FormRecord } from '../../services/formsService';
@@ -47,7 +47,7 @@ function SummaryCell({
 }) {
   const { colors } = useTheme();
   return (
-    <View style={[styles.summaryCell, { backgroundColor: colors.bg }]}>
+    <View style={[styles.summaryCell, { backgroundColor: colors.surface }]}>
       <Text style={[styles.summaryCellLabel, { color: alpha(colors.text, 50) }]}>{label}</Text>
       <Text style={[styles.summaryCellValue, { color: colors.text }]} testID={testID}>
         {value?.trim() ? value : '—'}
@@ -261,10 +261,7 @@ export function FormDetail({ navigation, route }: Props) {
           />
         ) : (
           <>
-            <View
-              style={[styles.summaryGrid, { backgroundColor: colors.divider }]}
-              testID="form-detail-summary-grid"
-            >
+            <View style={styles.summaryGrid} testID="form-detail-summary-grid">
               <SummaryCell label="Humor" value={moodLabel} testID="form-detail-overall-mood" />
               <SummaryCell label="Sono" value={values.sleep} />
               <SummaryCell label="Energia" value={values.energy} />
@@ -358,7 +355,7 @@ export function FormDetail({ navigation, route }: Props) {
           </>
         }
       >
-        <Text style={{ color: colors.text }}>
+        <Text style={{ fontFamily: fontFamily.body, color: colors.text }}>
           Tem certeza que deseja excluir este formulário? Essa ação não pode ser desfeita.
         </Text>
       </Sheet>

@@ -212,7 +212,7 @@ describe('TicketDetails', () => {
     const confirm = screen.getByLabelText('Confirmar edição');
     expect(screen.getByTestId('icon-button-surface')).toBeTruthy();
     expect(StyleSheet.flatten(confirm.props.style).backgroundColor).not.toBe(color.accent);
-    expect(screen.getAllByTestId('ticket-details-section-hairline')).toHaveLength(3);
+    expect(screen.getAllByTestId('ticket-details-section')).toHaveLength(3);
   });
 
   it('keeps the comment bar out of the scroll content', () => {

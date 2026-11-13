@@ -24,9 +24,7 @@ export function CommentItem({ comment, canDelete, onDeletePress }: Props) {
   const { colors } = useTheme();
   return (
     <View style={styles.commentRow}>
-      <View
-        style={[styles.avatar, { backgroundColor: colors.surface2, borderColor: colors.divider }]}
-      >
+      <View style={[styles.avatar, { backgroundColor: colors.surface2 }]}>
         <Text style={[styles.avatarText, { color: alpha(colors.text, 70) }]}>
           {initialsOf(comment.authorName)}
         </Text>

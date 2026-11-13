@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { Button, EmptyState, Icon } from '@industry/mobile';
-import { fontSize, semanticColor, space } from '@industry/tokens';
+import { fontFamily, fontSize, semanticColor, space } from '@industry/tokens';
 
 export interface ErrorViewProps {
   description: string;
@@ -24,7 +24,12 @@ export function ErrorView({
         title={title}
         body={
           <Text
-            style={{ fontSize: fontSize.body, color: semanticColor.danger, textAlign: 'center' }}
+            style={{
+              fontFamily: fontFamily.body,
+              fontSize: fontSize.body,
+              color: semanticColor.danger,
+              textAlign: 'center',
+            }}
           >
             {description}
           </Text>

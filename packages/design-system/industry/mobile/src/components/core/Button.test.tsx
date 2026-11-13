@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { accentRamp, alpha, color, control, danger, glow, radii } from '@industry/tokens';
+import { accentRamp, alpha, color, control, danger, glow, neutral, radii } from '@industry/tokens';
 import type { ComponentProps } from 'react';
 import { Button } from './Button';
 import { PRIMARY_ACTION_FILL } from './PrimaryActionSurface';
@@ -116,16 +116,29 @@ describe('Button', () => {
     expect(StyleSheet.flatten(getByText('Delete').props.style).color).toBe(danger['300']);
   });
 
-  it('gives every skin the same border width so the box never shifts', () => {
-    const borderWidthOf = (props: Partial<ComponentProps<typeof Button>>) => {
+  it('keeps the primary box the same size as the secondary by trading its border for padding', () => {
+    const boxOf = (props: Partial<ComponentProps<typeof Button>>) => {
       const { getByTestId, unmount } = render(<Button {...props}>Save</Button>);
-      const width = StyleSheet.flatten(getByTestId('button-root').props.style).borderWidth;
+      const style = StyleSheet.flatten(getByTestId('button-root').props.style);
       unmount();
-      return width;
+      return style;
     };
-    const secondary = borderWidthOf({});
-    expect(borderWidthOf({ variant: 'primary' })).toBe(secondary);
-    expect(borderWidthOf({ variant: 'primary', selected: true })).toBe(secondary);
+    for (const size of ['md', 'sm'] as const) {
+      const secondary = boxOf({ size });
+      const primary = boxOf({ variant: 'primary', size });
+      expect(primary.borderWidth).toBe(0);
+      expect(primary.paddingHorizontal).toBe(Number(secondary.paddingHorizontal) + 1);
+      expect(primary.minHeight).toBe(secondary.minHeight);
+    }
+    expect(boxOf({ variant: 'primary', selected: true }).borderWidth).toBe(1);
+  });
+
+  it('fills the pressed secondary with a tone that no surface container shares', () => {
+    const { getByTestId } = render(<Button>Save</Button>);
+    fireEvent(getByTestId('button-root'), 'responderGrant', grant);
+    const { backgroundColor } = StyleSheet.flatten(getByTestId('button-root').props.style);
+    expect(backgroundColor).toBe(neutral['800']);
+    expect([color.bg, color.surface, color.surface2]).not.toContain(backgroundColor);
   });
 
   it('keeps an opaque base fill under the primary gradient', () => {

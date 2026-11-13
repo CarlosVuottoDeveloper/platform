@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@industry/mobile';
-import { space } from '@industry/tokens';
+import { radii, space } from '@industry/tokens';
 import { useKeyboardVisible } from '../../hooks/useKeyboardVisible';
 
 export interface BottomBarProps {
@@ -10,7 +10,6 @@ export interface BottomBarProps {
   testID?: string;
 }
 
-/** Fixed bottom action bar — hairline top border, safe-area-aware padding. */
 export function BottomBar({ children, testID }: BottomBarProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -22,9 +21,9 @@ export function BottomBar({ children, testID }: BottomBarProps) {
       style={{
         flexDirection: 'row',
         gap: space[3],
-        borderTopWidth: 1,
-        borderTopColor: colors.divider,
-        backgroundColor: colors.bg,
+        borderTopLeftRadius: radii.lg,
+        borderTopRightRadius: radii.lg,
+        backgroundColor: colors.surface,
         paddingTop: space[3],
         paddingHorizontal: space[6],
         paddingBottom: keyboardVisible ? space[3] : 20 + insets.bottom,

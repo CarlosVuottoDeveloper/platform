@@ -13,7 +13,7 @@ import {
   useToast,
   type AppBarAction,
 } from '@industry/mobile';
-import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
+import { alpha, fontFamily, fontFamilyMono } from '@industry/tokens';
 import { truncateTitle } from '../../domain/ticket';
 import { useTicketDetails } from '../../hooks/useTicketDetails';
 import { useUserList } from '../../hooks/useUserList';
@@ -35,36 +35,12 @@ import { TicketMetaRow } from './components/TicketMetaRow';
 import { TicketOptionField } from './components/TicketOptionField';
 import { CommentItem } from './components/CommentItem';
 import { CommentInput } from './components/CommentInput';
+import { SectionLabel } from '../../components/SectionLabel';
 import { BottomBar } from '../../components/BottomBar';
 import { styles } from './TicketDetails.styles';
 
 const monoFontFamily = Platform.select(fontFamilyMono);
 const UNASSIGNED_LABEL = 'não designado';
-
-function SectionLabel({ children, trailing }: { children: string; trailing?: string }) {
-  const { colors } = useTheme();
-  return (
-    <View style={styles.sectionLabelBlock}>
-      <View style={styles.sectionLabelRow}>
-        <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>{children}</Text>
-        {trailing ? (
-          <Text
-            style={[
-              styles.sectionLabelCount,
-              { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
-            ]}
-          >
-            {trailing}
-          </Text>
-        ) : null}
-      </View>
-      <View
-        style={[styles.sectionHairline, { backgroundColor: colors.divider }]}
-        testID="ticket-details-section-hairline"
-      />
-    </View>
-  );
-}
 
 function DiffRow({ label, from, to }: { label: string; from: string; to: string }) {
   const { colors } = useTheme();
@@ -167,7 +143,9 @@ export function TicketDetails({ route, navigation }: Props) {
       <SafeAreaView edges={['top']} style={styles.flex}>
         {appBar}
         <View style={styles.center}>
-          <Text>Chamado não encontrado.</Text>
+          <Text style={{ fontFamily: fontFamily.body, color: colors.text }}>
+            Chamado não encontrado.
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -215,7 +193,9 @@ export function TicketDetails({ route, navigation }: Props) {
 
           {editMode.editing && (
             <>
-              <SectionLabel>Status</SectionLabel>
+              <View style={styles.sectionLabelBlock}>
+                <SectionLabel testID="ticket-details-section">Status</SectionLabel>
+              </View>
               <View style={styles.paddedRow}>
                 <TicketOptionField
                   value={ticket.status}
@@ -228,7 +208,9 @@ export function TicketDetails({ route, navigation }: Props) {
                 />
               </View>
 
-              <SectionLabel>Prioridade</SectionLabel>
+              <View style={styles.sectionLabelBlock}>
+                <SectionLabel testID="ticket-details-section">Prioridade</SectionLabel>
+              </View>
               <View style={styles.paddedRow}>
                 <TicketOptionField
                   value={ticket.priority}
@@ -241,7 +223,9 @@ export function TicketDetails({ route, navigation }: Props) {
                 />
               </View>
 
-              <SectionLabel>Responsável</SectionLabel>
+              <View style={styles.sectionLabelBlock}>
+                <SectionLabel testID="ticket-details-section">Responsável</SectionLabel>
+              </View>
               <View style={styles.paddedRow}>
                 <Select
                   value={editMode.draftAssigneeId}
@@ -257,7 +241,23 @@ export function TicketDetails({ route, navigation }: Props) {
 
           {!editMode.editing && (
             <>
-              <SectionLabel trailing={String(comments.length)}>Comentários</SectionLabel>
+              <View style={styles.sectionLabelBlock}>
+                <SectionLabel
+                  testID="ticket-details-section"
+                  trailing={
+                    <Text
+                      style={[
+                        styles.sectionLabelCount,
+                        { fontFamily: monoFontFamily, color: alpha(colors.text, 50) },
+                      ]}
+                    >
+                      {comments.length}
+                    </Text>
+                  }
+                >
+                  Comentários
+                </SectionLabel>
+              </View>
 
               {comments.length === 0 && (
                 <Text style={[styles.emptyComments, { color: alpha(colors.text, 50) }]}>
@@ -331,7 +331,9 @@ export function TicketDetails({ route, navigation }: Props) {
               </>
             }
           >
-            <Text style={{ color: colors.text }}>Esta ação não pode ser desfeita.</Text>
+            <Text style={{ fontFamily: fontFamily.body, color: colors.text }}>
+              Esta ação não pode ser desfeita.
+            </Text>
           </Sheet>
 
           <Sheet
@@ -357,7 +359,9 @@ export function TicketDetails({ route, navigation }: Props) {
               </>
             }
           >
-            <Text style={{ color: colors.text }}>Esta ação não pode ser desfeita.</Text>
+            <Text style={{ fontFamily: fontFamily.body, color: colors.text }}>
+              Esta ação não pode ser desfeita.
+            </Text>
           </Sheet>
         </ScrollView>
         {!editMode.editing && (
