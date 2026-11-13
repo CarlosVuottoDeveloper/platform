@@ -19,10 +19,9 @@ export function Progress({ value = 0, max = 100, label, showValue = true, style 
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            fontFamily: 'var(--font-mono)',
-            fontSize: 11,
-            opacity: 0.6,
-            marginBottom: 5,
+            fontSize: 'var(--text-h6)',
+            color: 'var(--color-neutral-400)',
+            marginBottom: 'var(--space-1)',
           }}
         >
           <span>{label}</span>
@@ -35,8 +34,9 @@ export function Progress({ value = 0, max = 100, label, showValue = true, style 
         aria-valuemin={0}
         aria-valuemax={max}
         style={{
-          height: 4,
-          background: 'color-mix(in srgb, var(--color-text) 12%, transparent)',
+          height: 'var(--space-2)',
+          background: 'var(--color-surface-2)',
+          borderRadius: 'var(--radius-pill)',
           overflow: 'hidden',
         }}
       >
@@ -44,7 +44,8 @@ export function Progress({ value = 0, max = 100, label, showValue = true, style 
           style={{
             height: '100%',
             width: `${pct}%`,
-            background: 'var(--color-accent)',
+            borderRadius: 'var(--radius-pill)',
+            background: 'var(--gradient-primary)',
             transition: 'width 240ms ease',
           }}
         />

@@ -21,14 +21,20 @@ function LoginScreen() {
         alignItems: 'center',
         justifyContent: 'center',
         background: 'var(--color-bg)',
-        padding: 'var(--space-5)',
+        padding: 'var(--space-4)',
       }}
     >
-      <Card framed style={{ width: 360 }}>
+      <Card style={{ width: 360 }}>
         <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
           <div>
-            <h1 style={{ margin: 0, fontFamily: 'var(--font-heading)', fontSize: 22 }}>Entrar</h1>
-            <p style={{ margin: 'var(--space-1) 0 0', fontSize: 13, color: 'var(--color-text)' }}>
+            <h1 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Entrar</h1>
+            <p
+              style={{
+                margin: 'var(--space-1) 0 0',
+                fontSize: 'var(--text-h6)',
+                color: 'var(--color-neutral-400)',
+              }}
+            >
               Acesse sua conta para continuar
             </p>
           </div>

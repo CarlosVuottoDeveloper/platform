@@ -1,4 +1,5 @@
 import type { CSSProperties, MouseEvent, ReactNode } from 'react';
+import { GradientSurface } from './GradientSurface';
 
 export interface SheetProps {
   open?: boolean;
@@ -25,20 +26,20 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        background: 'rgb(0 0 0 / 0.6)',
+        background: 'color-mix(in srgb, var(--color-bg) 60%, transparent)',
       }}
     >
-      <div
+      <GradientSurface
         role="dialog"
         aria-modal="true"
         onClick={stopPropagation}
+        radius="var(--radius-lg) var(--radius-lg) 0 0"
         style={{
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-3)',
           padding: 'var(--space-3) var(--space-4) calc(var(--space-6) + var(--safe-b))',
-          background: 'var(--color-surface)',
-          borderTop: '1px solid var(--color-divider-strong)',
+          border: '1px solid var(--color-divider)',
           boxShadow: 'var(--shadow-lg)',
           ...style,
         }}
@@ -56,7 +57,7 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
             style={{
               fontFamily: 'var(--font-heading)',
               fontWeight: 'var(--font-heading-weight)',
-              fontSize: 21,
+              fontSize: 'var(--text-h4)',
             }}
           >
             {title}
@@ -64,7 +65,7 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
         ) : null}
         {children}
         {actions}
-      </div>
+      </GradientSurface>
     </div>
   );
 }

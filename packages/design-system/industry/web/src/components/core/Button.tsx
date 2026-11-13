@@ -1,6 +1,7 @@
-import { useState } from 'react';
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
-import { BlueprintMarks } from './BlueprintMarks';
+import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
+import { resolveFill, tint, tintedFills, usePressState } from './stateFills';
+import type { StateFills } from './stateFills';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -9,87 +10,95 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   variant?: ButtonVariant;
   size?: ButtonSize;
   block?: boolean;
-  framed?: boolean;
+  selected?: boolean;
   iconOnly?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
 }
 
-function skin(variant: ButtonVariant, hovered: boolean, pressed: boolean): CSSProperties {
+const SELECTED_FILLS = tintedFills('var(--color-accent)', 16, 22, 28);
+const DANGER_FILLS = tintedFills('var(--color-danger-400)', 16, 22, 28);
+const GHOST_FILLS: StateFills = {
+  rest: 'transparent',
+  hovered: tint('var(--color-accent)', 14),
+  pressed: tint('var(--color-accent)', 22),
+};
+const SECONDARY_FILLS: StateFills = {
+  rest: 'var(--color-surface-2)',
+  hovered: 'color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2))',
+  pressed: 'var(--color-surface)',
+};
+
+function skin(
+  variant: ButtonVariant,
+  hovered: boolean,
+  pressed: boolean,
+  selected: boolean,
+): CSSProperties {
+  if (selected) {
+    return {
+      color: 'var(--color-text)',
+      borderColor: 'var(--color-accent-400)',
+      background: resolveFill(SELECTED_FILLS, hovered, pressed),
+    };
+  }
   if (variant === 'primary') {
     return {
-      background: pressed
-        ? 'var(--color-accent-500)'
-        : hovered
-          ? 'var(--color-accent-300)'
-          : 'var(--color-accent)',
-      color: 'var(--color-bg)',
-      borderColor: pressed
-        ? 'var(--color-accent-500)'
-        : hovered
-          ? 'var(--color-accent-300)'
-          : 'var(--color-accent)',
+      color: 'var(--color-text)',
+      borderColor: 'transparent',
+      background: PRIMARY_ACTION_FILL,
     };
   }
   if (variant === 'ghost') {
     return {
       color: 'var(--color-accent-300)',
       borderColor: 'transparent',
-      background: pressed
-        ? 'color-mix(in srgb, var(--color-accent) 22%, transparent)'
-        : hovered
-          ? 'color-mix(in srgb, var(--color-accent) 14%, transparent)'
-          : 'transparent',
+      background: resolveFill(GHOST_FILLS, hovered, pressed),
     };
   }
   if (variant === 'danger') {
     return {
       color: 'var(--color-danger-300)',
-      borderColor: 'color-mix(in srgb, var(--color-danger) 45%, transparent)',
-      background: hovered
-        ? 'color-mix(in srgb, var(--color-danger) 16%, transparent)'
-        : 'transparent',
+      borderColor: 'transparent',
+      background: resolveFill(DANGER_FILLS, hovered, pressed),
     };
   }
   return {
     color: 'var(--color-text)',
-    borderColor: hovered || pressed ? 'var(--color-divider-strong)' : 'var(--color-divider)',
-    background: pressed
-      ? 'color-mix(in srgb, var(--color-text) 14%, transparent)'
-      : hovered
-        ? 'color-mix(in srgb, var(--color-text) 8%, transparent)'
-        : 'transparent',
+    borderColor: tint('var(--color-text)', 10),
+    background: resolveFill(SECONDARY_FILLS, hovered, pressed),
   };
+}
+
+function isTextLabel(children: ReactNode) {
+  const isText = (node: ReactNode) => typeof node === 'string' || typeof node === 'number';
+  return isText(children) || (Array.isArray(children) && children.every(isText));
 }
 
 export function Button({
   variant = 'secondary',
   size = 'md',
   block,
-  framed,
+  selected,
   iconOnly,
   disabled,
   children,
   style,
   ...rest
 }: ButtonProps) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
+  const { hovered: isHovered, pressed: isPressed, handlers } = usePressState(disabled);
   const height = size === 'sm' ? 'var(--control-h-sm)' : 'var(--control-h)';
+  const hasGradient = variant === 'primary' && !selected;
 
   return (
     <button
       type="button"
       disabled={disabled}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setHovered(false);
-        setPressed(false);
-      }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      aria-pressed={selected}
+      {...handlers}
       style={{
-        position: framed ? 'relative' : undefined,
+        position: 'relative',
+        isolation: 'isolate',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -100,20 +109,41 @@ export function Button({
         textDecoration: 'none',
         fontFamily: 'var(--font-heading)',
         fontWeight: 'var(--font-heading-weight)',
-        fontSize: size === 'sm' ? 14 : 15,
+        fontSize: size === 'sm' ? 'var(--text-h6)' : 'var(--text-body)',
         lineHeight: 1.2,
-        border: '1px solid',
-        borderRadius: 0,
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderRadius: 'var(--radius-pill)',
         padding: iconOnly ? 0 : size === 'sm' ? '0 var(--space-3)' : '0 var(--space-4)',
         opacity: disabled ? 0.45 : 1,
         transition: 'background 120ms ease, border-color 120ms ease',
-        ...skin(variant, hovered && !disabled, pressed && !disabled),
+        ...skin(variant, isHovered, isPressed, Boolean(selected)),
         ...style,
       }}
       {...rest}
     >
-      {framed ? <BlueprintMarks /> : null}
-      {children}
+      {hasGradient ? (
+        <PrimaryActionSurface
+          pressed={isPressed}
+          hovered={isHovered}
+          disabled={Boolean(disabled)}
+        />
+      ) : null}
+      {isTextLabel(children) ? (
+        <span
+          style={{
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+            overflow: 'hidden',
+            textAlign: 'center',
+          }}
+        >
+          {children}
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }

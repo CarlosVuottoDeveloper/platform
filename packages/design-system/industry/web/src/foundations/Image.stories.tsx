@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Frame, Duotone } from '../components/core';
+import { Duotone } from '../components/core';
 
 const meta: Meta = {
   title: 'Foundations/Image',
@@ -11,7 +11,7 @@ type Story = StoryObj;
 export const DuotoneTreatment: Story = {
   render: () => (
     <figure style={{ margin: 0, maxWidth: 320 }}>
-      <Frame>
+      <div>
         <Duotone>
           <div
             style={{
@@ -21,15 +21,15 @@ export const DuotoneTreatment: Story = {
             }}
           />
         </Duotone>
-      </Frame>
+      </div>
       <figcaption
         style={{
           fontSize: 12,
           marginTop: 'var(--space-1)',
-          color: 'color-mix(in srgb, var(--color-text) 55%, transparent)',
+          color: 'var(--color-neutral-400)',
         }}
       >
-        Duotone — fotografias são lavadas no acento, como uma serigrafia.
+        Duotone — fotografias são lavadas na cor de acento.
       </figcaption>
     </figure>
   ),
@@ -37,7 +37,7 @@ export const DuotoneTreatment: Story = {
 
 export const Usage: Story = {
   render: () => (
-    <p style={{ fontSize: 12, opacity: 0.6, maxWidth: '60ch', color: 'var(--color-text)' }}>
+    <p style={{ fontSize: 12, maxWidth: '60ch', color: 'var(--color-neutral-400)' }}>
       Toda fotografia de conteúdo passa pelo wrapper <code>Duotone</code> — nunca use uma imagem
       crua, sem tratamento.
     </p>

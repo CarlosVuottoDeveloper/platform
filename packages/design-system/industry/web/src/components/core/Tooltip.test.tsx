@@ -94,4 +94,19 @@ describe('Tooltip', () => {
 
     jest.restoreAllMocks();
   });
+
+  it('renders the bubble as a rounded surface-2 card in the body font', () => {
+    render(
+      <Tooltip label="Excluir">
+        <button type="button">Ação</button>
+      </Tooltip>,
+    );
+
+    const bubble = screen.getByRole('tooltip');
+    expect(bubble.style.background).toBe('var(--color-surface-2)');
+    expect(bubble.style.borderRadius).toBe('var(--radius-md)');
+    expect(bubble.style.border).toBe('1px solid var(--color-divider-strong)');
+    expect(bubble.style.boxShadow).toBe('var(--shadow-md)');
+    expect(bubble.style.fontFamily).toBe('');
+  });
 });

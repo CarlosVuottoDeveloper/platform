@@ -2,10 +2,10 @@ import { Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import {
-  alpha,
   color,
   fontFamily,
   fontWeight,
+  neutral,
   radii,
   semanticColor,
   shadow,
@@ -77,9 +77,7 @@ export function Toast({ tone = 'accent', title, onDismiss, children, style }: To
             {title}
           </Text>
         ) : null}
-        {children ? (
-          <Text style={{ fontSize: 13, color: alpha(ACCENT_COLOR[tone], 65) }}>{children}</Text>
-        ) : null}
+        {children ? <Text style={{ fontSize: 13, color: neutral['300'] }}>{children}</Text> : null}
       </View>
       {onDismiss ? (
         <Pressable

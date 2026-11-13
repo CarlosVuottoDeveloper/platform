@@ -99,4 +99,34 @@ describe('Accordion', () => {
 
     expect(panel).toHaveAttribute('aria-labelledby', headerA.id);
   });
+
+  it('is a rounded surface without an outer rule or clipping', async () => {
+    const { container } = render(<Accordion items={ITEMS} />);
+    await screen.findByText('Item A');
+
+    const root = container.firstElementChild as HTMLElement;
+    expect(root).toHaveStyle({
+      background: 'var(--color-surface)',
+      borderRadius: 'var(--radius-md)',
+    });
+    expect(root.style.overflow).toBe('');
+    expect(root.style.borderTop).toBe('');
+  });
+
+  it('separates sections with dividers but draws none under the last', async () => {
+    render(<Accordion items={ITEMS} />);
+    const section = async (name: string) =>
+      (await screen.findByRole('button', { name })).closest('h3')?.parentElement as HTMLElement;
+
+    expect(await section('Item A')).toHaveStyle({ borderBottom: '1px solid var(--color-divider)' });
+    expect((await section('Item C')).style.borderBottom).toBe('');
+  });
+
+  it('gives every header at least the tap height', async () => {
+    render(<Accordion items={ITEMS} />);
+
+    expect(await screen.findByRole('button', { name: 'Item A' })).toHaveStyle({
+      minHeight: 'var(--tap)',
+    });
+  });
 });

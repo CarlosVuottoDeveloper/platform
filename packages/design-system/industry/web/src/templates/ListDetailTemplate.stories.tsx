@@ -37,7 +37,7 @@ function ListDetailScreen() {
             current="projects"
           />
         }
-        header={<span style={{ fontSize: 15, color: 'var(--color-text)' }}>Projetos</span>}
+        header={<span>Projetos</span>}
         style={{ height: '100%' }}
       >
         <div
@@ -45,7 +45,7 @@ function ListDetailScreen() {
             display: 'grid',
             gridTemplateColumns: '1fr 320px',
             gap: 'var(--space-4)',
-            padding: 'var(--space-5)',
+            padding: 'var(--space-4)',
           }}
         >
           <DataTable
@@ -56,7 +56,7 @@ function ListDetailScreen() {
             ]}
             rows={ROWS}
             toolbar={
-              <span style={{ fontSize: 13, color: 'var(--color-text)' }}>
+              <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
                 {ROWS.length} projetos
               </span>
             }

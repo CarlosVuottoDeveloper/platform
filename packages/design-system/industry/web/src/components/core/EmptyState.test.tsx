@@ -23,4 +23,21 @@ describe('EmptyState', () => {
 
     expect(screen.getByText('Só título')).toBeInTheDocument();
   });
+
+  it('draws a large-radius dashed frame', () => {
+    const { container } = render(<EmptyState title="Vazio" />);
+    const frame = container.firstChild as HTMLElement;
+
+    expect(frame.style.borderRadius).toBe('var(--radius-lg)');
+    expect(frame.style.borderStyle).toBe('dashed');
+    expect(frame.style.borderColor).toBe('var(--color-divider-strong)');
+  });
+
+  it('sets the title at the h4 size and the body quietly', () => {
+    render(<EmptyState title="Vazio" body="Sem itens" />);
+
+    expect(screen.getByText('Vazio').style.fontSize).toBe('var(--text-h4)');
+    expect(screen.getByText('Sem itens').style.color).toBe('var(--color-neutral-400)');
+    expect(screen.getByText('Sem itens').style.fontSize).toBe('var(--text-h6)');
+  });
 });

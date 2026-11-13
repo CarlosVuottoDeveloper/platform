@@ -18,17 +18,20 @@ export function EmptyState({ icon, title, body, action, style }: EmptyStateProps
         justifyItems: 'center',
         textAlign: 'center',
         padding: 'var(--space-12) var(--space-6)',
-        border: '1px dashed var(--color-divider)',
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: 'var(--color-divider-strong)',
+        borderRadius: 'var(--radius-lg)',
         ...style,
       }}
     >
-      {icon ? <div style={{ color: 'var(--color-accent-400)', opacity: 0.8 }}>{icon}</div> : null}
+      {icon ? <div style={{ opacity: 0.8 }}>{icon}</div> : null}
       {title ? (
         <div
           style={{
             fontFamily: 'var(--font-heading)',
             fontWeight: 'var(--font-heading-weight)',
-            fontSize: 21,
+            fontSize: 'var(--text-h4)',
           }}
         >
           {title}
@@ -37,9 +40,9 @@ export function EmptyState({ icon, title, body, action, style }: EmptyStateProps
       {body ? (
         <p
           style={{
-            fontSize: 14,
+            fontSize: 'var(--text-h6)',
             maxWidth: '42ch',
-            color: 'color-mix(in srgb, var(--color-text) 60%, transparent)',
+            color: 'var(--color-neutral-400)',
             margin: 0,
           }}
         >

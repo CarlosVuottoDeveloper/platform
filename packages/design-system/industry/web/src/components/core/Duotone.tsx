@@ -10,7 +10,13 @@ export function Duotone({ children, style, className }: DuotoneProps) {
   return (
     <div
       className={className}
-      style={{ position: 'relative', overflow: 'hidden', isolation: 'isolate', ...style }}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        isolation: 'isolate',
+        borderRadius: 'var(--radius-lg)',
+        ...style,
+      }}
     >
       {children}
       <div

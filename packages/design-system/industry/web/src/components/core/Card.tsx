@@ -1,5 +1,5 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
-import { BlueprintMarks } from './BlueprintMarks';
+import { GradientSurface } from './GradientSurface';
 
 export type CardElevation = 'sm' | 'md' | 'lg';
 
@@ -9,7 +9,6 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'style' 
   body?: ReactNode;
   meta?: ReactNode;
   elevation?: CardElevation;
-  framed?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
 }
@@ -26,34 +25,27 @@ export function Card({
   body,
   meta,
   elevation,
-  framed,
   children,
   style,
   ...rest
 }: CardProps) {
   return (
-    <div
+    <GradientSurface
       style={{
-        position: framed ? 'relative' : undefined,
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-2)',
         padding: 'var(--space-4)',
-        borderRadius: 0,
-        background: 'transparent',
         border: '1px solid var(--color-divider)',
         boxShadow: elevation ? SHADOW[elevation] : undefined,
         ...style,
       }}
       {...rest}
     >
-      {framed ? <BlueprintMarks /> : null}
       {kicker ? (
         <div
           style={{
             fontSize: 11,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
             color: 'var(--color-accent-300)',
           }}
         >
@@ -87,6 +79,6 @@ export function Card({
           {meta}
         </div>
       ) : null}
-    </div>
+    </GradientSurface>
   );
 }

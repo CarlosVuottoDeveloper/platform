@@ -7,6 +7,7 @@ import type {
   KeyboardEvent,
   ReactNode,
 } from 'react';
+import { FIELD_ERROR_STYLE, FIELD_HINT_STYLE } from './fieldFrame';
 import { Icon } from './Icon';
 
 export interface RejectedFile {
@@ -54,7 +55,6 @@ export function partitionFiles(
   return { accepted, rejected };
 }
 
-/** Dashed drop zone for file uploads — the only dashed border in the system, reserve it for drop targets. */
 export const FileDrop = forwardRef<HTMLLabelElement, FileDropProps>(function FileDrop(
   {
     label = 'Arraste um arquivo ou clique para escolher',
@@ -128,11 +128,13 @@ export const FileDrop = forwardRef<HTMLLabelElement, FileDropProps>(function Fil
           alignItems: 'center',
           justifyContent: 'center',
           gap: 'var(--space-2)',
-          padding: 'var(--space-8) var(--space-5)',
+          padding: 'var(--space-8) var(--space-6)',
           textAlign: 'center',
-          borderRadius: 0,
+          borderRadius: 'var(--radius-lg)',
           background: over ? 'var(--color-surface-2)' : 'var(--color-surface)',
-          border: `1px dashed ${borderColor}`,
+          borderWidth: 1,
+          borderStyle: 'dashed',
+          borderColor,
           opacity: disabled ? 0.45 : 1,
           cursor: disabled ? 'not-allowed' : 'pointer',
         }}
@@ -151,20 +153,25 @@ export const FileDrop = forwardRef<HTMLLabelElement, FileDropProps>(function Fil
           }}
         />
         <Icon name="upload" size="lg" color="var(--color-text)" />
-        <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-text)' }}>{label}</span>
         <span
           style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 12,
-            color: 'color-mix(in srgb, var(--color-text) 50%, transparent)',
+            fontSize: 'var(--text-body)',
+            fontWeight: 'var(--font-medium-weight)',
+            color: 'var(--color-text)',
+          }}
+        >
+          {label}
+        </span>
+        <span
+          style={{
+            ...FIELD_HINT_STYLE,
+            textAlign: 'center',
           }}
         >
           {hint}
         </span>
       </label>
-      {error ? (
-        <span style={{ fontSize: 12, color: 'var(--color-danger-300)' }}>{error}</span>
-      ) : null}
+      {error ? <span style={FIELD_ERROR_STYLE}>{error}</span> : null}
     </div>
   );
 });

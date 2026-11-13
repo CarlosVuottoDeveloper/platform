@@ -1,5 +1,11 @@
 import { useId, useState } from 'react';
 import type { CSSProperties, FocusEvent, ReactNode, SelectHTMLAttributes } from 'react';
+import {
+  FIELD_ERROR_STYLE,
+  FIELD_HINT_STYLE,
+  FIELD_LABEL_STYLE,
+  resolveFieldFrameStyle,
+} from './fieldFrame';
 import { Icon } from './Icon';
 
 export type SelectSize = 'md' | 'sm';
@@ -37,15 +43,10 @@ export function Select({
   const generatedId = useId();
   const fid = id ?? generatedId;
   const [focused, setFocused] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const hintId = `${fid}-hint`;
   const describedBy = error || hint ? hintId : undefined;
   const height = size === 'sm' ? 'var(--control-h-sm)' : 'var(--control-h)';
-
-  const borderColor = error
-    ? 'var(--color-danger)'
-    : focused
-      ? 'var(--color-accent)'
-      : 'var(--color-divider)';
 
   const handleFocus = (e: FocusEvent<HTMLSelectElement>) => {
     setFocused(true);
@@ -59,10 +60,7 @@ export function Select({
   return (
     <div style={{ display: 'grid', gap: 6, ...style }}>
       {label ? (
-        <label
-          htmlFor={fid}
-          style={{ fontSize: 13, color: 'color-mix(in srgb, var(--color-text) 70%, transparent)' }}
-        >
+        <label htmlFor={fid} style={FIELD_LABEL_STYLE}>
           {label}
         </label>
       ) : null}
@@ -72,10 +70,7 @@ export function Select({
           display: 'flex',
           alignItems: 'center',
           height,
-          background: 'var(--color-surface)',
-          border: `1px solid ${borderColor}`,
-          borderRadius: 0,
-          opacity: disabled ? 0.45 : 1,
+          ...resolveFieldFrameStyle({ focused, hovered, invalid: Boolean(error), disabled }),
         }}
       >
         <select
@@ -85,6 +80,8 @@ export function Select({
           aria-describedby={describedBy}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           style={{
             appearance: 'none',
             WebkitAppearance: 'none',
@@ -95,7 +92,7 @@ export function Select({
             border: 'none',
             outline: 'none',
             font: 'inherit',
-            fontSize: 15,
+            fontSize: 'var(--text-body)',
             color: 'var(--color-text)',
             cursor: disabled ? 'not-allowed' : 'pointer',
           }}
@@ -107,7 +104,7 @@ export function Select({
               <option
                 key={opt.value}
                 value={opt.value}
-                style={{ background: 'var(--color-surface)' }}
+                style={{ background: 'var(--color-surface-2)' }}
               >
                 {opt.label}
               </option>
@@ -119,14 +116,11 @@ export function Select({
         </span>
       </div>
       {error ? (
-        <span id={hintId} style={{ fontSize: 12, color: 'var(--color-danger-300)' }}>
+        <span id={hintId} style={FIELD_ERROR_STYLE}>
           {error}
         </span>
       ) : hint ? (
-        <span
-          id={hintId}
-          style={{ fontSize: 12, color: 'color-mix(in srgb, var(--color-text) 50%, transparent)' }}
-        >
+        <span id={hintId} style={FIELD_HINT_STYLE}>
           {hint}
         </span>
       ) : null}
