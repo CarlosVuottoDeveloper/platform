@@ -26,7 +26,6 @@ const OPPOSITE: Record<TooltipSide, TooltipSide> = {
 };
 
 export interface TooltipProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'style'> {
-  /** One short line. Never information required to complete the task. */
   label: string;
   side?: TooltipSide;
   children?: ReactNode;

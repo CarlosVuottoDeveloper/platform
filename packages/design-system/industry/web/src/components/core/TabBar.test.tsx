@@ -68,7 +68,7 @@ describe('TabBar', () => {
     const wrapper = screen.getByTestId('icon-home').parentElement as HTMLElement;
     const surface = wrapper.querySelector('[aria-hidden="true"]') as HTMLElement;
 
-    expect(surface.style.background).toBe('var(--gradient-primary)');
+    expect(surface.style.backgroundImage).toBe('var(--gradient-primary)');
     expect(surface.style.boxShadow).toBe('var(--glow-accent)');
     expect(surface.style.borderRadius).toBe('var(--radius-pill)');
     expect(wrapper.style.opacity).toBe('1');

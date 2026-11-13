@@ -7,6 +7,15 @@ const ITEMS = [
 ];
 
 describe('Menu', () => {
+  it('insets the rows inside the panel and rounds each one', () => {
+    render(<Menu open trigger="Ações" items={ITEMS} />);
+
+    expect(screen.getByRole('menu').style.margin).toBe('');
+    screen.getAllByRole('menuitem').forEach((row) => {
+      expect(row).toHaveStyle({ borderRadius: 'var(--radius-sm)' });
+    });
+  });
+
   it('is closed by default', () => {
     render(<Menu trigger="Ações" items={ITEMS} />);
 

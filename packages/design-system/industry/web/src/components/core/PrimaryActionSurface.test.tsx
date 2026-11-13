@@ -11,7 +11,7 @@ const renderSurface = (props: Partial<Parameters<typeof PrimaryActionSurface>[0]
 describe('PrimaryActionSurface', () => {
   it('fills the pill with the primary gradient and the accent glow', () => {
     expect(renderSurface()).toHaveStyle({
-      background: 'var(--gradient-primary)',
+      backgroundImage: 'var(--gradient-primary)',
       borderRadius: 'var(--radius-pill)',
       boxShadow: 'var(--glow-accent)',
       opacity: '1',

@@ -22,7 +22,16 @@ const AREA_TOP_OPACITY = 0.35;
 const MAX_X_LABELS = 7;
 const LABEL_SLOT_PERCENT = 100 / MAX_X_LABELS;
 
-const defaultValueFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format;
+let defaultNumberFormat: Intl.NumberFormat | undefined;
+
+function defaultValueFormatter(value: number): string {
+  defaultNumberFormat ??= new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+  return defaultNumberFormat.format(value);
+}
+
+function finitePointsOf(points: readonly AreaChartPoint[]): AreaChartPoint[] {
+  return points.filter((point) => Number.isFinite(point.value));
+}
 
 function resolveTicks(values: readonly number[]): number[] {
   const low = Math.min(...values);
@@ -74,13 +83,14 @@ export function buildAreaPath(
 }
 
 export function AreaChart({
-  points,
+  points: allPoints,
   height = 180,
   valueFormatter = defaultValueFormatter,
   style,
   testID,
 }: AreaChartProps) {
   const gradientId = useId();
+  const points = finitePointsOf(allPoints);
   const hasPoints = points.length > 0;
   const ticks = resolveTicks(points.map((p) => p.value));
   const { line, area } = buildAreaPath(points, VIEW_WIDTH, height);

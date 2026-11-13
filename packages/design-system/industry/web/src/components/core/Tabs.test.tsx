@@ -73,7 +73,7 @@ describe('Tabs', () => {
     render(<Tabs items={ITEMS} current="settings" />);
     const surface = surfaceOf(screen.getByRole('tab', { name: 'Configurações' })) as HTMLElement;
 
-    expect(surface.style.background).toBe('var(--gradient-primary)');
+    expect(surface.style.backgroundImage).toBe('var(--gradient-primary)');
     expect(surface.style.boxShadow).toBe('');
     expect(surfaceOf(screen.getByRole('tab', { name: 'Visão geral' }))).toBeNull();
   });

@@ -63,7 +63,7 @@ describe('Button', () => {
     const surface = surfaceOf(button) as HTMLElement;
 
     expect(surface).toHaveStyle({
-      background: 'var(--gradient-primary)',
+      backgroundImage: 'var(--gradient-primary)',
       boxShadow: 'var(--glow-accent)',
       borderRadius: 'var(--radius-pill)',
     });
@@ -286,5 +286,27 @@ describe('Button', () => {
     fireEvent.mouseUp(button);
 
     expect(button.style.background).toBe('var(--color-surface-2)');
+  });
+
+  it('keeps a caller aria-pressed when the selected prop is not passed', () => {
+    render(<Button aria-pressed="true">Opção</Button>);
+
+    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('lets the selected prop win over a caller aria-pressed', () => {
+    render(
+      <Button selected={false} aria-pressed="true">
+        Opção
+      </Button>,
+    );
+
+    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('leaves aria-pressed off when neither is passed', () => {
+    render(<Button>Opção</Button>);
+
+    expect(screen.getByRole('button')).not.toHaveAttribute('aria-pressed');
   });
 });

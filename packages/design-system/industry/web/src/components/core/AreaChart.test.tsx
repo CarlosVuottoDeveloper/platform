@@ -269,4 +269,63 @@ describe('AreaChart', () => {
     rerender(<AreaChart points={POINTS} height={240} testID="chart" />);
     expect(screen.getByTestId('chart-plot').style.height).toBe('240px');
   });
+
+  describe('non-finite values', () => {
+    const WITH_NAN = [
+      { label: 'Seg', value: 3 },
+      { label: 'Ter', value: NaN },
+      { label: 'Qua', value: 5 },
+    ];
+
+    it('skips the bad point in the path, ticks, x labels and accessible label', () => {
+      render(<AreaChart testID="c" points={WITH_NAN} />);
+
+      expect(screen.getByTestId('c-line').getAttribute('d')).not.toContain('NaN');
+      expect(screen.getByTestId('c-area').getAttribute('d')).not.toContain('NaN');
+      expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Ter')).not.toBeInTheDocument();
+      expect(screen.getByText('Seg')).toBeInTheDocument();
+      expect(screen.getByText('Qua')).toBeInTheDocument();
+      expect(screen.getByRole('img')).toHaveAccessibleName('Seg 3, Qua 5');
+    });
+
+    it('draws the remaining points as if the bad one were absent', () => {
+      render(<AreaChart testID="c" points={WITH_NAN} />);
+      const clean = buildAreaPath([{ value: 3 }, { value: 5 }], 100, 180);
+
+      expect(screen.getByTestId('c-line').getAttribute('d')).toBe(clean.line);
+    });
+
+    it('treats Infinity like a missing value', () => {
+      render(
+        <AreaChart
+          testID="c"
+          points={[
+            { label: 'A', value: Infinity },
+            { label: 'B', value: 2 },
+            { label: 'C', value: -Infinity },
+          ]}
+        />,
+      );
+
+      expect(screen.getByTestId('c-line').getAttribute('d')).not.toMatch(/NaN|Infinity/);
+      expect(screen.queryByText(/Infinity|NaN/)).not.toBeInTheDocument();
+    });
+
+    it('renders like an empty chart when no value is finite', () => {
+      render(<AreaChart testID="c" points={[{ label: 'A', value: NaN }]} />);
+
+      expect(screen.queryByTestId('c-line')).not.toBeInTheDocument();
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    });
+  });
+
+  it('does not build the default number format until a chart renders', () => {
+    const NumberFormat = jest.spyOn(Intl, 'NumberFormat');
+    jest.isolateModules(() => {
+      jest.requireActual('./AreaChart');
+    });
+    expect(NumberFormat).not.toHaveBeenCalled();
+    NumberFormat.mockRestore();
+  });
 });
