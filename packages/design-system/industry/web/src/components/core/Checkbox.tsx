@@ -48,7 +48,7 @@ export function Checkbox({
         gap: 'var(--space-3)',
         minHeight: 'var(--tap)',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        fontSize: 15,
+        fontSize: 'var(--text-body)',
         ...style,
       }}
     >
@@ -68,7 +68,13 @@ export function Checkbox({
           width: 18,
           height: 18,
           flex: 'none',
-          border: `1.5px solid ${isChecked || (hovered && !disabled) ? 'var(--color-accent)' : 'var(--color-divider-strong)'}`,
+          borderWidth: 1.5,
+          borderStyle: 'solid',
+          borderRadius: 'var(--radius-sm)',
+          borderColor:
+            isChecked || (hovered && !disabled)
+              ? 'var(--color-accent)'
+              : 'var(--color-control-border)',
           background: isChecked ? 'var(--color-accent)' : 'transparent',
           display: 'grid',
           placeItems: 'center',

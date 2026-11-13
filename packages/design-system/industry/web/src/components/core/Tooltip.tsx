@@ -26,7 +26,7 @@ const OPPOSITE: Record<TooltipSide, TooltipSide> = {
 };
 
 export interface TooltipProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'style'> {
-  /** Mono text, one short line. Never information required to complete the task. */
+  /** One short line. Never information required to complete the task. */
   label: string;
   side?: TooltipSide;
   children?: ReactNode;
@@ -89,11 +89,10 @@ export function Tooltip({ label, side = 'top', children, style, ...rest }: Toolt
           ...POSITIONS[resolvedSide],
           zIndex: 100,
           padding: '5px 9px',
-          borderRadius: 0,
-          background: 'var(--color-surface)',
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--color-surface-2)',
           border: '1px solid var(--color-divider-strong)',
           boxShadow: 'var(--shadow-md)',
-          fontFamily: 'var(--font-mono)',
           fontSize: 12,
           lineHeight: 1.3,
           color: 'var(--color-text)',

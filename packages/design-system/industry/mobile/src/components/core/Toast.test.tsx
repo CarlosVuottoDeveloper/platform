@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import type { ReactTestRendererJSON } from 'react-test-renderer';
-import { color, radii, semanticColor } from '@industry/tokens';
+import { color, neutral, radii, semanticColor } from '@industry/tokens';
 import { Toast } from './Toast';
 
 describe('Toast', () => {
@@ -82,5 +82,16 @@ describe('Toast', () => {
     expect(style.overflow).toBe('hidden');
     expect(style.borderLeftWidth).toBeUndefined();
     expect(style.borderColor).toBe(color.divider);
+  });
+
+  it('keeps the body neutral and only tints the title', () => {
+    const { getByText } = render(
+      <Toast tone="danger" title="Erro">
+        Detalhes
+      </Toast>,
+    );
+
+    expect(StyleSheet.flatten(getByText('Detalhes').props.style).color).toBe(neutral['300']);
+    expect(StyleSheet.flatten(getByText('Erro').props.style).color).toBe(semanticColor.danger);
   });
 });

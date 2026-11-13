@@ -38,11 +38,18 @@ export function Accordion({
   }
 
   return (
-    <div style={{ borderTop: '1px solid var(--color-divider)', ...style }}>
-      {items.map((item) => (
+    <div
+      style={{
+        background: 'var(--color-surface)',
+        borderRadius: 'var(--radius-md)',
+        ...style,
+      }}
+    >
+      {items.map((item, index) => (
         <AccordionSection
           key={item.key}
           item={item}
+          last={index === items.length - 1}
           open={openKeys.includes(item.key)}
           onToggle={() => toggle(item.key)}
         />
@@ -53,10 +60,12 @@ export function Accordion({
 
 function AccordionSection({
   item,
+  last,
   open,
   onToggle,
 }: {
   item: AccordionItem;
+  last: boolean;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -65,7 +74,7 @@ function AccordionSection({
   const panelId = `${id}-panel`;
 
   return (
-    <div style={{ borderBottom: '1px solid var(--color-divider)' }}>
+    <div style={{ borderBottom: last ? undefined : '1px solid var(--color-divider)' }}>
       <h3 style={{ margin: 0 }}>
         <button
           id={headerId}
@@ -80,6 +89,7 @@ function AccordionSection({
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: 'var(--space-3)',
+            minHeight: 'var(--tap)',
             padding: 'var(--space-4) var(--space-3)',
             background: 'none',
             border: 'none',

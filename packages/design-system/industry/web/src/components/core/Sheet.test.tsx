@@ -51,4 +51,30 @@ describe('Sheet', () => {
 
     expect(onDismiss).not.toHaveBeenCalled();
   });
+
+  it('rounds only its top corners on a gradient surface with a soft border', () => {
+    render(<Sheet title="Título">Conteúdo</Sheet>);
+
+    expect(screen.getByRole('dialog')).toHaveStyle({
+      background: 'var(--gradient-surface)',
+      borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+      border: '1px solid var(--color-divider)',
+    });
+  });
+
+  it('sizes the title with the h4 token', () => {
+    render(<Sheet title="Título">Conteúdo</Sheet>);
+
+    expect(screen.getByText('Título')).toHaveStyle({ fontSize: 'var(--text-h4)' });
+  });
+
+  it('applies the consumer style to the dialog', () => {
+    render(
+      <Sheet title="Título" style={{ maxWidth: 480 }}>
+        Conteúdo
+      </Sheet>,
+    );
+
+    expect(screen.getByRole('dialog')).toHaveStyle({ maxWidth: '480px' });
+  });
 });

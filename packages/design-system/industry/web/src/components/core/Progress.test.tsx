@@ -34,6 +34,26 @@ describe('Progress', () => {
 
     expect(screen.getByText('100%')).toBeInTheDocument();
   });
+
+  it('draws a pill track on surface-2 filled with the primary gradient', () => {
+    render(<Progress value={25} />);
+    const track = screen.getByRole('progressbar');
+    const fill = track.firstElementChild as HTMLElement;
+
+    expect(track.style.background).toBe('var(--color-surface-2)');
+    expect(track.style.borderRadius).toBe('var(--radius-pill)');
+    expect(fill.style.background).toBe('var(--gradient-primary)');
+    expect(fill.style.borderRadius).toBe('var(--radius-pill)');
+    expect(fill.style.width).toBe('25%');
+  });
+
+  it('colours the label row neutral', () => {
+    render(<Progress value={10} label="Enviando" />);
+
+    expect((screen.getByText('Enviando').parentElement as HTMLElement).style.color).toBe(
+      'var(--color-neutral-400)',
+    );
+  });
 });
 
 describe('Spinner', () => {

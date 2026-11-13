@@ -24,13 +24,25 @@ export function AppShell({ sidebar, header, children, style, ...rest }: AppShell
               alignItems: 'center',
               gap: 'var(--space-3)',
               padding: 'var(--space-3) var(--space-6)',
-              borderBottom: '1px solid var(--color-divider)',
+              background: 'transparent',
+              fontFamily: 'var(--font-heading)',
+              fontWeight: 'var(--font-heading-weight)',
+              fontSize: 'var(--text-h4)',
             }}
           >
             {header}
           </header>
         ) : null}
-        <div style={{ padding: 'var(--space-6)', flex: 1, minWidth: 0 }}>{children}</div>
+        <div
+          style={{
+            padding: 'var(--space-6)',
+            flex: 1,
+            minWidth: 0,
+            background: 'var(--color-bg)',
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

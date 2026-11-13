@@ -50,4 +50,57 @@ describe('Select', () => {
 
     expect(await screen.findByLabelText('Status')).toBeDisabled();
   });
+
+  const frameOf = (select: HTMLElement) => select.parentElement as HTMLElement;
+
+  it('draws the shared field frame around the select', async () => {
+    render(<Select label="Status" options={OPTIONS} />);
+    const frame = frameOf(await screen.findByLabelText('Status'));
+
+    expect(frame.style.background).toBe('var(--color-surface)');
+    expect(frame.style.borderRadius).toBe('var(--radius-md)');
+    expect(frame.style.borderColor).toBe('var(--color-control-border)');
+  });
+
+  it('highlights the frame while focused and forwards the handlers', async () => {
+    const onFocus = jest.fn();
+    const onBlur = jest.fn();
+    render(<Select label="Status" options={OPTIONS} onFocus={onFocus} onBlur={onBlur} />);
+    const select = await screen.findByLabelText('Status');
+
+    fireEvent.focus(select);
+    expect(frameOf(select).style.borderColor).toBe('var(--color-accent)');
+    expect(onFocus).toHaveBeenCalled();
+
+    fireEvent.blur(select);
+    expect(frameOf(select).style.borderColor).toBe('var(--color-control-border)');
+    expect(onBlur).toHaveBeenCalled();
+  });
+
+  it('lifts the frame border on hover', async () => {
+    render(<Select label="Status" options={OPTIONS} />);
+    const select = await screen.findByLabelText('Status');
+
+    fireEvent.mouseEnter(select);
+    expect(frameOf(select).style.borderColor).toBe('var(--color-neutral-500)');
+
+    fireEvent.mouseLeave(select);
+    expect(frameOf(select).style.borderColor).toBe('var(--color-control-border)');
+  });
+
+  it('uses the danger border when there is an error', async () => {
+    render(<Select label="Status" options={OPTIONS} error="Campo obrigatório" />);
+
+    expect(frameOf(await screen.findByLabelText('Status')).style.borderColor).toBe(
+      'var(--color-danger)',
+    );
+  });
+
+  it('paints the native option list on surface-2', async () => {
+    render(<Select label="Status" options={OPTIONS} />);
+
+    expect((await screen.findByRole('option', { name: 'a' })).style.background).toBe(
+      'var(--color-surface-2)',
+    );
+  });
 });

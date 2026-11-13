@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { CSSProperties, HTMLAttributes } from 'react';
 
 export interface Crumb {
@@ -9,6 +10,8 @@ export interface BreadcrumbsProps extends Omit<HTMLAttributes<HTMLElement>, 'sty
   items?: Crumb[];
   style?: CSSProperties;
 }
+
+const CRUMB_STYLE: CSSProperties = { fontSize: 'var(--text-h6)' };
 
 export function Breadcrumbs({ items = [], style, ...rest }: BreadcrumbsProps) {
   return (
@@ -25,35 +28,22 @@ export function Breadcrumbs({ items = [], style, ...rest }: BreadcrumbsProps) {
     >
       {items.map((item, index) => {
         const last = index === items.length - 1;
-        const textStyle: CSSProperties = {
-          fontFamily: 'var(--font-mono)',
-          fontSize: 13,
-          color: last
-            ? 'var(--color-text)'
-            : 'color-mix(in srgb, var(--color-text) 60%, transparent)',
-        };
         return (
           <span
             key={item.label}
             style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}
           >
             {last ? (
-              <span aria-current="page" style={textStyle}>
+              <span aria-current="page" style={{ ...CRUMB_STYLE, color: 'var(--color-text)' }}>
                 {item.label}
               </span>
             ) : (
-              <a href={item.href ?? '#'} style={{ ...textStyle, textDecoration: 'none' }}>
-                {item.label}
-              </a>
+              <PreviousCrumb item={item} />
             )}
             {!last ? (
               <span
                 aria-hidden="true"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 13,
-                  color: 'color-mix(in srgb, var(--color-text) 40%, transparent)',
-                }}
+                style={{ ...CRUMB_STYLE, color: 'var(--color-neutral-600)' }}
               >
                 /
               </span>
@@ -62,5 +52,24 @@ export function Breadcrumbs({ items = [], style, ...rest }: BreadcrumbsProps) {
         );
       })}
     </nav>
+  );
+}
+
+function PreviousCrumb({ item }: { item: Crumb }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <a
+      href={item.href ?? '#'}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        ...CRUMB_STYLE,
+        color: hovered ? 'var(--color-neutral-200)' : 'var(--color-neutral-400)',
+        textDecoration: 'none',
+      }}
+    >
+      {item.label}
+    </a>
   );
 }

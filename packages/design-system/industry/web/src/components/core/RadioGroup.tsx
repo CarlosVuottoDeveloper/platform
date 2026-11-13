@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react';
+import { FIELD_LABEL_STYLE } from './fieldFrame';
 
 export interface RadioOption {
   value: string;
@@ -26,13 +27,7 @@ export function RadioGroup({ label, name, options = [], value, onChange, style }
       aria-label={typeof label === 'string' ? label : undefined}
       style={{ display: 'grid', gap: 'var(--space-2)', ...style }}
     >
-      {label ? (
-        <span
-          style={{ fontSize: 13, color: 'color-mix(in srgb, var(--color-text) 70%, transparent)' }}
-        >
-          {label}
-        </span>
-      ) : null}
+      {label ? <span style={FIELD_LABEL_STYLE}>{label}</span> : null}
       {options.map((option) => {
         const opt = resolveOption(option);
         return (
@@ -73,7 +68,7 @@ function RadioOptionItem({
         gap: 'var(--space-3)',
         minHeight: 'var(--tap)',
         cursor: 'pointer',
-        fontSize: 15,
+        fontSize: 'var(--text-body)',
       }}
     >
       <input
@@ -92,7 +87,9 @@ function RadioOptionItem({
           height: 18,
           flex: 'none',
           borderRadius: '50%',
-          border: `1.5px solid ${checked || hovered ? 'var(--color-accent)' : 'var(--color-divider-strong)'}`,
+          borderWidth: 1.5,
+          borderStyle: 'solid',
+          borderColor: checked || hovered ? 'var(--color-accent)' : 'var(--color-control-border)',
           background: checked ? 'var(--color-accent)' : 'transparent',
           boxShadow: checked ? 'inset 0 0 0 4px var(--color-bg)' : 'none',
           outline: focused ? '2px solid var(--color-accent)' : 'none',

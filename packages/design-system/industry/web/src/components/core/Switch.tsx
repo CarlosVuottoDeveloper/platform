@@ -9,6 +9,11 @@ export interface SwitchProps extends Omit<
   style?: CSSProperties;
 }
 
+function resolveBorderColor(checked: boolean, hovered: boolean) {
+  if (checked) return hovered ? 'var(--color-accent-300)' : 'var(--color-accent-400)';
+  return hovered ? 'var(--color-neutral-500)' : 'var(--color-control-border)';
+}
+
 export function Switch({
   label,
   checked,
@@ -22,6 +27,7 @@ export function Switch({
 }: SwitchProps) {
   const [internalChecked, setInternalChecked] = useState(Boolean(defaultChecked));
   const [focused, setFocused] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const isChecked = checked ?? internalChecked;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -39,13 +45,15 @@ export function Switch({
 
   return (
     <label
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: 'var(--space-3)',
         minHeight: 'var(--tap)',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        fontSize: 15,
+        fontSize: 'var(--text-body)',
         ...style,
       }}
     >
@@ -66,10 +74,11 @@ export function Switch({
           width: 44,
           height: 24,
           flex: 'none',
-          border: `1px solid ${isChecked ? 'var(--color-accent)' : 'var(--color-divider-strong)'}`,
-          background: isChecked
-            ? 'color-mix(in srgb, var(--color-accent) 28%, transparent)'
-            : 'var(--color-surface)',
+          borderWidth: 1,
+          borderStyle: 'solid',
+          borderRadius: 'var(--radius-pill)',
+          borderColor: resolveBorderColor(isChecked, hovered && !disabled),
+          background: isChecked ? 'var(--color-accent-800)' : 'var(--color-surface-2)',
           opacity: disabled ? 0.45 : 1,
           outline: focused ? '2px solid var(--color-accent)' : 'none',
           outlineOffset: 2,
@@ -83,6 +92,7 @@ export function Switch({
             left: isChecked ? 23 : 3,
             width: 16,
             height: 16,
+            borderRadius: 'var(--radius-pill)',
             background: isChecked ? 'var(--color-accent)' : 'var(--color-neutral-400)',
             transition: 'left 140ms ease, background 140ms ease',
           }}

@@ -1,5 +1,5 @@
-export { Frame } from './Frame';
-export type { FrameProps } from './Frame';
+export { GradientSurface } from './GradientSurface';
+export type { GradientSurfaceProps, GradientName } from './GradientSurface';
 
 export { Icon } from './Icon';
 export type { IconProps, IconSize, IconName } from './Icon';

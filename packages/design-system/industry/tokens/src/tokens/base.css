@@ -45,7 +45,6 @@ h5 {
 h6 {
   font-size: var(--text-h6);
   letter-spacing: var(--tracking-h6);
-  text-transform: uppercase;
 }
 
 p {

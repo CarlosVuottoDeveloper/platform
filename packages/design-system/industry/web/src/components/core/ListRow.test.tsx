@@ -39,4 +39,37 @@ describe('ListRow', () => {
 
     expect(screen.getByText('Só título')).toBeInTheDocument();
   });
+
+  it('is a flat transparent row with a straight divider', () => {
+    render(<ListRow title="Título" />);
+
+    const row = screen.getByRole('button');
+    expect(row).toHaveStyle({
+      borderBottom: '1px solid var(--color-divider)',
+      borderLeftWidth: '0',
+      borderRightWidth: '0',
+      borderTopWidth: '0',
+    });
+    expect(row.style.borderRadius).toBe('');
+    expect(row.style.background).toBe('none');
+  });
+
+  it('tints the row while hovered', () => {
+    render(<ListRow title="Título" />);
+    const row = screen.getByRole('button');
+
+    fireEvent.mouseEnter(row);
+
+    expect(row.style.background).toBe('color-mix(in srgb, var(--color-text) 5%, transparent)');
+  });
+
+  it('clears the hover tint when the pointer leaves', () => {
+    render(<ListRow title="Título" />);
+    const row = screen.getByRole('button');
+
+    fireEvent.mouseEnter(row);
+    fireEvent.mouseLeave(row);
+
+    expect(row.style.background).toBe('none');
+  });
 });

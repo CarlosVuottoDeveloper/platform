@@ -38,7 +38,7 @@ export function ListRow({
         gap: 'var(--space-3)',
         minHeight: 64,
         padding: 'var(--space-3) var(--space-4)',
-        borderBottom: '1px solid color-mix(in srgb, var(--color-text) 9%, transparent)',
+        borderBottom: '1px solid var(--color-divider)',
         borderLeft: 0,
         borderRight: 0,
         borderTop: 0,

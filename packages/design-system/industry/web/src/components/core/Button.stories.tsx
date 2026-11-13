@@ -38,11 +38,14 @@ export const IconOnly: Story = {
   ),
 };
 
-export const Framed: Story = {
+export const Selected: Story = {
   render: () => (
-    <Button variant="primary" framed>
-      Framed
-    </Button>
+    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+      <Button selected>Admin</Button>
+      <Button variant="primary" selected>
+        Admin
+      </Button>
+    </div>
   ),
 };
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
+import { TEXT_TINT_FILLS, resolveFill, usePressState } from './stateFills';
 
 export interface Column<Row extends Record<string, ReactNode> = Record<string, ReactNode>> {
   key: string;
@@ -40,7 +41,7 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
   style,
 }: DataTableProps<Row>) {
   return (
-    <div style={style}>
+    <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '100%', ...style }}>
       {toolbar ? (
         <div
           style={{
@@ -48,62 +49,102 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
             alignItems: 'center',
             gap: 'var(--space-2)',
             paddingBottom: 'var(--space-3)',
+            flex: 'none',
           }}
         >
           {toolbar}
         </div>
       ) : null}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                style={{
-                  textAlign: 'left',
-                  fontSize: 11,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'color-mix(in srgb, var(--color-text) 60%, transparent)',
-                  padding: 'var(--space-2) var(--space-3)',
-                  borderBottom: '1px solid var(--color-divider)',
-                  whiteSpace: 'nowrap',
-                  width: column.width,
-                }}
-              >
-                {column.sortable === false ? (
-                  column.label
-                ) : (
-                  <SortButton
-                    active={sort?.key === column.key}
-                    direction={sort?.key === column.key ? sort.dir : undefined}
-                    onClick={onSort ? () => onSort(column.key) : undefined}
+      <div
+        style={{
+          flex: '0 1 auto',
+          minHeight: 0,
+          overflow: 'auto',
+          background: 'var(--color-surface)',
+          borderRadius: 'var(--radius-lg)',
+        }}
+      >
+        <table
+          style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: 'var(--text-body)',
+            color: 'var(--color-text)',
+          }}
+        >
+          <thead>
+            <tr>
+              {columns.map((column) => {
+                const direction =
+                  column.sortable !== false && sort?.key === column.key ? sort.dir : undefined;
+                return (
+                  <th
+                    key={column.key}
+                    aria-sort={
+                      direction === undefined
+                        ? undefined
+                        : direction === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                    }
+                    style={{
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1,
+                      height: 'var(--tap)',
+                      textAlign: 'left',
+                      fontSize: 'var(--text-h6)',
+                      fontWeight: 'var(--font-medium-weight)',
+                      color: direction ? 'var(--color-accent-200)' : 'var(--color-neutral-400)',
+                      background: 'var(--color-surface-2)',
+                      padding: '0 var(--space-3)',
+                      whiteSpace: 'nowrap',
+                      width: column.width,
+                    }}
                   >
-                    {column.label}
-                  </SortButton>
-                )}
-              </th>
+                    {column.sortable !== false && onSort ? (
+                      <SortButton
+                        active={direction !== undefined}
+                        direction={direction}
+                        onClick={() => onSort(column.key)}
+                      >
+                        {column.label}
+                      </SortButton>
+                    ) : direction ? (
+                      <ReadOnlySortLabel direction={direction}>{column.label}</ReadOnlySortLabel>
+                    ) : (
+                      column.label
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <DataRow key={(row.id as string | number | undefined) ?? index}>
+                {columns.map((column) => (
+                  <td
+                    key={column.key}
+                    style={{
+                      padding: 'var(--space-3)',
+                      ...(index < rows.length - 1
+                        ? {
+                            borderBottomWidth: 1,
+                            borderBottomStyle: 'solid',
+                            borderBottomColor: 'var(--color-divider)',
+                          }
+                        : undefined),
+                    }}
+                  >
+                    {column.render ? column.render(row) : row[column.key]}
+                  </td>
+                ))}
+              </DataRow>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <DataRow key={(row.id as string | number | undefined) ?? index}>
-              {columns.map((column) => (
-                <td
-                  key={column.key}
-                  style={{
-                    padding: 'var(--space-3)',
-                    borderBottom: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
-                  }}
-                >
-                  {column.render ? column.render(row) : row[column.key]}
-                </td>
-              ))}
-            </DataRow>
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
       {pageCount > 1 ? (
         <Pagination page={page} pageCount={pageCount} total={total} onPage={onPage} />
       ) : null}
@@ -118,12 +159,25 @@ function DataRow({ children }: { children: ReactNode }) {
     <tr
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        background: hovered ? 'color-mix(in srgb, var(--color-text) 4%, transparent)' : undefined,
-      }}
+      style={{ background: resolveFill(TEXT_TINT_FILLS, hovered, false) }}
     >
       {children}
     </tr>
+  );
+}
+
+function ReadOnlySortLabel({
+  direction,
+  children,
+}: {
+  direction: 'asc' | 'desc';
+  children?: ReactNode;
+}) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+      {children}
+      <Caret direction={direction} />
+    </span>
   );
 }
 
@@ -135,17 +189,14 @@ function SortButton({
 }: {
   active: boolean;
   direction?: 'asc' | 'desc';
-  onClick?: () => void;
+  onClick: () => void;
   children?: ReactNode;
 }) {
   const [hovered, setHovered] = useState(false);
-  const ariaSort =
-    direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : undefined;
 
   return (
     <button
       type="button"
-      aria-sort={ariaSort}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -157,8 +208,8 @@ function SortButton({
         border: 0,
         cursor: 'pointer',
         font: 'inherit',
-        letterSpacing: 'inherit',
-        textTransform: 'inherit',
+        minHeight: 'var(--tap)',
+        outlineOffset: -2,
         color: active ? 'var(--color-accent-200)' : hovered ? 'var(--color-text)' : 'inherit',
         padding: 0,
       }}
@@ -202,14 +253,16 @@ function Pagination({
         display: 'flex',
         alignItems: 'center',
         gap: 'var(--space-2)',
+        flexWrap: 'wrap',
+        flex: 'none',
         paddingTop: 'var(--space-3)',
       }}
     >
       <span
         style={{
           marginRight: 'auto',
-          fontSize: 13,
-          color: 'color-mix(in srgb, var(--color-text) 55%, transparent)',
+          fontSize: 'var(--text-h6)',
+          color: 'var(--color-neutral-400)',
         }}
       >
         {total != null ? `${total} registros` : `Página ${page} de ${pageCount}`}
@@ -247,7 +300,7 @@ function PagerButton({
   onClick?: () => void;
   children?: ReactNode;
 }) {
-  const [hovered, setHovered] = useState(false);
+  const { hovered, pressed, handlers } = usePressState(disabled);
 
   return (
     <button
@@ -255,11 +308,10 @@ function PagerButton({
       disabled={disabled}
       aria-current={current ? 'page' : undefined}
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      {...handlers}
       style={{
-        minWidth: 'var(--control-h-sm)',
-        minHeight: 'var(--control-h-sm)',
+        minWidth: 'var(--tap)',
+        minHeight: 'var(--tap)',
         padding: '0 var(--space-2)',
         display: 'inline-flex',
         alignItems: 'center',
@@ -267,13 +319,14 @@ function PagerButton({
         cursor: disabled ? 'not-allowed' : 'pointer',
         background: current
           ? 'var(--color-accent)'
-          : hovered
-            ? 'color-mix(in srgb, var(--color-text) 8%, transparent)'
-            : 'none',
-        border: `1px solid ${current ? 'var(--color-accent)' : 'var(--color-divider)'}`,
+          : resolveFill(TEXT_TINT_FILLS, hovered, pressed),
+        borderWidth: 1,
+        borderStyle: 'solid',
+        borderRadius: 'var(--radius-pill)',
+        borderColor: current ? 'var(--color-accent)' : 'var(--color-control-border)',
         color: current ? 'var(--color-bg)' : 'inherit',
         font: 'inherit',
-        fontSize: 14,
+        fontSize: 'var(--text-h6)',
         opacity: disabled ? 0.35 : 1,
       }}
     >

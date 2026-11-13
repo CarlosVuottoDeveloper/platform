@@ -12,8 +12,9 @@ export interface SkeletonProps {
 export function Skeleton({ lines = 0, height, width, style }: SkeletonProps) {
   const reducedMotion = usePrefersReducedMotion();
   const shimmer: CSSProperties = {
-    background:
-      'linear-gradient(90deg, var(--color-surface) 0%, var(--color-surface-2) 40%, var(--color-surface) 80%)',
+    backgroundImage:
+      'linear-gradient(90deg, var(--color-surface-2) 0%, color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2)) 40%, var(--color-surface-2) 80%)',
+    borderRadius: 'var(--radius-md)',
     backgroundSize: '300% 100%',
     animation: reducedMotion ? 'none' : 'ind-shimmer 1.6s ease-in-out infinite',
   };
