@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Tabs } from '@industry/web';
 import { ChartsTab } from './ChartsTab';
 import { NetWorthTab } from './NetWorthTab';
+import { ReportTab } from './ReportTab';
 
 const TABS = [
   { id: 'charts', label: 'Gráficos' },
   { id: 'net-worth', label: 'Patrimônio' },
+  { id: 'report', label: 'Relatório' },
 ];
 
 export function Reports() {
@@ -17,6 +19,7 @@ export function Reports() {
       <Tabs items={TABS} current={tab} onSelect={setTab} />
       {tab === 'charts' ? <ChartsTab /> : null}
       {tab === 'net-worth' ? <NetWorthTab /> : null}
+      {tab === 'report' ? <ReportTab /> : null}
     </div>
   );
 }
