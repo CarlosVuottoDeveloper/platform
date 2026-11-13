@@ -498,4 +498,114 @@ describe('Firestore security rules — finance-app', () => {
       await assertFails(getDoc(doc(strangerDb(), contributionPath)));
     });
   });
+
+  describe('every collection, from the outside', () => {
+    const documents: [string, Record<string, unknown>][] = [
+      [
+        'accounts/x',
+        {
+          name: 'Conta',
+          type: 'bank',
+          color: 'viz-1',
+          icon: 'landmark',
+          initialBalanceCents: 0,
+          openingDate: '2026-01-01',
+          archived: false,
+        },
+      ],
+      [
+        'categories/x',
+        { name: 'Categoria', kind: 'expense', color: 'viz-1', icon: 'tag', archived: false },
+      ],
+      [
+        'transactions/x',
+        {
+          kind: 'expense',
+          amountCents: 100,
+          date: '2026-01-01',
+          accountId: 'a',
+          toAccountId: null,
+          categoryId: 'c',
+          description: '',
+          tags: [],
+          recurrenceId: null,
+          installment: null,
+        },
+      ],
+      [
+        'recurrences/x',
+        {
+          kind: 'expense',
+          amountCents: 100,
+          dayOfMonth: 1,
+          accountId: 'a',
+          categoryId: 'c',
+          description: '',
+          tags: [],
+          startMonth: '2026-01',
+          endMonth: null,
+          materializedThrough: null,
+        },
+      ],
+      ['budgets/x', { categoryId: 'x', limitCents: 100 }],
+      ['goals/x', { name: 'Meta', targetCents: 100, deadline: null }],
+      ['goals/x/contributions/y', { amountCents: 100, date: '2026-01-01' }],
+    ];
+
+    describe.each(documents)('%s', (relativePath, data) => {
+      const path = `users/${alice}/${relativePath}`;
+
+      beforeEach(async () => {
+        await seed(path, data);
+      });
+
+      it('denies another user reading, creating, updating and deleting', async () => {
+        const db = strangerDb();
+        await assertFails(getDoc(doc(db, path)));
+        await assertFails(getDocs(collection(db, path.slice(0, path.lastIndexOf('/')))));
+        await assertFails(setDoc(doc(db, `${path}-new`), data));
+        await assertFails(updateDoc(doc(db, path), { ...data }));
+        await assertFails(deleteDoc(doc(db, path)));
+      });
+
+      it('denies anonymous reading, creating, updating and deleting', async () => {
+        const db = anonymousDb();
+        await assertFails(getDoc(doc(db, path)));
+        await assertFails(setDoc(doc(db, `${path}-new`), data));
+        await assertFails(updateDoc(doc(db, path), { ...data }));
+        await assertFails(deleteDoc(doc(db, path)));
+      });
+
+      it('lets the owner read, list and delete', async () => {
+        const db = ownerDb(alice);
+        await assertSucceeds(getDoc(doc(db, path)));
+        await assertSucceeds(getDocs(collection(db, path.slice(0, path.lastIndexOf('/')))));
+        await assertSucceeds(deleteDoc(doc(db, path)));
+      });
+
+      it('denies the owner writing it without one of its fields', async () => {
+        const [firstField] = Object.keys(data);
+        const { [firstField as string]: _omitted, ...incomplete } = data;
+
+        await assertFails(setDoc(doc(ownerDb(alice), `${path}-new`), incomplete));
+      });
+
+      it('denies the owner writing it with an undeclared field', async () => {
+        await assertFails(setDoc(doc(ownerDb(alice), `${path}-new`), { ...data, isAdmin: true }));
+      });
+    });
+
+    it('denies everyone outside the users tree, even when signed in', async () => {
+      await assertFails(setDoc(doc(ownerDb(alice), 'config/app'), { open: true }));
+      await assertFails(getDoc(doc(ownerDb(alice), 'config/app')));
+      await assertFails(getDocs(collection(ownerDb(alice), 'users')));
+    });
+
+    it('denies an immutable contribution being edited', async () => {
+      const path = `users/${alice}/goals/g/contributions/k`;
+      await seed(path, { amountCents: 100, date: '2026-01-01' });
+
+      await assertFails(updateDoc(doc(ownerDb(alice), path), { amountCents: 999 }));
+    });
+  });
 });
