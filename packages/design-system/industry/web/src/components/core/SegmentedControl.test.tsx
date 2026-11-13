@@ -38,7 +38,7 @@ describe('SegmentedControl', () => {
     const active = segmentOf(screen.getByRole('radio', { name: 'dia' }));
     const surface = surfaceOf(active) as HTMLElement;
 
-    expect(surface.style.background).toBe('var(--gradient-primary)');
+    expect(surface.style.background).toBe('var(--gradient-primary) border-box no-repeat');
     expect(surface.style.boxShadow).toBe('');
     expect(surfaceOf(segmentOf(screen.getByRole('radio', { name: 'Semana' })))).toBeNull();
   });

@@ -246,6 +246,17 @@ describe('NewTicket', () => {
     expect(goBack).toHaveBeenCalledTimes(1);
   });
 
+  it('avoids the keyboard by height on Android', () => {
+    const originalOS = Platform.OS;
+    Platform.OS = 'android';
+
+    renderNewTicket();
+
+    expect(screen.UNSAFE_getByType(KeyboardAvoidingView).props.behavior).toBe('height');
+
+    Platform.OS = originalOS;
+  });
+
   it('keeps the form above the keyboard with a keyboard avoiding view', () => {
     renderNewTicket();
 

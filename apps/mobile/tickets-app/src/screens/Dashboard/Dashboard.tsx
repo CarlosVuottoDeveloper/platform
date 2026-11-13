@@ -14,6 +14,7 @@ import {
   Spinner,
   useTheme,
   useToast,
+  SectionLabel,
 } from '@industry/mobile';
 import { accentRamp, alpha, fontFamily, fontFamilyMono, space, viz } from '@industry/tokens';
 import { useTicketList } from '../../hooks/useTicketList';
@@ -25,7 +26,6 @@ import { ALL_STATUSES, STATUS_LABELS, STATUS_TONES } from '../../constants/ticke
 import { PRIORITY_LABELS, PRIORITY_TONES, isPriorityMaximum } from '../../constants/ticketPriority';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
-import { SectionLabel } from '../../components/SectionLabel';
 import { styles } from './Dashboard.styles';
 
 const monoFontFamily = Platform.select(fontFamilyMono);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ActivityIndicator, Animated, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
@@ -24,7 +24,6 @@ export function Progress({
 }: ProgressProps) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   const width = useRef(new Animated.Value(pct)).current;
-  const [trackWidth, setTrackWidth] = useState(0);
 
   useEffect(() => {
     Animated.timing(width, { toValue: pct, duration: 240, useNativeDriver: false }).start();
@@ -59,7 +58,6 @@ export function Progress({
         accessible
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max, now: value }}
-        onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
         style={{
           height: space[2],
           backgroundColor: color.surface2,
@@ -80,7 +78,7 @@ export function Progress({
             testID={testID ? `${testID}-gradient` : undefined}
             variant="primary"
             radius={radii.pill}
-            style={{ height: '100%', width: trackWidth }}
+            style={{ height: '100%', width: '100%' }}
           />
         </Animated.View>
       </View>

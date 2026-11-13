@@ -1,7 +1,9 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
+import type { TextStyle } from 'react-native';
 import { accentRamp, color, control, neutral, radii } from '@industry/tokens';
 import { DataTable } from './DataTable';
+import { Icon } from './Icon';
 
 const COLUMNS = [
   { key: 'name', label: 'Nome' },
@@ -105,6 +107,57 @@ describe('DataTable', () => {
 
     expect(getByTestId('sort-header-name').props.accessibilityState).toMatchObject({
       selected: true,
+    });
+  });
+
+  describe('read-only sort (sort without onSort)', () => {
+    const flatStyle = (node: { props: { style?: unknown } }) =>
+      StyleSheet.flatten(node.props.style as TextStyle);
+
+    it('keeps the accent label and chevron on the sorted column, without a button', () => {
+      const { getByText, queryByTestId, UNSAFE_getAllByType } = render(
+        <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'desc' }} />,
+      );
+
+      expect(queryByTestId('sort-header-name')).toBeNull();
+      expect(flatStyle(getByText('Nome')).color).toBe(accentRamp['200']);
+      expect(flatStyle(getByText('Cargo')).color).toBe(neutral['400']);
+      const chevrons = UNSAFE_getAllByType(Icon);
+      expect(chevrons).toHaveLength(1);
+      expect(chevrons[0]?.props.name).toBe('ChevronDown');
+    });
+
+    it.each([
+      ['asc', 'Nome, ordenado em ordem crescente'],
+      ['desc', 'Nome, ordenado em ordem decrescente'],
+    ] as const)('announces the %s direction on the sorted header', (dir, label) => {
+      const { getByText, getByLabelText } = render(
+        <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir }} />,
+      );
+
+      expect(getByText('Nome').props.accessibilityLabel).toBe(label);
+      expect(getByLabelText(label)).toBeTruthy();
+      expect(getByText('Cargo').props.accessibilityLabel).toBeUndefined();
+    });
+
+    it('shows an ascending chevron for dir asc', () => {
+      const { UNSAFE_getAllByType } = render(
+        <DataTable columns={COLUMNS} rows={ROWS} sort={{ key: 'name', dir: 'asc' }} />,
+      );
+
+      expect(UNSAFE_getAllByType(Icon)[0]?.props.name).toBe('ChevronUp');
+    });
+
+    it('does not mark a non-sortable column as sorted', () => {
+      const { UNSAFE_queryAllByType } = render(
+        <DataTable
+          columns={[{ key: 'name', label: 'Nome', sortable: false }]}
+          rows={ROWS}
+          sort={{ key: 'name', dir: 'asc' }}
+        />,
+      );
+
+      expect(UNSAFE_queryAllByType(Icon)).toHaveLength(0);
     });
   });
 
@@ -281,7 +334,7 @@ describe('DataTable look', () => {
     );
 
     expect(flat(getByTestId('sort-header-name')).minHeight).toBe(control.tap);
-    expect(flat(getByText('Cargo').parent!.parent!).minHeight).toBe(control.tap);
+    expect(flat(getByText('Cargo').parent!.parent!.parent!).minHeight).toBe(control.tap);
   });
 
   it('lets the pager wrap onto a second line with the count on its own line', () => {

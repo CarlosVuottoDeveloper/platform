@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { GestureResponderEvent, PressableProps, StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, space } from '@industry/tokens';
+import { alpha, color, space, fontFamily, fontWeight } from '@industry/tokens';
 
 export interface ListRowProps extends Omit<PressableProps, 'style' | 'children'> {
   /** Leading slot — icon or avatar. */
@@ -60,10 +60,22 @@ export function ListRow({
         <View style={{ width: 36, alignItems: 'center', justifyContent: 'center' }}>{lead}</View>
       ) : null}
       <View style={{ flex: 1, gap: 2 }}>
-        <Text numberOfLines={1} style={{ fontSize: 15, fontWeight: '500', color: color.text }}>
+        <Text
+          numberOfLines={1}
+          style={{
+            fontFamily: fontFamily.body,
+            fontSize: 15,
+            fontWeight: fontWeight.medium,
+            color: color.text,
+          }}
+        >
           {title}
         </Text>
-        {meta ? <Text style={{ fontSize: 12, color: alpha(color.text, 50) }}>{meta}</Text> : null}
+        {meta ? (
+          <Text style={{ fontFamily: fontFamily.body, fontSize: 12, color: alpha(color.text, 50) }}>
+            {meta}
+          </Text>
+        ) : null}
       </View>
       {trail ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>{trail}</View>

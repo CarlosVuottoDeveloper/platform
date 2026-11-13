@@ -8,7 +8,17 @@ import {
   type ViewStyle,
 } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, danger, fontSize, radii, semanticColor, space } from '@industry/tokens';
+import {
+  alpha,
+  color,
+  danger,
+  fontSize,
+  radii,
+  semanticColor,
+  space,
+  fontFamily,
+  fontWeight,
+} from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface FileDropProps {
@@ -69,8 +79,9 @@ export const FileDrop = forwardRef<View, FileDropProps>(function FileDrop(
       <Icon name="Upload" size="lg" color={color.text} />
       <Text
         style={{
+          fontFamily: fontFamily.body,
           fontSize: fontSize.body,
-          fontWeight: '500',
+          fontWeight: fontWeight.medium,
           color: color.text,
           textAlign: 'center',
         }}
@@ -78,12 +89,28 @@ export const FileDrop = forwardRef<View, FileDropProps>(function FileDrop(
         {label}
       </Text>
       {hint ? (
-        <Text style={{ fontSize: 12, color: alpha(color.text, 50), textAlign: 'center' }}>
+        <Text
+          style={{
+            fontFamily: fontFamily.body,
+            fontSize: 12,
+            color: alpha(color.text, 50),
+            textAlign: 'center',
+          }}
+        >
           {hint}
         </Text>
       ) : null}
       {error ? (
-        <Text style={{ fontSize: 12, color: danger['300'], textAlign: 'center' }}>{error}</Text>
+        <Text
+          style={{
+            fontFamily: fontFamily.body,
+            fontSize: 12,
+            color: danger['300'],
+            textAlign: 'center',
+          }}
+        >
+          {error}
+        </Text>
       ) : null}
     </Pressable>
   );

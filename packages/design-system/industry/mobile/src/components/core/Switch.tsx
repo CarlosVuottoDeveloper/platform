@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, color, control, fontSize, neutral, radii, space } from '@industry/tokens';
+import {
+  accentRamp,
+  color,
+  control,
+  fontSize,
+  neutral,
+  radii,
+  space,
+  fontFamily,
+} from '@industry/tokens';
 
 export interface SwitchProps extends Omit<PressableProps, 'style' | 'children'> {
   checked?: boolean;
@@ -77,7 +86,9 @@ export function Switch({
         />
       </View>
       {typeof label === 'string' || typeof label === 'number' ? (
-        <Text style={{ fontSize: fontSize.body, color: color.text }}>{label}</Text>
+        <Text style={{ fontFamily: fontFamily.body, fontSize: fontSize.body, color: color.text }}>
+          {label}
+        </Text>
       ) : (
         label
       )}

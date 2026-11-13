@@ -15,7 +15,6 @@ export interface MenuItem {
 export interface MenuProps {
   /** Usually a `<Button>` or `<IconButton>` — receives the click that opens the menu. */
   trigger: ReactNode;
-  /** Small label above the items, e.g. a group heading like "Período". */
   header?: string;
   items?: MenuItem[];
   side?: PopoverSide;
@@ -58,7 +57,7 @@ export function Menu({
       <div
         role="menu"
         aria-labelledby={header ? headerId : undefined}
-        style={{ display: 'flex', flexDirection: 'column', margin: 'calc(var(--space-3) * -1)' }}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         {header ? (
           <div
@@ -122,6 +121,7 @@ function MenuItemButton({
             ? 'color-mix(in srgb, var(--color-text) 8%, transparent)'
             : 'transparent',
         border: 0,
+        borderRadius: 'var(--radius-sm)',
         outlineOffset: -2,
         cursor: item.disabled ? 'not-allowed' : 'pointer',
         opacity: item.disabled ? 0.45 : 1,

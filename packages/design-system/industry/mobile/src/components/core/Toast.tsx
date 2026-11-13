@@ -77,7 +77,11 @@ export function Toast({ tone = 'accent', title, onDismiss, children, style }: To
             {title}
           </Text>
         ) : null}
-        {children ? <Text style={{ fontSize: 13, color: neutral['300'] }}>{children}</Text> : null}
+        {children ? (
+          <Text style={{ fontFamily: fontFamily.body, fontSize: 13, color: neutral['300'] }}>
+            {children}
+          </Text>
+        ) : null}
       </View>
       {onDismiss ? (
         <Pressable

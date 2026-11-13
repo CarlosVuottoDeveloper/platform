@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, control, fontSize, space } from '@industry/tokens';
+import { color, control, fontSize, space, fontFamily } from '@industry/tokens';
 
 export interface RadioOption {
   value: string;
@@ -39,7 +39,9 @@ export function RadioGroup({
       style={[{ gap: space[2] }, style]}
     >
       {typeof label === 'string' || typeof label === 'number' ? (
-        <Text style={{ fontSize: fontSize.h6, color: color.text }}>{label}</Text>
+        <Text style={{ fontFamily: fontFamily.body, fontSize: fontSize.h6, color: color.text }}>
+          {label}
+        </Text>
       ) : (
         label
       )}
@@ -93,7 +95,9 @@ function RadioOptionItem({
         ) : null}
       </View>
       {typeof option.label === 'string' || typeof option.label === 'number' ? (
-        <Text style={{ fontSize: fontSize.body, color: color.text }}>{option.label}</Text>
+        <Text style={{ fontFamily: fontFamily.body, fontSize: fontSize.body, color: color.text }}>
+          {option.label}
+        </Text>
       ) : (
         option.label
       )}

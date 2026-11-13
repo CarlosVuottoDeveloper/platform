@@ -13,6 +13,7 @@ import {
   Spinner,
   useTheme,
   useToast,
+  SectionLabel,
 } from '@industry/mobile';
 import { alpha, fontFamily, fontFamilyMono } from '@industry/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -28,7 +29,6 @@ import {
 import { buildFormHtml } from '../../domain/pdf';
 import { LoadingView } from '../../components/LoadingView';
 import { ErrorView } from '../../components/ErrorView';
-import { SectionLabel } from '../../components/SectionLabel';
 import { BottomBar } from '../../components/BottomBar';
 import { styles } from './FormDetail.styles';
 
@@ -87,7 +87,8 @@ function ListField({
           <Text
             style={[
               styles.listItemNumber,
-              { fontFamily: numbered ? monoFontFamily : undefined, color: alpha(colors.text, 50) },
+              numbered ? { fontFamily: monoFontFamily } : null,
+              { color: alpha(colors.text, 50) },
             ]}
           >
             {numbered ? String(index + 1).padStart(2, '0') : '•'}

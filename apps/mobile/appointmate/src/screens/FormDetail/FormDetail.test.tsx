@@ -167,6 +167,18 @@ describe('FormDetail', () => {
     expect(screen.queryByText('Anotações e orientações')).toBeNull();
   }, 20000);
 
+  it('keeps the body family on bullets and uses the mono family on numbered items', async () => {
+    mockedGetFormRecord.mockResolvedValue(filledRecord);
+
+    render(<FormDetail navigation={mockNavigation} route={makeRoute('form-1')} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('•')).toBeTruthy();
+    }, ASYNC_TIMEOUT);
+    expect(StyleSheet.flatten(screen.getByText('•').props.style).fontFamily).toBe('Inter');
+    expect(StyleSheet.flatten(screen.getByText('01').props.style).fontFamily).not.toBe('Inter');
+  }, 20000);
+
   it('hides the medications and questions sections when their lists are empty', async () => {
     mockedGetFormRecord.mockResolvedValue({
       ...filledRecord,

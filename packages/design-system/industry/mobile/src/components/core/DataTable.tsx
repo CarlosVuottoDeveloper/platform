@@ -10,6 +10,7 @@ import {
   neutral,
   radii,
   space,
+  fontFamily,
 } from '@industry/tokens';
 import { Icon } from './Icon';
 
@@ -69,29 +70,30 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
           testID={testID ? `${testID}-header` : undefined}
           style={{ flexDirection: 'row', backgroundColor: color.surface2 }}
         >
-          {columns.map((column) => (
-            <View
-              key={column.key}
-              style={{
-                width: column.width,
-                flex: column.width ? undefined : 1,
-                paddingHorizontal: space[3],
-              }}
-            >
-              {column.sortable === false || !onSort ? (
-                <ColumnLabel>{column.label}</ColumnLabel>
-              ) : (
-                <SortHeader
+          {columns.map((column) => {
+            const direction =
+              column.sortable !== false && sort?.key === column.key ? sort.dir : undefined;
+            return (
+              <View
+                key={column.key}
+                style={{
+                  width: column.width,
+                  flex: column.width ? undefined : 1,
+                  paddingHorizontal: space[3],
+                }}
+              >
+                <ColumnHeader
                   columnKey={column.key}
-                  active={sort?.key === column.key}
-                  direction={sort?.key === column.key ? sort.dir : undefined}
-                  onPress={() => onSort(column.key)}
+                  direction={direction}
+                  onPress={
+                    column.sortable !== false && onSort ? () => onSort(column.key) : undefined
+                  }
                 >
                   {column.label}
-                </SortHeader>
-              )}
-            </View>
-          ))}
+                </ColumnHeader>
+              </View>
+            );
+          })}
         </View>
         <FlatList
           data={rows}
@@ -117,7 +119,13 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
                   {column.render ? (
                     <Cell>{column.render(row)}</Cell>
                   ) : (
-                    <Text style={{ fontSize: fontSize.body, color: color.text }}>
+                    <Text
+                      style={{
+                        fontFamily: fontFamily.body,
+                        fontSize: fontSize.body,
+                        color: color.text,
+                      }}
+                    >
                       {row[column.key]}
                     </Text>
                   )}
@@ -142,51 +150,44 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
 
 function Cell({ children }: { children?: ReactNode }) {
   return typeof children === 'string' || typeof children === 'number' ? (
-    <Text style={{ fontSize: fontSize.body, color: color.text }}>{children}</Text>
+    <Text style={{ fontFamily: fontFamily.body, fontSize: fontSize.body, color: color.text }}>
+      {children}
+    </Text>
   ) : (
     <>{children}</>
   );
 }
 
-function ColumnLabel({ children }: { children?: ReactNode }) {
-  return (
-    <View style={{ minHeight: control.tap, justifyContent: 'center' }}>
-      <Text style={{ fontSize: fontSize.h6, fontWeight: fontWeight.medium, color: neutral['400'] }}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const DIRECTION_ANNOUNCEMENT = { asc: 'crescente', desc: 'decrescente' } as const;
 
-function SortHeader({
+function ColumnHeader({
   columnKey,
-  active,
   direction,
   onPress,
   children,
 }: {
   columnKey: string;
-  active: boolean;
   direction?: 'asc' | 'desc';
   onPress?: () => void;
   children?: ReactNode;
 }) {
-  return (
-    <Pressable
-      testID={`sort-header-${columnKey}`}
-      accessibilityRole="button"
-      accessibilityState={{ selected: active }}
-      onPress={onPress}
-      style={({ pressed }) => ({
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space[1],
-        minHeight: control.tap,
-        opacity: pressed ? 0.6 : 1,
-      })}
-    >
+  const active = direction !== undefined;
+  const layout = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[1],
+    minHeight: control.tap,
+  } as const;
+  const content = (
+    <>
       <Text
+        accessibilityLabel={
+          active && typeof children === 'string'
+            ? `${children}, ordenado em ordem ${DIRECTION_ANNOUNCEMENT[direction]}`
+            : undefined
+        }
         style={{
+          fontFamily: fontFamily.body,
           fontSize: fontSize.h6,
           fontWeight: fontWeight.medium,
           color: active ? accentRamp['200'] : neutral['400'],
@@ -201,7 +202,21 @@ function SortHeader({
           color={accentRamp['200']}
         />
       ) : null}
+    </>
+  );
+
+  return onPress ? (
+    <Pressable
+      testID={`sort-header-${columnKey}`}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+      style={({ pressed }) => ({ ...layout, opacity: pressed ? 0.6 : 1 })}
+    >
+      {content}
     </Pressable>
+  ) : (
+    <View style={layout}>{content}</View>
   );
 }
 
@@ -229,7 +244,14 @@ function Pagination({
         paddingTop: space[3],
       }}
     >
-      <Text style={{ flexBasis: '100%', fontSize: fontSize.h6, color: neutral['400'] }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          flexBasis: '100%',
+          fontSize: fontSize.h6,
+          color: neutral['400'],
+        }}
+      >
         {total != null ? `${total} registros` : `Página ${page} de ${pageCount}`}
       </Text>
       <PagerButton disabled={page <= 1} onPress={onPage ? () => onPage(page - 1) : undefined}>
@@ -285,7 +307,13 @@ function PagerButton({
         opacity: disabled ? 0.35 : pressed ? 0.7 : 1,
       })}
     >
-      <Text style={{ fontSize: fontSize.h6, color: current ? color.bg : color.text }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          fontSize: fontSize.h6,
+          color: current ? color.bg : color.text,
+        }}
+      >
         {children}
       </Text>
     </Pressable>

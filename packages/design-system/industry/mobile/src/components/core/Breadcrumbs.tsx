@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { color, fontSize, neutral, space } from '@industry/tokens';
+import { color, fontSize, neutral, space, fontFamily } from '@industry/tokens';
 
 export interface Crumb {
   label: string;
@@ -24,7 +24,11 @@ export function Breadcrumbs({ items = [], style, testID }: BreadcrumbsProps) {
     >
       {items.map((item, index) => {
         const last = index === items.length - 1;
-        const textStyle = { fontSize: fontSize.h6, color: last ? color.text : neutral['400'] };
+        const textStyle = {
+          fontFamily: fontFamily.body,
+          fontSize: fontSize.h6,
+          color: last ? color.text : neutral['400'],
+        };
         return (
           <View
             key={item.label}
@@ -42,7 +46,17 @@ export function Breadcrumbs({ items = [], style, testID }: BreadcrumbsProps) {
                 <Text style={textStyle}>{item.label}</Text>
               </Pressable>
             )}
-            {!last ? <Text style={{ fontSize: fontSize.h6, color: neutral['600'] }}>/</Text> : null}
+            {!last ? (
+              <Text
+                style={{
+                  fontFamily: fontFamily.body,
+                  fontSize: fontSize.h6,
+                  color: neutral['600'],
+                }}
+              >
+                /
+              </Text>
+            ) : null}
           </View>
         );
       })}

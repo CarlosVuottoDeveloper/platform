@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppBar, Button, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
+import {
+  AppBar,
+  Button,
+  Spinner,
+  TextField,
+  useTheme,
+  useToast,
+  SectionLabel,
+} from '@industry/mobile';
 import { alpha } from '@industry/tokens';
 import { createUser } from '../../services/authService';
 import { passwordMinLengthError } from '../../domain/validation';
 import { useAuthStore } from '../../store/useAuthStore';
 import { BottomBar } from '../../components/BottomBar';
-import { SectionLabel } from '../../components/SectionLabel';
 import type { UserRole } from '../../domain/user';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';

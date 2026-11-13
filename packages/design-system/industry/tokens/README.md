@@ -6,7 +6,7 @@ Industry tem uma única aparência: escura, em tons de azul, com gradientes e br
 
 ## O problema que este pacote resolve
 
-As cores são authored em OKLCH, com rampas geradas por luminosidade e croma. Isso é ótimo na web: `oklch()` e `color-mix(in srgb, ...)` são resolvidos pelo motor do browser em tempo real. React Native não resolve nenhum dos dois.
+As cores são authored em OKLCH, com rampas geradas por luminosidade e croma. O React Native não resolve `oklch()` nem `color-mix(in srgb, ...)`, e a web só pinta o que o gamut sRGB comporta.
 
 Por isso a origem não é nem o CSS nem o TypeScript: é `scripts/build-tokens.mjs`. Ele define os valores uma vez e escreve as duas saídas:
 
@@ -14,8 +14,10 @@ Por isso a origem não é nem o CSS nem o TypeScript: é `scripts/build-tokens.m
 | --------------------------------- | ------------------------------------------------------------------- |
 | `src/native/colors.generated.ts`  | Cores resolvidas para hex/rgba via [`culori`](https://culorijs.org) |
 | `src/native/effects.generated.ts` | `gradient` e `glow`                                                 |
-| `src/tokens/colors.css`           | Cores, em OKLCH e `color-mix`, como custom properties               |
+| `src/tokens/colors.css`           | Cores em hex (e `color-mix`) como custom properties                 |
 | `src/tokens/gradients.css`        | `--gradient-*` e `--glow-accent`                                    |
+
+Cada cor é mapeada para o gamut sRGB uma única vez (`clampChroma` do `culori`, mantendo luminosidade e matiz), e as duas saídas derivam dessa mesma cor: o hex nativo e o hex do CSS são idênticos, e a checagem de contraste roda sobre ela.
 
 Os quatro arquivos são gerados e levam o aviso no topo: **nunca edite à mão**. Mudar uma cor é editar o gerador e rodar `yarn build`; as duas plataformas mudam juntas, por construção. Não há uma segunda lista de valores para alguém esquecer de atualizar.
 
@@ -83,7 +85,7 @@ O contorno de campos e controles interativos é `color.controlBorder` (`--color-
 
 ## Gradientes e brilho
 
-`gradient` tem três entradas, cada uma com duas cores e um ângulo (todos 180°, de cima para baixo). Na web são `--gradient-primary`, `--gradient-surface` e `--gradient-backdrop`.
+`gradient` tem três entradas, cada uma com duas cores e um ângulo (todos 180°, de cima para baixo). Na web são `--gradient-primary`, `--gradient-surface` e `--gradient-backdrop`; cada um também expõe as duas pontas como `--gradient-<nome>-start` e `--gradient-<nome>-end`, e `--gradient-<nome>` é montado a partir delas.
 
 | Nome       | De                                 | Para              | Uso                             |
 | ---------- | ---------------------------------- | ----------------- | ------------------------------- |
