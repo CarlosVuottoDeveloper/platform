@@ -1,9 +1,9 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Account } from '../../domain/account';
 import type { Category } from '../../domain/category';
 import { tx } from '../../domain/transaction.test-helpers';
-import { mockSignedInAs, mockUserData, renderSignedIn, testUser } from '../../test-utils';
+import { mockSignedInAs, mockUserData, money, renderSignedIn, testUser } from '../../test-utils';
 import { Reports } from './Reports';
 
 jest.mock('../../services/authService');
@@ -105,5 +105,74 @@ describe('Reports — charts', () => {
     expect(screen.getByText('Sem despesas neste mês')).toBeInTheDocument();
     expect(screen.getByText('Sem movimentações nos últimos meses')).toBeInTheDocument();
     expect(screen.getByText('Cadastre uma conta para ver a evolução do saldo')).toBeInTheDocument();
+  });
+});
+
+describe('Reports — net worth', () => {
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+  const card = {
+    ...accounts[0],
+    id: 'k',
+    name: 'Cartão',
+    type: 'credit_card',
+    initialBalanceCents: -80000,
+  } as Account;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers().setSystemTime(new Date(2026, 2, 15, 12));
+    mockSignedInAs(testUser);
+    mockUserData({ accounts: [...accounts, card], categories, transactions });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('opens on the charts tab and switches to net worth', async () => {
+    renderSignedIn(<Reports />);
+
+    expect(screen.getByRole('tab', { name: 'Gráficos' })).toHaveAttribute('aria-selected', 'true');
+    await user.click(screen.getByRole('tab', { name: 'Patrimônio' }));
+
+    expect(screen.getByRole('tab', { name: 'Patrimônio' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.queryByText('Despesas por categoria')).not.toBeInTheDocument();
+  });
+
+  it('shows assets, liabilities and net worth as of today', async () => {
+    renderSignedIn(<Reports />);
+    await user.click(screen.getByRole('tab', { name: 'Patrimônio' }));
+
+    expect(
+      within(screen.getByTestId('net-worth-assets')).getByText(money('R$ 3.700,00')),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('net-worth-liabilities')).getByText(money('R$ 800,00')),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('net-worth-net')).getByText(money('R$ 2.900,00')),
+    ).toBeInTheDocument();
+  });
+
+  it('plots net worth month by month since the oldest account', async () => {
+    renderSignedIn(<Reports />);
+    await user.click(screen.getByRole('tab', { name: 'Patrimônio' }));
+
+    const label = plain(screen.getByRole('img').getAttribute('aria-label'));
+    expect(label).toBe('jan/26 R$ 200,00, fev/26 -R$ 100,00, mar/26 R$ 2.900,00');
+  });
+
+  it('asks for an account when there is none', async () => {
+    mockUserData({ accounts: [] });
+    renderSignedIn(<Reports />);
+
+    await user.click(screen.getByRole('tab', { name: 'Patrimônio' }));
+
+    expect(
+      screen.getByText('Cadastre uma conta para acompanhar seu patrimônio'),
+    ).toBeInTheDocument();
   });
 });
