@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { View, Text } from 'react-native';
-import { color, success, warning, danger, accentRamp, viz } from '@industry/tokens';
+import { color, success, warning, danger, accentRamp, viz, radii, neutral } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Foundations/Semantics',
@@ -20,7 +20,7 @@ const accentSubset: [string, string][] = [
 function RampRow({ label, entries }: { label: string; entries: [string, string][] }) {
   return (
     <View style={{ flexDirection: 'row', gap: 1, marginBottom: 1 }}>
-      <Text style={{ width: 92, fontSize: 12, opacity: 0.7, color: color.text }}>{label}</Text>
+      <Text style={{ width: 92, fontSize: 12, color: neutral['400'] }}>{label}</Text>
       {entries.map(([step, hex]) => (
         <View key={step} style={{ flex: 1, height: 40, backgroundColor: hex }} />
       ))}
@@ -54,10 +54,10 @@ export const InUse: Story = {
         <View
           key={label}
           style={{
-            borderWidth: 1,
-            borderColor: color.divider,
+            borderRadius: radii.pill,
+            backgroundColor: color.surface2,
             paddingVertical: 4,
-            paddingHorizontal: 10,
+            paddingHorizontal: 12,
           }}
         >
           <Text style={{ fontSize: 12, color: hex }}>{label}</Text>

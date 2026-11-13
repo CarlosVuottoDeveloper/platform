@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { color, radii } from '@industry/tokens';
 import { Tooltip, resolveTooltipSide } from './Tooltip';
 import type { TooltipSide } from './Tooltip';
 
@@ -106,5 +107,19 @@ describe('Tooltip', () => {
 
     expect(getByTestId('tip-bubble')).toBeTruthy();
     spy.mockRestore();
+  });
+
+  it('renders the bubble as a rounded surface2 card', () => {
+    const { getByTestId } = render(
+      <Tooltip label="Excluir" testID="tip">
+        <Text>Ação</Text>
+      </Tooltip>,
+    );
+
+    fireEvent(getByTestId('tip'), 'longPress');
+
+    const style = StyleSheet.flatten(getByTestId('tip-bubble').props.style);
+    expect(style.borderRadius).toBe(radii.md);
+    expect(style.backgroundColor).toBe(color.surface2);
   });
 });

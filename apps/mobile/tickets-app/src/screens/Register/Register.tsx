@@ -96,7 +96,6 @@ export function Register({ navigation }: Props) {
             {loading ? <Spinner /> : null}
             <Button
               variant="primary"
-              framed
               onPress={handleRegister}
               disabled={!name.trim() || !email.trim() || password.length < 8 || loading}
             >

@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, ListRow, Sheet, TabBar } from '../components/core';
+import { AppBar, Button, ListRow, Sheet, TabBar } from '../components/core';
 import { color, space } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Templates/List + Detail',
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;
@@ -26,7 +27,8 @@ function ListDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: color.bg, paddingTop: insets.top }}>
-      <View style={{ flex: 1 }}>
+      <AppBar title="Projetos" />
+      <View style={{ flex: 1, gap: space[2], padding: space[4] }}>
         {PROJECTS.map((project) => (
           <ListRow
             key={project.id}

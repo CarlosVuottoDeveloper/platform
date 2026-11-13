@@ -1,7 +1,8 @@
-import { Pressable, ScrollView, Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, control, fontFamily, fontWeight, neutral, space } from '@industry/tokens';
+import { color, neutral, radii, space } from '@industry/tokens';
+import { PillSegment } from './PillSegment';
 
 export interface TabItem {
   id?: string;
@@ -21,85 +22,56 @@ function resolveTab(item: string | TabItem): TabItem {
   return typeof item === 'string' ? { id: item, label: item } : item;
 }
 
+function TabCount({ count }: { count: number }) {
+  return (
+    <Text
+      style={{
+        fontSize: 12,
+        paddingHorizontal: space[2],
+        paddingVertical: space[1],
+        borderRadius: radii.pill,
+        overflow: 'hidden',
+        backgroundColor: color.surface2,
+        color: neutral['200'],
+      }}
+    >
+      {count}
+    </Text>
+  );
+}
+
 export function Tabs({ items = [], current, onSelect, style }: TabsProps) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       accessibilityRole="tablist"
-      style={[{ borderBottomWidth: 1, borderBottomColor: color.divider }, style]}
-      contentContainerStyle={{ flexDirection: 'row', gap: space[4] }}
+      style={[{ flexGrow: 0 }, style]}
+      contentContainerStyle={{
+        flexDirection: 'row',
+        backgroundColor: color.surface,
+        borderRadius: radii.pill,
+      }}
     >
       {items.map((item, index) => {
         const tab = resolveTab(item);
         const id = tab.id ?? (typeof tab.label === 'string' ? tab.label : String(index));
+        const active = current === id;
         return (
-          <TabButton
+          <PillSegment
             key={id}
-            id={id}
-            tab={tab}
-            active={current === id}
-            onSelect={onSelect ? () => onSelect(id) : undefined}
+            active={active}
+            onPress={onSelect ? () => onSelect(id) : undefined}
+            testID={`tab-${id}`}
+            surfaceTestID={`tab-surface-${id}`}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            icon={tab.icon}
+            label={tab.label}
+            trailing={tab.count != null ? <TabCount count={tab.count} /> : undefined}
           />
         );
       })}
     </ScrollView>
-  );
-}
-
-function TabButton({
-  id,
-  tab,
-  active,
-  onSelect,
-}: {
-  id: string;
-  tab: TabItem;
-  active: boolean;
-  onSelect?: () => void;
-}) {
-  return (
-    <Pressable
-      testID={`tab-${id}`}
-      accessibilityRole="tab"
-      accessibilityState={{ selected: active }}
-      onPress={onSelect}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: space[2],
-        minHeight: control.height,
-        paddingBottom: 10,
-        borderBottomWidth: 2,
-        borderBottomColor: active ? color.accent : 'transparent',
-      }}
-    >
-      {tab.icon}
-      {tab.label ? (
-        <Text
-          style={{
-            fontFamily: fontFamily.heading,
-            fontWeight: fontWeight.heading,
-            fontSize: 16,
-            color: active ? color.text : alpha(color.text, 60),
-          }}
-        >
-          {tab.label}
-        </Text>
-      ) : null}
-      {tab.count != null ? (
-        <Text
-          style={{
-            fontSize: 12,
-            paddingHorizontal: 10,
-            paddingVertical: 3,
-            backgroundColor: neutral['900'],
-            color: neutral['200'],
-          }}
-        >
-          {tab.count}
-        </Text>
-      ) : null}
-    </Pressable>
   );
 }

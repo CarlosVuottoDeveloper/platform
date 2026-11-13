@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, fontFamily } from '@industry/tokens';
+import { color, fontFamily, fontSize, neutral, radii, space } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
 
 export interface ProgressProps {
   value?: number;
@@ -23,6 +24,7 @@ export function Progress({
 }: ProgressProps) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   const width = useRef(new Animated.Value(pct)).current;
+  const [trackWidth, setTrackWidth] = useState(0);
 
   useEffect(() => {
     Animated.timing(width, { toValue: pct, duration: 240, useNativeDriver: false }).start();
@@ -35,15 +37,17 @@ export function Progress({
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginBottom: 5,
+            marginBottom: space[1],
           }}
         >
-          <Text style={{ fontFamily: fontFamily.body, fontSize: 11, color: alpha(color.text, 60) }}>
+          <Text
+            style={{ fontFamily: fontFamily.body, fontSize: fontSize.h6, color: neutral['400'] }}
+          >
             {label}
           </Text>
           {showValue ? (
             <Text
-              style={{ fontFamily: fontFamily.body, fontSize: 11, color: alpha(color.text, 60) }}
+              style={{ fontFamily: fontFamily.body, fontSize: fontSize.h6, color: neutral['400'] }}
             >
               {Math.round(pct)}%
             </Text>
@@ -55,15 +59,30 @@ export function Progress({
         accessible
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max, now: value }}
-        style={{ height: 4, backgroundColor: alpha(color.text, 12), overflow: 'hidden' }}
+        onLayout={(event) => setTrackWidth(event.nativeEvent.layout.width)}
+        style={{
+          height: space[2],
+          backgroundColor: color.surface2,
+          borderRadius: radii.pill,
+          overflow: 'hidden',
+        }}
       >
         <Animated.View
+          testID={testID ? `${testID}-fill` : undefined}
           style={{
             height: '100%',
-            backgroundColor: color.accent,
+            borderRadius: radii.pill,
+            overflow: 'hidden',
             width: width.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
           }}
-        />
+        >
+          <GradientSurface
+            testID={testID ? `${testID}-gradient` : undefined}
+            variant="primary"
+            radius={radii.pill}
+            style={{ height: '100%', width: trackWidth }}
+          />
+        </Animated.View>
       </View>
     </View>
   );

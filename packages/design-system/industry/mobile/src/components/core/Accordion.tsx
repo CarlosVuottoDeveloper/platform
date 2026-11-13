@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { color, space } from '@industry/tokens';
+import { color, radii, space } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface AccordionItem {
@@ -43,11 +43,18 @@ export function Accordion({
   }
 
   return (
-    <View testID={testID} style={[{ borderTopWidth: 1, borderColor: color.divider }, style]}>
-      {items.map((item) => (
+    <View
+      testID={testID}
+      style={[
+        { borderRadius: radii.md, backgroundColor: color.surface, overflow: 'hidden' },
+        style,
+      ]}
+    >
+      {items.map((item, index) => (
         <AccordionSection
           key={item.key}
           item={item}
+          last={index === items.length - 1}
           open={openKeys.includes(item.key)}
           onToggle={() => toggle(item.key)}
           testID={testID ? `${testID}-${item.key}` : undefined}
@@ -59,17 +66,19 @@ export function Accordion({
 
 function AccordionSection({
   item,
+  last,
   open,
   onToggle,
   testID,
 }: {
   item: AccordionItem;
+  last: boolean;
   open: boolean;
   onToggle: () => void;
   testID?: string;
 }) {
   return (
-    <View style={{ borderBottomWidth: 1, borderColor: color.divider }}>
+    <View style={{ borderBottomWidth: last ? 0 : 1, borderColor: color.divider }}>
       <Pressable
         testID={testID}
         disabled={item.disabled}

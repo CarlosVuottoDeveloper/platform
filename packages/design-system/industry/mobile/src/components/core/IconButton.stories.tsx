@@ -5,7 +5,7 @@ import { IconButton } from './IconButton';
 const meta: Meta<typeof IconButton> = {
   title: 'Core/IconButton',
   component: IconButton,
-  parameters: { svgKnownIssue: true },
+  parameters: { svgKnownIssue: true, gradientKnownIssue: true },
 };
 
 export default meta;

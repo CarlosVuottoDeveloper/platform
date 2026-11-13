@@ -61,7 +61,6 @@ export function ForgotPassword({ navigation }: Props) {
             <Button
               variant="primary"
               block
-              framed
               onPress={handleResetPassword}
               disabled={!canSubmit || loading}
               testID="forgot-password-submit-button"

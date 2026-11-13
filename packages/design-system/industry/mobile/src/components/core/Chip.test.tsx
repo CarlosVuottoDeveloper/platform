@@ -1,15 +1,23 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { alpha, color } from '@industry/tokens';
+import { StyleSheet } from 'react-native';
+import { alpha, color, radii } from '@industry/tokens';
 import { Chip, resolveChipBackground } from './Chip';
 
 describe('resolveChipBackground', () => {
-  it('tints with the accent color when selected, otherwise transparent', () => {
+  it('tints with the accent color when selected, otherwise surface2', () => {
     expect(resolveChipBackground(true)).toBe(alpha(color.accent, 22));
-    expect(resolveChipBackground(false)).toBe('transparent');
+    expect(resolveChipBackground(false)).toBe(color.surface2);
   });
 });
 
 describe('Chip', () => {
+  it('is a pill', () => {
+    render(<Chip>Ansioso</Chip>);
+    expect(StyleSheet.flatten(screen.getByRole('button').props.style).borderRadius).toBe(
+      radii.pill,
+    );
+  });
+
   it('renders its label', () => {
     render(<Chip>Ansioso</Chip>);
     expect(screen.getByText('Ansioso')).toBeTruthy();

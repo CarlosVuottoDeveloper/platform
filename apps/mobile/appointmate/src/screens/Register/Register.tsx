@@ -76,7 +76,6 @@ export function Register({ navigation }: Props) {
             <Button
               variant="primary"
               block
-              framed
               onPress={handleRegister}
               disabled={!canSubmit || loading}
               testID="register-submit-button"

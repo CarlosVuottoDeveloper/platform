@@ -1,6 +1,6 @@
-import { fireEvent, render } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fireEvent, render, within } from '@testing-library/react-native';
+import { FlatList, StyleSheet } from 'react-native';
+import { color, radii, semanticColor, space } from '@industry/tokens';
 import { Select } from './Select';
 
 jest.mock('react-native-safe-area-context', () => ({
@@ -73,6 +73,67 @@ describe('Select', () => {
     });
     expect(getByTestId('select-option-a').props.accessibilityState).toMatchObject({
       selected: false,
+    });
+  });
+
+  it('outlines the trigger with the control border and a md radius', () => {
+    const { getByTestId } = render(
+      <Select options={OPTIONS} testID="s" onValueChange={jest.fn()} />,
+    );
+    expect(StyleSheet.flatten(getByTestId('s').props.style)).toMatchObject({
+      borderColor: color.controlBorder,
+      borderRadius: radii.md,
+      backgroundColor: color.surface,
+    });
+  });
+
+  it('turns the trigger border to danger on error', () => {
+    const { getByTestId } = render(
+      <Select options={OPTIONS} error="x" testID="s" onValueChange={jest.fn()} />,
+    );
+    expect(StyleSheet.flatten(getByTestId('s').props.style)).toMatchObject({
+      borderColor: semanticColor.danger,
+    });
+  });
+
+  it('rounds the sheet and fills the selected option with the accent', () => {
+    const { getByTestId } = render(
+      <Select options={OPTIONS} value="b" testID="s" onValueChange={jest.fn()} />,
+    );
+    fireEvent.press(getByTestId('s'));
+    expect(getByTestId('s-panel').props.style).toMatchObject({
+      borderTopLeftRadius: radii.lg,
+      borderTopRightRadius: radii.lg,
+      borderWidth: 1,
+      borderColor: color.divider,
+      overflow: 'hidden',
+    });
+    expect(StyleSheet.flatten(getByTestId('select-option-b').props.style)).toMatchObject({
+      backgroundColor: color.accent,
+      borderRadius: radii.sm,
+    });
+    expect(within(getByTestId('select-option-b')).getByText('b').props.style).toMatchObject({
+      color: color.bg,
+    });
+  });
+
+  it('insets the option list from the panel edges', () => {
+    const { getByTestId, UNSAFE_getByType } = render(
+      <Select options={OPTIONS} testID="s" onValueChange={jest.fn()} />,
+    );
+    fireEvent.press(getByTestId('s'));
+    expect(UNSAFE_getByType(FlatList).props.contentContainerStyle).toMatchObject({
+      paddingHorizontal: space[2],
+    });
+  });
+
+  it('emphasises the trigger border while the sheet is open', () => {
+    const { getByTestId } = render(
+      <Select options={OPTIONS} testID="s" onValueChange={jest.fn()} />,
+    );
+    fireEvent.press(getByTestId('s'));
+    expect(StyleSheet.flatten(getByTestId('s').props.style)).toMatchObject({
+      borderColor: color.accent,
     });
   });
 

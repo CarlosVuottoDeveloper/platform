@@ -210,7 +210,8 @@ describe('TicketDetails', () => {
     fireEvent.press(screen.getByLabelText('Editar chamado'));
 
     const confirm = screen.getByLabelText('Confirmar edição');
-    expect(StyleSheet.flatten(confirm.props.style).backgroundColor).toBe(color.accent);
+    expect(screen.getByTestId('icon-button-surface')).toBeTruthy();
+    expect(StyleSheet.flatten(confirm.props.style).backgroundColor).not.toBe(color.accent);
     expect(screen.getAllByTestId('ticket-details-section-hairline')).toHaveLength(3);
   });
 

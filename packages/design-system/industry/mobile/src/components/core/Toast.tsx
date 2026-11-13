@@ -6,6 +6,7 @@ import {
   color,
   fontFamily,
   fontWeight,
+  radii,
   semanticColor,
   shadow,
   space,
@@ -42,16 +43,27 @@ export function Toast({ tone = 'accent', title, onDismiss, children, style }: To
           gap: space[3],
           paddingVertical: space[3],
           paddingHorizontal: space[4],
-          backgroundColor: color.surface,
+          backgroundColor: color.surface2,
+          borderRadius: radii.md,
           borderWidth: 1,
           borderColor: color.divider,
-          borderLeftWidth: 2,
-          borderLeftColor: ACCENT_COLOR[tone],
+          overflow: 'hidden',
         },
         shadow.md,
         style,
       ]}
     >
+      <View
+        testID="toast-tone"
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 3,
+          backgroundColor: ACCENT_COLOR[tone],
+        }}
+      />
       <View style={{ flex: 1, gap: 2 }}>
         {title ? (
           <Text

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { color, space } from '@industry/tokens';
+import { color, radii, space } from '@industry/tokens';
 import { useReduceMotion } from './useReduceMotion';
 
 export interface SkeletonProps {
@@ -68,7 +68,13 @@ function ShimmerBlock({
     <Animated.View
       testID={testID}
       style={[
-        { height, width, backgroundColor: color.surface2, opacity: reduceMotion ? 1 : opacity },
+        {
+          height,
+          width,
+          backgroundColor: color.surface2,
+          borderRadius: radii.md,
+          opacity: reduceMotion ? 1 : opacity,
+        },
         style,
       ]}
     />

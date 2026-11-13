@@ -1,15 +1,12 @@
 import { Pressable } from 'react-native';
 import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
-import { color, shadow } from '@industry/tokens';
+import { color, radii, shadow } from '@industry/tokens';
+import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
 import { Icon, type IconName } from './Icon';
 
 export type FABSize = 'md' | 'lg';
 
 const BOX: Record<FABSize, number> = { md: 48, lg: 56 };
-
-export function resolveFabBackground(pressed: boolean): string {
-  return pressed ? color.accent2 : color.accent;
-}
 
 export interface FABProps extends Omit<PressableProps, 'style' | 'disabled'> {
   icon?: IconName;
@@ -36,13 +33,14 @@ export function FAB({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      style={({ pressed }) => [
+      style={[
         {
           width: box,
           height: box,
           alignItems: 'center' as const,
           justifyContent: 'center' as const,
-          backgroundColor: resolveFabBackground(pressed),
+          borderRadius: radii.pill,
+          backgroundColor: PRIMARY_ACTION_FILL,
           opacity: disabled ? 0.45 : 1,
         },
         shadow.lg,
@@ -50,7 +48,12 @@ export function FAB({
       ]}
       {...rest}
     >
-      <Icon name={icon} size={size === 'lg' ? 'md' : 'sm'} color={color.bg} />
+      {({ pressed }) => (
+        <>
+          <PrimaryActionSurface testID="fab-surface" pressed={pressed} disabled={disabled} />
+          <Icon name={icon} size={size === 'lg' ? 'md' : 'sm'} color={color.text} />
+        </>
+      )}
     </Pressable>
   );
 }

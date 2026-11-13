@@ -8,8 +8,12 @@ Industry passa a ter uma única aparência e uma nova paleta, que já aparece no
 
 `@industry/mobile`: `useTheme` passa a retornar o tema único; `ThemePreference` e os exports do tema claro foram removidos, assim como o peer dependency de `@react-native-async-storage/async-storage`. `@industry/web`: `useTheme` removido.
 
-`@industry/tokens`: novos valores e novos tokens disponíveis — raios (`radii`, incluindo `pill`), alturas de controle (48/40), escala tipográfica, `gradient`, `glow` (string de `boxShadow`) e `color.controlBorder`. Os componentes passam a adotá-los nas próximas versões; por enquanto o visual dos componentes muda apenas pela paleta.
+`@industry/tokens`: novos valores e novos tokens disponíveis — raios (`radii`, incluindo `pill`), alturas de controle (48/40), escala tipográfica, `gradient`, `glow` (string de `boxShadow`) e `color.controlBorder`. Em `@industry/mobile`, os componentes já os adotam; `@industry/web` ainda muda apenas pela paleta.
 
 A família tipográfica dos tokens passa a ser Inter. Os apps precisam carregar a fonte; até lá o texto cai para a fonte do sistema.
 
 `colors.css` e `gradients.css` passam a ser gerados por `scripts/build-tokens.mjs`.
+
+`@industry/mobile` (breaking): `Frame`, `FrameProps` e as marcas de registro (`BlueprintMarks`) foram removidos, assim como a prop `framed` de `Button` e `Card`. `Button` ganha a prop `selected` (estado selecionado exposto a tecnologias assistivas, com borda, fundo e rótulo próprios). Nova primitiva `GradientSurface`, que desenha o gradiente e o brilho dos tokens. O peer dependency `react-native` sobe para `>=0.76`, porque gradiente e brilho dependem da New Architecture.
+
+`@industry/mobile`: todos os componentes foram reestilizados — superfícies preenchidas e arredondadas, ações primárias com gradiente e brilho, novo desenho dos campos, `DataTable`, `Progress`, `Skeleton`, `EmptyState` e `Duotone` com os raios e superfícies dos tokens. Rótulos e `Badge` passam a usar caixa de frase, e os tamanhos de texto que correspondem a um token passam a lê-lo (com deslocamentos de 1 a 2px); os que não têm token ficam como estavam. Os itens do `TabBar` passam a ter o papel `tab`. As props públicas não mudam.

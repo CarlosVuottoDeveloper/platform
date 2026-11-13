@@ -84,7 +84,6 @@ export function Login({ navigation }: Props) {
             <Button
               variant="primary"
               block
-              framed
               onPress={handleLogin}
               disabled={loading}
               testID="login-submit-button"

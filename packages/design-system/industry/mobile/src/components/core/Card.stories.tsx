@@ -5,6 +5,7 @@ import { Card } from './Card';
 const meta: Meta<typeof Card> = {
   title: 'Core/Card',
   component: Card,
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;
@@ -27,14 +28,6 @@ export const Elevated: Story = {
   render: () => (
     <View style={{ width: 320 }}>
       <Card title="Card com sombra" elevation="md" body="Usa shadow.md do token." />
-    </View>
-  ),
-};
-
-export const Framed: Story = {
-  render: () => (
-    <View style={{ width: 320 }}>
-      <Card title="Card com marcas blueprint" framed body="Marcas de canto no estilo Frame." />
     </View>
   ),
 };

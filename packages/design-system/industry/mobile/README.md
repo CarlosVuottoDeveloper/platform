@@ -1,25 +1,32 @@
 # @industry/mobile
 
-**35 componentes React Native do Industry — implementação própria, sem React Native Paper.** Tematizados por [`@industry/tokens`](../tokens/README.md) via `StyleSheet.create`.
+**34 componentes React Native do Industry — implementação própria, sem React Native Paper.** Superfícies preenchidas e arredondadas, ações com gradiente e brilho, sobre um fundo azul-marinho profundo. Tematizados por [`@industry/tokens`](../tokens/README.md) via `StyleSheet.create`.
 
 📖 **[Storybook publicado](https://industry-mobile-ds.vercel.app)** — roda via `react-native-web`, com regressão visual no Chromatic.
 
 ## Uso
 
 ```tsx
-import { Frame, Button, TextField } from '@industry/mobile';
+import { Button, Card, TextField } from '@industry/mobile';
 
-<Frame>
+<Card title="Novo projeto">
   <TextField label="Nome" />
   <Button variant="primary">Salvar</Button>
-</Frame>;
+</Card>;
 ```
 
-`Icon` e `PieChart` dependem de `react-native-svg` como peer dependency. Apps que consomem este pacote precisam declará-lo e, num monorepo, provavelmente adicionar uma entrada em `nohoist` — veja a nota sobre resolução no final.
+## Requisitos
+
+- **`react-native >= 0.76` com a New Architecture.** O gradiente usa `experimental_backgroundImage` e o brilho usa `boxShadow`. Sem eles, as superfícies caem para um preenchimento sólido e não há brilho.
+- **Android é a plataforma verificada.** Sombras e brilho no iOS não foram verificados.
+- **Fonte Inter.** Os apps precisam carregá-la (família `Inter`, pesos 400, 500 e 600). Sem isso o texto cai para a fonte do sistema.
+- **`react-native-svg`** como peer dependency, usado por `Icon` e `PieChart`. Num monorepo, provavelmente é preciso uma entrada em `nohoist` — veja a nota sobre resolução no final.
 
 ## Componentes
 
-**Objetos de blueprint** — `Frame`, `BlueprintMarks`, `Duotone`, `Icon`
+**Superfície base** — `GradientSurface`
+
+**Mídia** — `Duotone`, `Icon`
 
 **Formulários** — `Button`, `TextField`, `SearchField`, `Select`, `Switch`, `Checkbox`, `RadioGroup`, `SegmentedControl`, `DatePicker`, `FileDrop`
 
@@ -28,6 +35,16 @@ import { Frame, Button, TextField } from '@industry/mobile';
 **Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `Chip`, `PieChart`, `Progress`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
 
 Em relação ao [`@industry/web`](../web/README.md), este conjunto troca `AppShell`, `Popover` e `Sidebar` — conceitos de janela grande — por `AppBar`, `Chip`, `FAB`, `IconButton` e `PieChart`.
+
+### `GradientSurface`
+
+Uma única `View` que desenha o gradiente (`variant`: `primary`, `surface` ou `backdrop`), o raio (`radius`) e, com `glow`, o brilho do acento. Ela **recorta os filhos** no raio (`overflow: 'hidden'`) e repassa as demais props de `View`; `style` vem por último.
+
+O gradiente primário de `Button`, `FAB` e `IconButton` sólido é desenhado pelo próprio componente: um `backgroundColor` ou raio passado pelo consumidor **não** o repinta.
+
+### `Button` e `selected`
+
+`selected` marca o botão como selecionado: o estado é exposto a tecnologias assistivas e o botão ganha fundo, borda e rótulo próprios, sem o gradiente primário.
 
 ## Onde a plataforma muda a API
 
@@ -43,19 +60,21 @@ Paridade de nome não significa paridade de implementação. As diferenças são
 
 ## Tema
 
-`useTheme()` devolve sempre a paleta do Industry, que tem uma única aparência e não responde ao modo claro do sistema operacional.
+O Industry tem uma única aparência. `useTheme()` devolve sempre `{ colors }` com a paleta dos tokens e não responde ao modo claro do sistema operacional.
 
 ## Fundações no Storybook
 
-Seis páginas em `Foundations/*` renderizando os tokens reais, e três `Templates/*` com telas compostas — os mesmos do `@industry/web`, o que torna as duas plataformas comparáveis lado a lado.
+Seis páginas em `Foundations/*` renderizando os tokens reais (cores, `controlBorder`, os três gradientes, brilho, raios com `pill`, escala tipográfica), e três `Templates/*` com telas compostas — os mesmos do `@industry/web`, o que torna as duas plataformas comparáveis lado a lado.
 
-> **Limitação conhecida:** SVG não renderiza no preview do Storybook. `Icon` e `PieChart` montam sem erro e aparecem vazios, e há um banner visível nas stories afetadas. Não afeta o app real — Metro e Fabric renderizam SVG normalmente. `Frame` não usa SVG e não é afetado.
+> **Limitação conhecida — SVG:** não renderiza no preview do Storybook. `Icon` e `PieChart` montam sem erro e aparecem vazios, e há um banner visível nas stories afetadas. Não afeta o app real — Metro e Fabric renderizam SVG normalmente.
+
+> **Limitação conhecida — gradiente:** o `react-native-web` do preview ignora `experimental_backgroundImage` e mostra a cor sólida de fallback. Stories de componentes que desenham gradiente levam o aviso. O gradiente e o brilho só aparecem no dispositivo.
 
 ## Desenvolvimento
 
 ```sh
 yarn workspace @industry/mobile storybook        # dev em :6011
-yarn workspace @industry/mobile test             # 289 testes, 37 suítes
+yarn workspace @industry/mobile test             # 410 testes, 40 suítes
 yarn workspace @industry/mobile build            # tsup → dist/index.{js,mjs,d.ts}
 yarn workspace @industry/mobile build-storybook  # estático, usado pelo Chromatic e pelo Vercel
 ```

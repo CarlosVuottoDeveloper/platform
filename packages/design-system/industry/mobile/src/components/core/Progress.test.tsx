@@ -1,5 +1,6 @@
-import { render } from '@testing-library/react-native';
-import { alpha, color } from '@industry/tokens';
+import { fireEvent, render } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import { color, gradient, neutral, radii, space } from '@industry/tokens';
 import { Progress, Spinner } from './Progress';
 
 describe('Progress', () => {
@@ -51,15 +52,6 @@ describe('Progress', () => {
 
     expect(getByText('100%')).toBeTruthy();
   });
-
-  it('colors the label and percentage with the theme text color, not the default black', () => {
-    const { getByText } = render(<Progress value={33} label="Enviando" />);
-
-    const labelStyles = [getByText('Enviando').props.style].flat();
-    const valueStyles = [getByText('33%').props.style].flat();
-    expect(labelStyles.some((s) => s?.color === alpha(color.text, 60))).toBe(true);
-    expect(valueStyles.some((s) => s?.color === alpha(color.text, 60))).toBe(true);
-  });
 });
 
 describe('Spinner', () => {
@@ -67,5 +59,48 @@ describe('Spinner', () => {
     const { getByLabelText } = render(<Spinner />);
 
     expect(getByLabelText('Carregando')).toBeTruthy();
+  });
+});
+
+describe('Progress look', () => {
+  const flat = (node: { props: { style?: unknown } }) =>
+    StyleSheet.flatten(node.props.style as never) as Record<string, unknown>;
+
+  it('draws a pill track on surface2', () => {
+    const { getByTestId } = render(<Progress value={40} testID="progress" />);
+
+    expect(flat(getByTestId('progress'))).toMatchObject({
+      backgroundColor: color.surface2,
+      borderRadius: radii.pill,
+      overflow: 'hidden',
+      height: space[2],
+    });
+  });
+
+  it('clips the fill to the animated width with a pill radius', () => {
+    const { getByTestId } = render(<Progress value={40} testID="progress" />);
+    const fill = flat(getByTestId('progress-fill'));
+
+    expect(fill).toMatchObject({ borderRadius: radii.pill, overflow: 'hidden', width: '40%' });
+  });
+
+  it('draws the primary gradient at the full track width so it does not rescale', () => {
+    const { getByTestId } = render(<Progress value={40} testID="progress" />);
+    fireEvent(getByTestId('progress'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 200, height: space[2] } },
+    });
+    const gradientStyle = flat(getByTestId('progress-gradient'));
+
+    expect(gradientStyle.width).toBe(200);
+    expect(gradientStyle.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
+    expect(gradientStyle.experimental_backgroundImage).toContain(gradient.primary.colors[1]);
+    expect(gradientStyle.boxShadow).toBeUndefined();
+  });
+
+  it('mutes the label and the percentage with neutral 400', () => {
+    const { getByText } = render(<Progress value={33} label="Enviando" />);
+
+    expect(flat(getByText('Enviando')).color).toBe(neutral['400']);
+    expect(flat(getByText('33%')).color).toBe(neutral['400']);
   });
 });

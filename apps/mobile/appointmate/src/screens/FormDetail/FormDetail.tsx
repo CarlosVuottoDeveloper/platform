@@ -309,7 +309,6 @@ export function FormDetail({ navigation, route }: Props) {
         <Button
           style={styles.bottomBarPrimary}
           variant="primary"
-          framed
           onPress={() => navigation.navigate('FormEntry', { formId })}
           disabled={record.status === 'submitted'}
           testID="form-detail-edit-button"

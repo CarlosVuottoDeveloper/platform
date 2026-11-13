@@ -1,31 +1,35 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { accentRamp, color, control, danger } from '@industry/tokens';
+import { StyleSheet } from 'react-native';
+import { alpha, color, control, danger, radii } from '@industry/tokens';
+import { PRIMARY_ACTION_FILL } from './PrimaryActionSurface';
 import { IconButton, resolveIconButtonBackground, resolveIconButtonIconColor } from './IconButton';
 
+const grant = {
+  nativeEvent: { touches: [], changedTouches: [], timestamp: 0 },
+  persist: jest.fn(),
+};
+
 describe('resolveIconButtonBackground', () => {
-  it('fills with the accent color for the solid variant, tinting darker while pressed', () => {
-    expect(resolveIconButtonBackground('solid', false)).toBe(color.accent);
-    expect(resolveIconButtonBackground('solid', true)).toBe(accentRamp['500']);
+  it('uses the opaque primary base fill for the solid variant, pressed or not', () => {
+    expect(resolveIconButtonBackground('solid', false)).toBe(PRIMARY_ACTION_FILL);
+    expect(resolveIconButtonBackground('solid', true)).toBe(PRIMARY_ACTION_FILL);
   });
 
-  it('stays transparent for the ghost variant until pressed', () => {
-    expect(resolveIconButtonBackground('ghost', false)).toBe('transparent');
-    expect(resolveIconButtonBackground('ghost', true)).not.toBe('transparent');
+  it('fills the ghost variant with surface2, settling to surface while pressed', () => {
+    expect(resolveIconButtonBackground('ghost', false)).toBe(color.surface2);
+    expect(resolveIconButtonBackground('ghost', true)).toBe(color.surface);
   });
 
-  it('stays transparent for the danger variant until pressed', () => {
-    expect(resolveIconButtonBackground('danger', false)).toBe('transparent');
-    expect(resolveIconButtonBackground('danger', true)).not.toBe('transparent');
+  it('tints the danger variant, deepening while pressed', () => {
+    expect(resolveIconButtonBackground('danger', false)).toBe(alpha(danger['400'], 16));
+    expect(resolveIconButtonBackground('danger', true)).toBe(alpha(danger['400'], 28));
   });
 });
 
 describe('resolveIconButtonIconColor', () => {
-  it('uses the background color for solid so the icon reads against the accent fill', () => {
-    expect(resolveIconButtonIconColor('solid')).toBe(color.bg);
-  });
-
-  it('uses an accent tone for ghost', () => {
-    expect(resolveIconButtonIconColor('ghost')).toBe(accentRamp['300']);
+  it('uses the text color for ghost and solid', () => {
+    expect(resolveIconButtonIconColor('ghost')).toBe(color.text);
+    expect(resolveIconButtonIconColor('solid')).toBe(color.text);
   });
 
   it('uses a danger tone for danger', () => {
@@ -34,6 +38,33 @@ describe('resolveIconButtonIconColor', () => {
 });
 
 describe('IconButton', () => {
+  it('renders the primary surface and no flat accent fill for the solid variant', () => {
+    render(<IconButton icon="Send" label="Enviar" variant="solid" />);
+    expect(screen.getByTestId('icon-button-surface')).toBeTruthy();
+    expect(
+      StyleSheet.flatten(screen.getByLabelText('Enviar').props.style).backgroundColor,
+    ).not.toBe(color.accent);
+  });
+
+  it('renders no primary surface for ghost and danger', () => {
+    render(<IconButton icon="Send" label="Enviar" />);
+    expect(screen.queryByTestId('icon-button-surface')).toBeNull();
+  });
+
+  it.each(['ghost', 'solid', 'danger'] as const)('is a circle for the %s variant', (variant) => {
+    render(<IconButton icon="ListFilter" label="Filtrar" variant={variant} />);
+    expect(StyleSheet.flatten(screen.getByLabelText('Filtrar').props.style).borderRadius).toBe(
+      radii.pill,
+    );
+  });
+
+  it('softens the ghost border', () => {
+    render(<IconButton icon="ListFilter" label="Filtrar" />);
+    expect(StyleSheet.flatten(screen.getByLabelText('Filtrar').props.style).borderColor).toBe(
+      alpha(color.text, 10),
+    );
+  });
+
   it('renders with its accessible label', () => {
     render(<IconButton icon="ListFilter" label="Filtrar" />);
     expect(screen.getByLabelText('Filtrar')).toBeTruthy();
@@ -75,14 +106,11 @@ describe('IconButton', () => {
     expect(flattened).toMatchObject({ borderWidth: 0 });
   });
 
-  it('tints on press and reverts on release', () => {
+  it('tints while pressed', () => {
     render(<IconButton icon="ListFilter" label="Filtrar" />);
     const el = screen.getByLabelText('Filtrar');
 
-    fireEvent(el, 'pressIn');
-    expect(el.props.style[0]).toMatchObject({ backgroundColor: expect.any(String) });
-
-    fireEvent(el, 'pressOut');
-    expect(el.props.style[0]).toMatchObject({ backgroundColor: 'transparent' });
+    fireEvent(el, 'responderGrant', grant);
+    expect(el.props.style[0]).toMatchObject({ backgroundColor: color.surface });
   });
 });

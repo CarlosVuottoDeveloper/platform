@@ -31,7 +31,7 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-native": ">=0.72",
+    "react-native": ">=0.76",
     "react-native-svg": ">=13"
   },
   "devDependencies": {

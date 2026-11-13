@@ -110,9 +110,8 @@ export function CreateUser({ navigation }: Props) {
               <Button
                 key={option.value}
                 style={styles.roleButton}
-                variant={selected ? 'primary' : 'secondary'}
-                framed={selected}
-                accessibilityState={{ selected }}
+                variant="secondary"
+                selected={selected}
                 onPress={() => setRole(option.value)}
               >
                 {option.label}
@@ -138,7 +137,6 @@ export function CreateUser({ navigation }: Props) {
         <Button
           style={styles.bottomBarButton}
           variant="primary"
-          framed
           onPress={handleCreate}
           disabled={!isValid || loading}
         >

@@ -30,7 +30,7 @@ export function TicketCard({
   const { colors } = useTheme();
   return (
     <Pressable onPress={onPress}>
-      <Card framed style={{ gap: space[1] }}>
+      <Card style={{ gap: space[1] }}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>{truncateTitle(title)}</Text>
           <Badge tone={PRIORITY_TONES[priority]} solid={isPriorityMaximum(priority)}>

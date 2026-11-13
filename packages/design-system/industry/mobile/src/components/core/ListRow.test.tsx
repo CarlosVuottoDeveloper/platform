@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { alpha, color } from '@industry/tokens';
 import { ListRow } from './ListRow';
 
 describe('ListRow', () => {
@@ -49,5 +50,25 @@ describe('ListRow', () => {
 
     expect(getByText('Só título')).toBeTruthy();
     expect(queryByText('Meta')).toBeNull();
+  });
+
+  it('is a flat transparent row with a straight divider', () => {
+    const { getByTestId } = render(<ListRow title="Título" testID="row" />);
+
+    const style = StyleSheet.flatten(getByTestId('row').props.style);
+    expect(style.borderRadius).toBeUndefined();
+    expect(style.backgroundColor).toBe('transparent');
+    expect(style.borderBottomWidth).toBe(1);
+    expect(style.borderBottomColor).toBe(color.divider);
+  });
+
+  it('tints the row while pressed', () => {
+    const { getByTestId } = render(<ListRow title="Título" testID="row" onPress={jest.fn()} />);
+
+    fireEvent(getByTestId('row'), 'pressIn');
+
+    expect(StyleSheet.flatten(getByTestId('row').props.style).backgroundColor).toBe(
+      alpha(color.text, 5),
+    );
   });
 });

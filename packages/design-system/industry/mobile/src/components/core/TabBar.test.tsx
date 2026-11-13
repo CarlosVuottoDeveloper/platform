@@ -1,6 +1,17 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { Text } from 'react-native';
-import { color } from '@industry/tokens';
+import { StyleSheet } from 'react-native';
+import type { ReactTestRendererJSON } from 'react-test-renderer';
+import {
+  accentRamp,
+  color,
+  control,
+  fontWeight,
+  space,
+  gradient,
+  neutral,
+  radii,
+} from '@industry/tokens';
 import { TabBar } from './TabBar';
 
 const ITEMS = [
@@ -16,7 +27,7 @@ describe('TabBar', () => {
     expect(getByText('Perfil')).toBeTruthy();
   });
 
-  it('marks the current item as selected and tints it', () => {
+  it('marks the current item as selected and highlights its label', () => {
     const { getByTestId, getByText } = render(<TabBar items={ITEMS} current="profile" />);
 
     expect(getByTestId('tabbar-item-profile').props.accessibilityState).toMatchObject({
@@ -25,7 +36,8 @@ describe('TabBar', () => {
     expect(getByTestId('tabbar-item-home').props.accessibilityState).toMatchObject({
       selected: false,
     });
-    expect(getByText('Perfil').props.style).toMatchObject({ color: color.accent });
+    expect(getByText('Perfil').props.style).toMatchObject({ color: accentRamp['300'] });
+    expect(getByText('Início').props.style).toMatchObject({ color: neutral['400'] });
   });
 
   it('calls onSelect with the pressed item id', () => {
@@ -56,12 +68,103 @@ describe('TabBar', () => {
   it('renders nothing when no items are given', () => {
     const { queryByRole } = render(<TabBar />);
 
-    expect(queryByRole('button')).toBeNull();
+    expect(queryByRole('tab')).toBeNull();
   });
 
   it('renders an item without a label', () => {
     const { getByTestId } = render(<TabBar items={[{ id: 'home', icon: <Text>icon</Text> }]} />);
 
     expect(getByTestId('tabbar-item-home')).toBeTruthy();
+  });
+
+  it('draws the surface background with rounded top corners and no outline', () => {
+    const { toJSON } = render(<TabBar items={ITEMS} />);
+
+    const bar = StyleSheet.flatten((toJSON() as ReactTestRendererJSON).props.style);
+    expect(bar).toMatchObject({
+      backgroundColor: color.surface,
+      borderTopLeftRadius: radii.lg,
+      borderTopRightRadius: radii.lg,
+    });
+    expect(bar.borderTopWidth).toBeUndefined();
+  });
+
+  it('exposes every item as a tab at least as tall as the tap target', () => {
+    const { getByTestId } = render(<TabBar items={ITEMS} />);
+
+    const item = getByTestId('tabbar-item-home');
+    expect(item.props.accessibilityRole).toBe('tab');
+    expect(StyleSheet.flatten(item.props.style).minHeight).toBeGreaterThanOrEqual(control.tap);
+  });
+
+  it('puts only the active icon in a glowing primary circle of tap size', () => {
+    const { getByTestId, queryByTestId } = render(
+      <TabBar
+        current="home"
+        items={[
+          { id: 'home', label: 'Início', icon: <Text>a</Text> },
+          { id: 'profile', label: 'Perfil', icon: <Text>b</Text> },
+        ]}
+      />,
+    );
+
+    const surface = StyleSheet.flatten(getByTestId('tabbar-surface-home').props.style);
+    expect(surface.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
+    expect(surface.boxShadow).toBeDefined();
+    expect(queryByTestId('tabbar-surface-profile')).toBeNull();
+    for (const id of ['home', 'profile']) {
+      expect(StyleSheet.flatten(getByTestId(`tabbar-icon-${id}`).props.style)).toMatchObject({
+        width: control.tap,
+        height: control.tap,
+      });
+    }
+  });
+
+  it('does not uppercase labels', () => {
+    const { getByText } = render(<TabBar items={ITEMS} />);
+
+    expect(StyleSheet.flatten(getByText('Início').props.style).textTransform).toBeUndefined();
+  });
+
+  it('highlights an active label-only item and keeps inactive ones muted', () => {
+    const { getByText } = render(<TabBar items={ITEMS} current="home" />);
+
+    expect(getByText('Início').props.style).toMatchObject({
+      color: accentRamp['300'],
+      fontWeight: fontWeight.medium,
+    });
+    expect(getByText('Perfil').props.style).toMatchObject({ color: neutral['400'] });
+  });
+
+  it('dims inactive icons and leaves the active icon at full opacity', () => {
+    const { getByTestId } = render(
+      <TabBar
+        current="home"
+        items={[
+          { id: 'home', icon: <Text>a</Text> },
+          { id: 'profile', icon: <Text>b</Text> },
+        ]}
+      />,
+    );
+
+    expect(StyleSheet.flatten(getByTestId('tabbar-icon-profile').props.style).opacity).toBe(0.6);
+    expect(StyleSheet.flatten(getByTestId('tabbar-icon-home').props.style).opacity).toBe(1);
+  });
+
+  it('is a tablist', () => {
+    const { toJSON } = render(<TabBar items={ITEMS} />);
+
+    expect((toJSON() as ReactTestRendererJSON).props.accessibilityRole).toBe('tablist');
+  });
+
+  it('pads the bar and separates the icon from the label', () => {
+    const { toJSON, getByTestId } = render(
+      <TabBar items={[{ id: 'home', label: 'Início', icon: <Text>a</Text> }]} />,
+    );
+
+    const bar = StyleSheet.flatten((toJSON() as ReactTestRendererJSON).props.style);
+    expect(bar.paddingTop).toBe(space[2]);
+    expect(bar.paddingBottom).toBe(space[2]);
+    expect(StyleSheet.flatten(getByTestId('tabbar-item-home').props.style).gap).toBe(space[1]);
   });
 });

@@ -1,12 +1,5 @@
-import { useState } from 'react';
 import { Pressable, Text } from 'react-native';
-import type {
-  GestureResponderEvent,
-  PressableProps,
-  StyleProp,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import type { PressableProps, StyleProp, TextStyle, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import {
   color,
@@ -15,10 +8,12 @@ import {
   alpha,
   control,
   fontFamily,
+  fontSize,
   fontWeight,
+  radii,
   space,
 } from '@industry/tokens';
-import { BlueprintMarks } from './BlueprintMarks';
+import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'md' | 'sm';
@@ -27,7 +22,7 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   variant?: ButtonVariant;
   size?: ButtonSize;
   block?: boolean;
-  framed?: boolean;
+  selected?: boolean;
   iconOnly?: boolean;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
@@ -36,14 +31,21 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
 function resolveVariantStyle(
   variant: ButtonVariant,
   pressed: boolean,
+  selected: boolean,
 ): { container: ViewStyle; text: TextStyle } {
-  if (variant === 'primary') {
+  if (selected) {
     return {
       container: {
-        backgroundColor: pressed ? accentRamp['500'] : color.accent,
-        borderColor: pressed ? accentRamp['500'] : color.accent,
+        backgroundColor: alpha(color.accent, pressed ? 28 : 16),
+        borderColor: accentRamp['400'],
       },
-      text: { color: color.bg },
+      text: { color: color.text },
+    };
+  }
+  if (variant === 'primary') {
+    return {
+      container: { backgroundColor: PRIMARY_ACTION_FILL, borderColor: 'transparent' },
+      text: { color: color.text },
     };
   }
   if (variant === 'ghost') {
@@ -58,16 +60,16 @@ function resolveVariantStyle(
   if (variant === 'danger') {
     return {
       container: {
-        backgroundColor: pressed ? alpha(danger['400'], 16) : 'transparent',
-        borderColor: alpha(danger['400'], 45),
+        backgroundColor: alpha(danger['400'], pressed ? 28 : 16),
+        borderColor: 'transparent',
       },
       text: { color: danger['300'] },
     };
   }
   return {
     container: {
-      backgroundColor: pressed ? alpha(color.text, 14) : 'transparent',
-      borderColor: color.divider,
+      backgroundColor: pressed ? color.surface : color.surface2,
+      borderColor: alpha(color.text, 10),
     },
     text: { color: color.text },
   };
@@ -77,36 +79,29 @@ export function Button({
   variant = 'secondary',
   size = 'md',
   block,
-  framed,
+  selected,
   iconOnly,
   disabled,
-  onPressIn,
-  onPressOut,
+  accessibilityState,
   children,
   style,
   ...rest
 }: ButtonProps) {
-  const [pressed, setPressed] = useState(false);
   const height = size === 'sm' ? control.heightSm : control.height;
-  const { container, text } = resolveVariantStyle(variant, pressed && !disabled);
+  const hasGradient = variant === 'primary' && !selected;
 
   return (
     <Pressable
       testID="button-root"
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled: Boolean(disabled) }}
-      onPressIn={(e: GestureResponderEvent) => {
-        setPressed(true);
-        onPressIn?.(e);
+      accessibilityState={{
+        ...accessibilityState,
+        disabled: Boolean(disabled),
+        selected: Boolean(selected),
       }}
-      onPressOut={(e: GestureResponderEvent) => {
-        setPressed(false);
-        onPressOut?.(e);
-      }}
-      style={[
+      style={({ pressed }) => [
         {
-          position: framed ? 'relative' : undefined,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
@@ -115,31 +110,46 @@ export function Button({
           width: iconOnly ? height : block ? '100%' : undefined,
           paddingHorizontal: iconOnly ? 0 : size === 'sm' ? space[3] : space[4],
           borderWidth: 1,
-          borderRadius: 0,
+          borderRadius: radii.pill,
           opacity: disabled ? 0.45 : 1,
         },
-        container,
+        resolveVariantStyle(variant, pressed && !disabled, Boolean(selected)).container,
         style,
       ]}
       {...rest}
     >
-      {framed ? <BlueprintMarks /> : null}
-      {typeof children === 'string' ? (
-        <Text
-          style={[
-            {
-              fontFamily: fontFamily.heading,
-              fontWeight: fontWeight.heading,
-              fontSize: size === 'sm' ? 14 : 15,
-            },
-            text,
-          ]}
-        >
-          {children}
-        </Text>
-      ) : (
-        children
-      )}
+      {({ pressed }) => {
+        const { text } = resolveVariantStyle(variant, pressed && !disabled, Boolean(selected));
+        return (
+          <>
+            {hasGradient ? (
+              <PrimaryActionSurface
+                testID="button-surface"
+                pressed={pressed}
+                disabled={Boolean(disabled)}
+              />
+            ) : null}
+            {typeof children === 'string' ? (
+              <Text
+                numberOfLines={2}
+                style={[
+                  {
+                    fontFamily: fontFamily.heading,
+                    fontWeight: fontWeight.heading,
+                    fontSize: size === 'sm' ? fontSize.h6 : fontSize.body,
+                    textAlign: 'center',
+                  },
+                  text,
+                ]}
+              >
+                {children}
+              </Text>
+            ) : (
+              children
+            )}
+          </>
+        );
+      }}
     </Pressable>
   );
 }

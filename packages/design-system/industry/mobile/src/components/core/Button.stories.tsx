@@ -7,7 +7,7 @@ import { color } from '@industry/tokens';
 const meta: Meta<typeof Button> = {
   title: 'Core/Button',
   component: Button,
-  parameters: { svgKnownIssue: true },
+  parameters: { svgKnownIssue: true, gradientKnownIssue: true },
 };
 
 export default meta;
@@ -41,12 +41,8 @@ export const IconOnly: Story = {
   ),
 };
 
-export const Framed: Story = {
-  render: () => (
-    <Button variant="primary" framed>
-      Framed
-    </Button>
-  ),
+export const Selected: Story = {
+  render: () => <Button selected>Selecionado</Button>,
 };
 
 export const Disabled: Story = {

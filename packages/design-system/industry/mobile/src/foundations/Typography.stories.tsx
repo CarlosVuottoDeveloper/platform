@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { View, Text } from 'react-native';
 import {
   color,
+  neutral,
   fontSize,
   fontWeight,
   fontFamily,
@@ -26,8 +27,8 @@ export const Headings: Story = {
           key={key}
           style={{ flexDirection: 'row', alignItems: 'baseline', gap: 12, marginVertical: 4 }}
         >
-          <Text style={{ width: 64, fontSize: 10, opacity: 0.45, color: color.text }}>
-            {key.toUpperCase()} · {fontSize[key]}
+          <Text style={{ width: 64, fontSize: 10, opacity: 0.6, color: color.text }}>
+            {key} · {fontSize[key]}
           </Text>
           <Text
             style={{
@@ -53,7 +54,7 @@ export const Body: Story = {
         style={{
           fontFamily: fontFamily.body,
           fontWeight: fontWeight.body,
-          fontSize: 17,
+          fontSize: fontSize.h4,
           color: color.text,
           marginVertical: 6,
         }}
@@ -64,7 +65,7 @@ export const Body: Story = {
         style={{
           fontFamily: fontFamily.body,
           fontWeight: fontWeight.body,
-          fontSize: 15,
+          fontSize: fontSize.body,
           color: color.text,
           marginVertical: 6,
         }}
@@ -75,9 +76,8 @@ export const Body: Story = {
         style={{
           fontFamily: fontFamily.body,
           fontWeight: fontWeight.body,
-          fontSize: 13,
-          color: color.text,
-          opacity: 0.55,
+          fontSize: fontSize.h6,
+          color: neutral['400'],
           marginVertical: 6,
         }}
       >

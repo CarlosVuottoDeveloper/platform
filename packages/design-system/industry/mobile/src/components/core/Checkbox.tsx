@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { PressableProps, StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, space, control } from '@industry/tokens';
+import { color, control, fontSize, radii, space } from '@industry/tokens';
 
 export interface CheckboxProps extends Omit<PressableProps, 'style' | 'children'> {
   checked?: boolean;
@@ -51,8 +51,9 @@ export function Checkbox({
         style={{
           width: 18,
           height: 18,
+          borderRadius: radii.sm,
           borderWidth: 1.5,
-          borderColor: isChecked ? color.accent : color.dividerStrong,
+          borderColor: isChecked ? color.accent : color.controlBorder,
           backgroundColor: isChecked ? color.accent : 'transparent',
           alignItems: 'center',
           justifyContent: 'center',
@@ -73,7 +74,7 @@ export function Checkbox({
         ) : null}
       </View>
       {typeof label === 'string' || typeof label === 'number' ? (
-        <Text style={{ fontSize: 15, color: color.text }}>{label}</Text>
+        <Text style={{ fontSize: fontSize.body, color: color.text }}>{label}</Text>
       ) : (
         label
       )}

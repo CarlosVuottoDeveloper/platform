@@ -5,6 +5,7 @@ import { Progress, Spinner } from './Progress';
 const meta: Meta<typeof Progress> = {
   title: 'Core/Progress',
   component: Progress,
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

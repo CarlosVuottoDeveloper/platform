@@ -31,7 +31,6 @@ export function FormCard({ form, onPress }: { form: FormSummary; onPress: () => 
       accessibilityLabel={accessibilityLabel}
     >
       <Card
-        framed
         style={styles.card}
         kicker="Consulta"
         title={dateLabel}
