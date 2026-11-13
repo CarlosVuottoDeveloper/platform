@@ -17,6 +17,9 @@ describe('Login', () => {
 
     expect(screen.getByRole('button', { name: 'Continuar com Google' })).toBeInTheDocument();
     expect(screen.getByText(/não são compartilhados com mais ninguém/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/usa o reCAPTCHA do Google para se proteger de abuso/),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'kaduvuotto@gmail.com' })).toHaveAttribute(
       'href',
       'mailto:kaduvuotto@gmail.com',
