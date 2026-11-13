@@ -6,7 +6,7 @@ import type { Cents } from '../../domain/money';
 interface MoneyFieldProps {
   label: string;
   value: Cents | null;
-  onChange: (value: Cents | null) => void;
+  onChange: (value: Cents | null, text: string) => void;
   error?: string;
 }
 
@@ -17,7 +17,7 @@ export function MoneyField({ label, value, onChange, error }: MoneyFieldProps) {
   function handleChange(nextText: string) {
     setText(nextText);
     setUnreadable(false);
-    onChange(parseBRLToCents(nextText));
+    onChange(parseBRLToCents(nextText), nextText);
   }
 
   function handleBlur() {

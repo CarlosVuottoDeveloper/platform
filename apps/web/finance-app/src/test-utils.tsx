@@ -3,6 +3,7 @@ import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { AuthProvider } from './context/AuthContext/AuthContext';
 import { ToastProvider } from './context/ToastContext/ToastContext';
+import { UserDataProvider } from './context/UserDataContext/UserDataContext';
 import type { AuthUser } from './services/authService';
 import { subscribeToAuthChanges } from './services/authService';
 
@@ -41,4 +42,8 @@ export function renderWithProviders(ui: ReactElement, { route = '/' }: { route?:
       </ToastProvider>
     </MemoryRouter>,
   );
+}
+
+export function renderSignedIn(ui: ReactElement, options: { route?: string } = {}) {
+  return renderWithProviders(<UserDataProvider>{ui}</UserDataProvider>, options);
 }

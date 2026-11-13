@@ -25,7 +25,7 @@ export default defineConfig([
       '**/*.test.ts',
       '**/*.test.tsx',
       'jest.setup.ts',
-      '__mocks__/**/*.ts',
+      'test-stubs/**/*.ts',
       'src/test-utils.tsx',
     ],
     languageOptions: {

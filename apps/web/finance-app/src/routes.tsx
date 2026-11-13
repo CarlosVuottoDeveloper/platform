@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router';
 import { Spinner } from '@industry/web';
 import { AppLayout } from './components/AppLayout/AppLayout';
 import { useAuth } from './context/AuthContext/AuthContext';
+import { UserDataProvider } from './context/UserDataContext/UserDataContext';
 import { Accounts } from './screens/Accounts/Accounts';
 import { Budgets } from './screens/Budgets/Budgets';
 import { Dashboard } from './screens/Dashboard/Dashboard';
@@ -21,7 +22,12 @@ function SessionLoading() {
 
 function RequireSignedIn() {
   const { user } = useAuth();
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+  return (
+    <UserDataProvider>
+      <Outlet />
+    </UserDataProvider>
+  );
 }
 
 function RequireSignedOut() {
