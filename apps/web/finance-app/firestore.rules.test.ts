@@ -282,4 +282,59 @@ describe('Firestore security rules — finance-app', () => {
       });
     });
   });
+
+  describe('categories and the seeding marker', () => {
+    const categoryPath = `users/${alice}/categories/c1`;
+    const validCategory = () => ({
+      name: 'Alimentação',
+      kind: 'expense',
+      color: 'viz-5',
+      icon: 'utensils',
+      archived: false,
+    });
+
+    it('lets the owner create, rename and archive a category', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(setDoc(doc(db, categoryPath), validCategory()));
+      await assertSucceeds(updateDoc(doc(db, categoryPath), { name: 'Mercado', archived: true }));
+    });
+
+    it.each([
+      ['an undeclared field', { extra: 'x' }],
+      ['an unknown kind', { kind: 'transfer' }],
+      ['an empty name', { name: '' }],
+      ['a name over 40 characters', { name: 'n'.repeat(41) }],
+      ['a non-boolean archived flag', { archived: 0 }],
+    ])('denies a category with %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), categoryPath), { ...validCategory(), ...override }),
+      );
+    });
+
+    it('denies another user creating a category in the owner tree', async () => {
+      await assertFails(setDoc(doc(strangerDb(), categoryPath), validCategory()));
+    });
+
+    it('lets the owner read and write the seeding marker once, stamped by the server', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(getDoc(doc(db, `users/${alice}`)));
+      await assertSucceeds(setDoc(doc(db, `users/${alice}`), { seededAt: serverTimestamp() }));
+      await assertFails(setDoc(doc(db, `users/${alice}`), { seededAt: serverTimestamp() }));
+    });
+
+    it('denies a seeding marker with other fields or a client-chosen time', async () => {
+      const db = ownerDb(alice);
+      await assertFails(
+        setDoc(doc(db, `users/${alice}`), { seededAt: serverTimestamp(), role: 'admin' }),
+      );
+      await assertFails(setDoc(doc(db, `users/${alice}`), { seededAt: new Date(2020, 0, 1) }));
+    });
+
+    it('denies another user reading or writing the seeding marker', async () => {
+      await assertFails(getDoc(doc(strangerDb(), `users/${alice}`)));
+      await assertFails(
+        setDoc(doc(strangerDb(), `users/${alice}`), { seededAt: serverTimestamp() }),
+      );
+    });
+  });
 });

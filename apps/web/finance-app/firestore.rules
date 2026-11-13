@@ -109,5 +109,24 @@ service cloud.firestore {
       allow create: if isOwner(uid) && isValidTransaction(request.resource.data) && isStampedNow();
       allow update: if isOwner(uid) && isValidTransaction(request.resource.data) && keepsCreationTime();
     }
+
+    function isValidCategory(data) {
+      return hasExactly(data, ['name', 'kind', 'color', 'icon', 'archived'])
+        && isText(data.name, 1, 40)
+        && data.kind in ['income', 'expense']
+        && isText(data.color, 1, 20)
+        && isText(data.icon, 1, 40)
+        && data.archived is bool;
+    }
+
+    match /users/{uid} {
+      allow create: if isOwner(uid)
+        && hasExactly(request.resource.data, ['seededAt'])
+        && request.resource.data.seededAt == request.time;
+    }
+
+    match /users/{uid}/categories/{categoryId} {
+      allow create, update: if isOwner(uid) && isValidCategory(request.resource.data);
+    }
   }
 }

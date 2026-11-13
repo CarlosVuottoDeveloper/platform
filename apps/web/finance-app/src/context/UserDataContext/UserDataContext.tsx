@@ -1,14 +1,17 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Account } from '../../domain/account';
+import type { Category } from '../../domain/category';
 import type { Transaction } from '../../domain/transaction';
 import { subscribeToAccounts } from '../../services/accountsService';
+import { seedDefaultCategories, subscribeToCategories } from '../../services/categoriesService';
 import { subscribeToTransactions } from '../../services/transactionsService';
 import { useAuth } from '../AuthContext/AuthContext';
 import { useToast } from '../ToastContext/ToastContext';
 
 interface UserDataContextValue {
   accounts: Account[];
+  categories: Category[];
   transactions: Transaction[];
   loading: boolean;
 }
@@ -36,17 +39,30 @@ function useUserCollection<T>(subscribe: Subscribe<T>): T[] | null {
   return items;
 }
 
+function useDefaultCategoriesSeeding() {
+  const { user } = useAuth();
+  const uid = user?.uid;
+
+  useEffect(() => {
+    if (!uid) return;
+    seedDefaultCategories(uid).catch(() => undefined);
+  }, [uid]);
+}
+
 export function UserDataProvider({ children }: { children: ReactNode }) {
+  useDefaultCategoriesSeeding();
   const accounts = useUserCollection(subscribeToAccounts);
+  const categories = useUserCollection(subscribeToCategories);
   const transactions = useUserCollection(subscribeToTransactions);
 
   const value = useMemo(
     () => ({
       accounts: accounts ?? [],
+      categories: categories ?? [],
       transactions: transactions ?? [],
-      loading: accounts === null || transactions === null,
+      loading: accounts === null || categories === null || transactions === null,
     }),
-    [accounts, transactions],
+    [accounts, categories, transactions],
   );
 
   return <UserDataContext.Provider value={value}>{children}</UserDataContext.Provider>;
