@@ -8,18 +8,7 @@ export {
   danger,
   semanticColor,
   viz,
-  lightColor,
-  lightNeutral,
-  lightAccentRamp,
-  lightAccent2Ramp,
-  lightSuccess,
-  lightWarning,
-  lightDanger,
-  lightSemanticColor,
-  lightViz,
-  themeColor,
 } from './colors.generated';
-export type { ThemeMode } from './colors.generated';
 export { alpha } from './color-utils';
 export {
   fontSize,
@@ -31,6 +20,8 @@ export {
 } from './typography';
 export { resolveLineHeight, resolveLetterSpacing } from './typography-adapter';
 export { space, control } from './spacing';
+export { gradient, glow } from './effects.generated';
+export type { GradientToken, GradientName } from './effects.generated';
 export { radii } from './radii';
 export { shadow } from './shadows';
 export type { DropShadow } from './shadows';

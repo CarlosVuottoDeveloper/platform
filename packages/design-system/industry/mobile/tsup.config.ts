@@ -6,11 +6,5 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: [
-    'react',
-    'react-native',
-    'react-native-safe-area-context',
-    'react-native-svg',
-    '@react-native-async-storage/async-storage',
-  ],
+  external: ['react', 'react-native', 'react-native-safe-area-context', 'react-native-svg'],
 });

@@ -18,9 +18,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "node scripts/build-native-tokens.mjs && prettier --write --log-level warn src/native/colors.generated.ts && tsup && node scripts/build-css.mjs",
+    "build": "yarn generate:tokens && tsup && node scripts/build-css.mjs",
     "dev": "tsup --watch",
-    "generate:native-tokens": "node scripts/build-native-tokens.mjs && prettier --write --log-level warn src/native/colors.generated.ts",
+    "generate:tokens": "node scripts/build-tokens.mjs && prettier --write --log-level warn src/native/colors.generated.ts src/native/effects.generated.ts src/tokens/colors.css src/tokens/gradients.css",
     "check-types": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0"
   },

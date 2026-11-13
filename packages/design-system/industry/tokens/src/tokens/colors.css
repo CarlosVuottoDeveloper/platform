@@ -1,147 +1,72 @@
+/* GENERATED FILE — do not edit by hand. Authored in scripts/build-tokens.mjs. */
 :root {
   color-scheme: dark;
 
-  --color-bg: #14161a;
-  --color-surface: #1c1f24;
-  --color-surface-2: #24282e;
-  --color-text: #e6e9ec;
-  --color-accent: oklch(0.72 0.065 250);
-  --color-accent-2: oklch(0.72 0.065 235);
-  --color-divider: color-mix(in srgb, #e6e9ec 16%, transparent);
-  --color-divider-strong: color-mix(in srgb, #e6e9ec 30%, transparent);
+  --color-bg: #070b1f;
+  --color-surface: #0e1533;
+  --color-surface-2: #162048;
+  --color-text: #f2f5fa;
+  --color-accent: var(--color-accent-400);
+  --color-accent-2: var(--color-accent-2-400);
+  --color-divider: color-mix(in srgb, #f2f5fa 8%, transparent);
+  --color-divider-strong: color-mix(in srgb, #f2f5fa 16%, transparent);
+  --color-control-border: var(--color-neutral-600);
 
-  --color-neutral-100: oklch(0.95 0.006 250);
-  --color-neutral-200: oklch(0.88 0.006 250);
-  --color-neutral-300: oklch(0.8 0.006 250);
-  --color-neutral-400: oklch(0.72 0.006 250);
-  --color-neutral-500: oklch(0.64 0.006 250);
-  --color-neutral-600: oklch(0.55 0.006 250);
-  --color-neutral-700: oklch(0.45 0.006 250);
-  --color-neutral-800: oklch(0.34 0.006 250);
-  --color-neutral-900: oklch(0.24 0.006 250);
+  --color-neutral-100: oklch(0.95 0.03 265);
+  --color-neutral-200: oklch(0.88 0.03 265);
+  --color-neutral-300: oklch(0.8 0.03 265);
+  --color-neutral-400: oklch(0.72 0.03 265);
+  --color-neutral-500: oklch(0.64 0.03 265);
+  --color-neutral-600: oklch(0.55 0.03 265);
+  --color-neutral-700: oklch(0.45 0.03 265);
+  --color-neutral-800: oklch(0.34 0.03 265);
+  --color-neutral-900: oklch(0.24 0.03 265);
 
-  --color-accent-100: oklch(0.95 0.02 250);
-  --color-accent-200: oklch(0.88 0.035 250);
-  --color-accent-300: oklch(0.8 0.05 250);
-  --color-accent-400: oklch(0.72 0.065 250);
-  --color-accent-500: oklch(0.64 0.075 250);
-  --color-accent-600: oklch(0.55 0.07 250);
-  --color-accent-700: oklch(0.45 0.06 250);
-  --color-accent-800: oklch(0.34 0.045 250);
-  --color-accent-900: oklch(0.24 0.03 250);
+  --color-accent-100: oklch(0.95 0.05 255);
+  --color-accent-200: oklch(0.88 0.09 255);
+  --color-accent-300: oklch(0.8 0.13 255);
+  --color-accent-400: oklch(0.72 0.17 255);
+  --color-accent-500: oklch(0.64 0.19 255);
+  --color-accent-600: oklch(0.55 0.18 255);
+  --color-accent-700: oklch(0.45 0.15 255);
+  --color-accent-800: oklch(0.34 0.11 255);
+  --color-accent-900: oklch(0.24 0.075 255);
 
-  --color-accent-2-100: oklch(0.95 0.02 235);
-  --color-accent-2-200: oklch(0.88 0.035 235);
-  --color-accent-2-300: oklch(0.8 0.05 235);
-  --color-accent-2-400: oklch(0.72 0.065 235);
-  --color-accent-2-500: oklch(0.64 0.075 235);
-  --color-accent-2-600: oklch(0.55 0.07 235);
-  --color-accent-2-700: oklch(0.45 0.06 235);
-  --color-accent-2-800: oklch(0.34 0.045 235);
-  --color-accent-2-900: oklch(0.24 0.03 235);
+  --color-accent-2-100: oklch(0.95 0.03 205);
+  --color-accent-2-200: oklch(0.88 0.06 205);
+  --color-accent-2-300: oklch(0.8 0.1 205);
+  --color-accent-2-400: oklch(0.72 0.13 205);
+  --color-accent-2-500: oklch(0.64 0.12 205);
+  --color-accent-2-600: oklch(0.55 0.1 205);
+  --color-accent-2-700: oklch(0.45 0.08 205);
+  --color-accent-2-800: oklch(0.34 0.06 205);
+  --color-accent-2-900: oklch(0.24 0.04 205);
 
-  --color-success-200: oklch(0.88 0.035 158);
-  --color-success-300: oklch(0.8 0.055 158);
-  --color-success-400: oklch(0.72 0.07 158);
-  --color-success-700: oklch(0.45 0.06 158);
-  --color-success-900: oklch(0.24 0.03 158);
-  --color-warning-200: oklch(0.88 0.045 82);
-  --color-warning-300: oklch(0.8 0.07 82);
-  --color-warning-400: oklch(0.76 0.085 82);
-  --color-warning-700: oklch(0.45 0.065 82);
-  --color-warning-900: oklch(0.24 0.035 82);
-  --color-danger-200: oklch(0.88 0.04 28);
-  --color-danger-300: oklch(0.8 0.065 28);
-  --color-danger-400: oklch(0.72 0.09 28);
-  --color-danger-700: oklch(0.45 0.08 28);
-  --color-danger-900: oklch(0.24 0.045 28);
+  --color-success-200: oklch(0.88 0.07 158);
+  --color-success-300: oklch(0.8 0.11 158);
+  --color-success-400: oklch(0.72 0.14 158);
+  --color-success-700: oklch(0.45 0.12 158);
+  --color-success-900: oklch(0.24 0.06 158);
+  --color-warning-200: oklch(0.88 0.09 82);
+  --color-warning-300: oklch(0.8 0.14 82);
+  --color-warning-400: oklch(0.76 0.17 82);
+  --color-warning-700: oklch(0.45 0.13 82);
+  --color-warning-900: oklch(0.24 0.07 82);
+  --color-danger-200: oklch(0.88 0.08 28);
+  --color-danger-300: oklch(0.8 0.13 28);
+  --color-danger-400: oklch(0.72 0.18 28);
+  --color-danger-700: oklch(0.45 0.16 28);
+  --color-danger-900: oklch(0.24 0.09 28);
   --color-success: var(--color-success-400);
   --color-warning: var(--color-warning-400);
   --color-danger: var(--color-danger-400);
   --color-info: var(--color-accent-2-400);
 
-  --viz-1: oklch(0.72 0.08 250);
-  --viz-2: oklch(0.72 0.08 205);
-  --viz-3: oklch(0.72 0.08 160);
-  --viz-4: oklch(0.72 0.08 95);
-  --viz-5: oklch(0.72 0.08 35);
-  --viz-6: oklch(0.72 0.08 305);
+  --viz-1: oklch(0.72 0.14 250);
+  --viz-2: oklch(0.72 0.14 205);
+  --viz-3: oklch(0.72 0.14 160);
+  --viz-4: oklch(0.72 0.14 95);
+  --viz-5: oklch(0.72 0.14 35);
+  --viz-6: oklch(0.72 0.14 305);
   --viz-grid: color-mix(in srgb, var(--color-text) 10%, transparent);
-}
-
-/* ── Light theme scope ──────────────────────────────────────────
- * Every component reads a specific ramp step directly (e.g.
- * `--color-danger-300` for error hint text) rather than through a
- * theme-relative alias, because steps 100–400 read as light/pastel —
- * legible on the dark :root surface. Redefining each step to the
- * *lightness* its dark-theme mirror-step uses (100↔900, 200↔800, …,
- * 500 stays put) keeps every already-shipped component legible here
- * with zero component changes: the same step name now resolves to a
- * dark, light-surface-legible color instead. Chroma/hue stay as
- * authored per step; only lightness inverts. `--color-divider(-strong)`
- * and every inline `color-mix(... var(--color-text) N%, transparent)`
- * hint/label color already derive from `--color-text`, so they adapt
- * automatically and need no override here. */
-[data-theme='light'] {
-  color-scheme: light;
-
-  --color-bg: oklch(0.975 0.003 250);
-  --color-surface: oklch(0.995 0.002 250);
-  --color-surface-2: oklch(0.96 0.004 250);
-  --color-text: oklch(0.22 0.006 250);
-  --color-accent: oklch(0.55 0.065 250);
-  --color-accent-2: oklch(0.55 0.065 235);
-
-  --color-neutral-100: oklch(0.24 0.006 250);
-  --color-neutral-200: oklch(0.34 0.006 250);
-  --color-neutral-300: oklch(0.45 0.006 250);
-  --color-neutral-400: oklch(0.55 0.006 250);
-  --color-neutral-500: oklch(0.64 0.006 250);
-  --color-neutral-600: oklch(0.72 0.006 250);
-  --color-neutral-700: oklch(0.8 0.006 250);
-  --color-neutral-800: oklch(0.88 0.006 250);
-  --color-neutral-900: oklch(0.95 0.006 250);
-
-  --color-accent-100: oklch(0.24 0.02 250);
-  --color-accent-200: oklch(0.34 0.035 250);
-  --color-accent-300: oklch(0.45 0.05 250);
-  --color-accent-400: oklch(0.55 0.065 250);
-  --color-accent-500: oklch(0.64 0.075 250);
-  --color-accent-600: oklch(0.72 0.07 250);
-  --color-accent-700: oklch(0.8 0.06 250);
-  --color-accent-800: oklch(0.88 0.045 250);
-  --color-accent-900: oklch(0.95 0.03 250);
-
-  --color-accent-2-100: oklch(0.24 0.02 235);
-  --color-accent-2-200: oklch(0.34 0.035 235);
-  --color-accent-2-300: oklch(0.45 0.05 235);
-  --color-accent-2-400: oklch(0.55 0.065 235);
-  --color-accent-2-500: oklch(0.64 0.075 235);
-  --color-accent-2-600: oklch(0.72 0.07 235);
-  --color-accent-2-700: oklch(0.8 0.06 235);
-  --color-accent-2-800: oklch(0.88 0.045 235);
-  --color-accent-2-900: oklch(0.95 0.03 235);
-
-  --color-success-200: oklch(0.34 0.035 158);
-  --color-success-300: oklch(0.45 0.055 158);
-  --color-success-400: oklch(0.55 0.07 158);
-  --color-success-700: oklch(0.8 0.06 158);
-  --color-success-900: oklch(0.95 0.03 158);
-  --color-warning-200: oklch(0.34 0.045 82);
-  --color-warning-300: oklch(0.45 0.07 82);
-  --color-warning-400: oklch(0.55 0.085 82);
-  --color-warning-700: oklch(0.8 0.065 82);
-  --color-warning-900: oklch(0.95 0.035 82);
-  --color-danger-200: oklch(0.34 0.04 28);
-  --color-danger-300: oklch(0.45 0.065 28);
-  --color-danger-400: oklch(0.55 0.09 28);
-  --color-danger-700: oklch(0.8 0.08 28);
-  --color-danger-900: oklch(0.95 0.045 28);
-
-  --viz-1: oklch(0.5 0.08 250);
-  --viz-2: oklch(0.5 0.08 205);
-  --viz-3: oklch(0.5 0.08 160);
-  --viz-4: oklch(0.5 0.08 95);
-  --viz-5: oklch(0.5 0.08 35);
-  --viz-6: oklch(0.5 0.08 305);
 }

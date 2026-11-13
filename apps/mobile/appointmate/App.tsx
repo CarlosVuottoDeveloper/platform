@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import type { Theme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -10,11 +9,7 @@ import { AppStack } from './src/navigation/AppStack';
 
 function RootNavigator() {
   const { user, loading } = useAuth();
-  const { colors, preference, setTheme } = useTheme();
-
-  useEffect(() => {
-    if (preference === 'system') setTheme('dark');
-  }, [preference, setTheme]);
+  const { colors } = useTheme();
 
   if (loading) {
     return <LoadingView testID="app-loading" />;

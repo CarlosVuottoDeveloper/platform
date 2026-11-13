@@ -12,11 +12,7 @@ import { AppStack } from './src/navigation/AppStack';
 export default function App() {
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, setUser } = useAuthStore();
-  const { colors, preference, setTheme } = useTheme();
-
-  useEffect(() => {
-    if (preference === 'system') setTheme('dark');
-  }, [preference, setTheme]);
+  const { colors } = useTheme();
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthUser(

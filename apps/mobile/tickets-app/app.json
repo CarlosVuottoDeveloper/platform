@@ -11,7 +11,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/splash-icon.png",
-          "backgroundColor": "#14161A"
+          "backgroundColor": "#070B1F"
         }
       ]
     ],
@@ -21,7 +21,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#14161A"
+        "backgroundColor": "#070B1F"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.vt.ticketsapp",

@@ -1,0 +1,11 @@
+/* GENERATED FILE — do not edit by hand. Authored in scripts/build-tokens.mjs. */
+:root {
+  --gradient-primary: linear-gradient(180deg, var(--color-accent-600), var(--color-accent-800));
+  --gradient-surface: linear-gradient(180deg, var(--color-surface-2), var(--color-surface));
+  --gradient-backdrop: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-800) 60%, var(--color-bg)),
+    var(--color-bg)
+  );
+  --glow-accent: 0px 8px 20px 0px rgba(38, 139, 252, 0.45);
+}
