@@ -59,6 +59,7 @@ These rules apply to every workspace in this monorepo. They override generic def
 - **Auth tokens persist via `AsyncStorage`, not `expo-secure-store`.** If you're asked to harden token storage, that's the concrete gap — don't assume it's already hardware-backed.
 - **PDF export (`expo-print`/`expo-sharing`) must stay local-and-share, not upload.** If a "send by email" or "sync to cloud" feature is ever requested, treat it as a new data-processing activity requiring its own legal-basis/consent conversation, not a trivial extension of the existing export button.
 - **Minimize what you persist.** When adding a new field to any `forms`-like collection, ask whether it needs to exist at all before adding it to the schema and the rules allow-list — every field added is a field that has to be justified later.
+- **`apps/web/finance-app` stores personal financial data** (accounts, balances, transactions, budgets, goals) for any Google account that signs in — the app is open. It is personal data under LGPD, not the sensitive category, but the same discipline applies: no analytics/telemetry SDK, never log a transaction, account, goal or any field derived from one, and exports (CSV/Excel/PDF/JSON) are built in the browser and downloaded, never uploaded. Everything lives under `users/{uid}/...`; every rule in its `firestore.rules` requires `request.auth.uid == uid` and a closed field list (`hasExactly`). The privacy notice on the login screen and the "Excluir minha conta" flow in Settings are part of that contract — a new collection must be added to `userDataEraser.ts` and to the data export, or erasure and portability silently stop being complete.
 - When in doubt about whether a change has LGPD implications, say so explicitly and ask rather than assuming it's fine — this is the one category of "obviously safe refactor" that isn't.
 
 ### Comments: default to none
@@ -102,6 +103,7 @@ Every app in this repo already follows the same layering — keep new code insid
 - **React 19** across all apps — no `React.FC`, prefer plain function components; hooks rules are enforced by `eslint-plugin-react-hooks` in the `react-internal` config.
 - **Fonts (`tickets-app`, `appointmate`)** — Inter 400/500/600 is embedded at build time by the `expo-font` config plugin in each app's `app.json`, as one family named `Inter`. A font change needs a new native build, not just a Metro reload. Every app text style must set `fontFamily` from `@industry/tokens` (React Native has no global default font); each app's `src/typography.test.ts` enforces this for `*.styles.ts` files.
 - **Expo SDK 57 / React Native 0.86.3 (`tickets-app`, `appointmate`, and `@industry/mobile`'s dev dependency)** — both apps pin `react`/`react-native`/`react-native-paper` to their own local `node_modules` via a custom Metro `resolveRequest` (see either app's `metro.config.js`). Do not "simplify" that resolver — it exists because a hoisted, differently-versioned copy of these packages breaks at runtime with an opaque renderer error. When adding a new native-module dependency to a mobile app, check whether it also needs a `nohoist` entry in the root `package.json`.
+- **Vite + React Router (`finance-app`)** — a static SPA; there is no server. `src/services/firebaseConfig.ts` is the only file that reads `import.meta.env`, which Jest's CommonJS transform cannot parse, so Jest maps it and the whole `firebase/*` SDK to stubs in `test-stubs/` (see `jest.config.cjs`). The rules suite uses its own config (`jest.rules.config.cjs`, real SDK, Firestore emulator). Money is always an integer number of cents (`src/domain/money.ts`) and balances are always computed from the transactions, never stored.
 - **React Native Paper + Portals (`Dialog`, `Menu`)** — these rely on React Context identity to find their `PortalHost`. If a Portal-based component works in the app but crashes with an opaque error in Jest, suspect a dual-module-instance problem before anything else (see `appointmate/jest.config.js`'s `react-native-paper` `moduleNameMapper` entry and its inline comment for the full explanation).
 - **Firebase (`firebase` v11, modular SDK)** — always use `initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) })` on React Native, never bare `getAuth()`, or session persistence silently breaks. Firestore composite indexes (`firestore.indexes.json`) are required whenever a query combines an equality filter with an `orderBy` on a different field — the local emulator won't catch a missing index, but production will fail at query time.
 - **react-hook-form (`appointmate`)** — validation rules live on the `Controller`, not hand-rolled in `onChange` handlers. A "save draft" path that must skip validation should read `getValues()` directly rather than going through `handleSubmit`.
@@ -128,6 +130,8 @@ Every workspace resolves the same `jest@30.3.0`, hoisted at the repo root. Jest 
 ```sh
 yarn workspace @app/appointmate test                          # full suite
 yarn workspace @app/appointmate test --testPathPatterns=Home  # a single file
+yarn workspace @app/finance test                              # finance-app (jsdom)
+yarn workspace @app/finance test:rules                        # Firestore rules, needs the emulator (Java)
 ```
 
 Run these from the repo root — `yarn workspace <pkg> test` from inside the package directory fails with Yarn v1's help output.
@@ -176,7 +180,7 @@ Industry has a single appearance: deep navy background, filled rounded surfaces 
 Three flat-config exports from `@repo/eslint-config`:
 
 - `base` — any TypeScript package
-- `react-internal` — React packages (e.g. `@industry/web`)
+- `react-internal` — React packages (e.g. `@industry/web`, `@app/finance`)
 - `next-js` — Next.js apps; kept for future use, no workspace consumes it today
 
 `eslint-plugin-only-warn` converts errors to warnings in all configs.
