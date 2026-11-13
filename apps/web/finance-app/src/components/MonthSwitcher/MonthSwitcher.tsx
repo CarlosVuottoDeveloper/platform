@@ -8,6 +8,8 @@ interface MonthSwitcherProps {
 }
 
 export function MonthSwitcher({ month, onChange }: MonthSwitcherProps) {
+  const label = formatMonthBR(month);
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
       <Button
@@ -19,8 +21,8 @@ export function MonthSwitcher({ month, onChange }: MonthSwitcherProps) {
       >
         <Icon name="chevron-left" size="sm" />
       </Button>
-      <span style={{ minWidth: 140, textAlign: 'center', textTransform: 'capitalize' }}>
-        {formatMonthBR(month)}
+      <span style={{ minWidth: 140, textAlign: 'center' }}>
+        {label.charAt(0).toUpperCase() + label.slice(1)}
       </span>
       <Button
         size="sm"
