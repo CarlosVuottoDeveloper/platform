@@ -21,6 +21,10 @@ module.exports = {
   // lucide-react (via @industry/web) ships its own nested react copy. Without this mapping
   // its icons render against a second React instance with a null hook dispatcher.
   moduleNameMapper: {
+    // The real Firebase SDK needs fetch and firebaseConfig.ts reads import.meta.env; neither
+    // loads under Jest. Automocked services still import them, so they resolve to stubs here.
+    '^firebase/(.*)$': '<rootDir>/__mocks__/firebase/$1.ts',
+    '/firebaseConfig$': '<rootDir>/__mocks__/firebaseConfig.ts',
     '^react$': require.resolve('react'),
     '^react-dom$': require.resolve('react-dom'),
     '\\.css$': '<rootDir>/jest.cssStub.cjs',

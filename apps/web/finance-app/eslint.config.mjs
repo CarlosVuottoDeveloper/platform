@@ -10,7 +10,7 @@ export default defineConfig([
     ignores: ['node_modules/**', 'dist/**', '.vercel/**', 'coverage/**'],
   },
   {
-    files: ['jest.config.cjs', 'jest.cssStub.cjs'],
+    files: ['jest.config.cjs', 'jest.rules.config.cjs', 'jest.cssStub.cjs'],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -21,7 +21,13 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.test.ts', '**/*.test.tsx', 'jest.setup.ts'],
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      'jest.setup.ts',
+      '__mocks__/**/*.ts',
+      'src/test-utils.tsx',
+    ],
     languageOptions: {
       globals: {
         ...globals.jest,

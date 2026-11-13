@@ -1,3 +1,7 @@
+import { TextDecoder, TextEncoder } from 'util';
+
+Object.assign(globalThis, { TextDecoder, TextEncoder });
+
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
