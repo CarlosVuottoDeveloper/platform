@@ -20,7 +20,7 @@ import { Button, Card, TextField } from '@industry/mobile';
 - **`react-native >= 0.76` com a New Architecture.** O gradiente usa `experimental_backgroundImage` e o brilho usa `boxShadow`. Sem eles, as superfícies caem para um preenchimento sólido e não há brilho.
 - **Android é a plataforma verificada.** Sombras e brilho no iOS não foram verificados.
 - **Fonte Inter.** Os apps precisam carregá-la (família `Inter`, pesos 400, 500 e 600). Sem isso o texto cai para a fonte do sistema.
-- **`react-native-svg`** como peer dependency, usado por `Icon` e `PieChart`. Num monorepo, provavelmente é preciso uma entrada em `nohoist` — veja a nota sobre resolução no final.
+- **`react-native-svg`** como peer dependency, usado por `Icon`, `PieChart`, `RingProgress` e `AreaChart`. Num monorepo, provavelmente é preciso uma entrada em `nohoist` — veja a nota sobre resolução no final.
 
 ## Componentes
 
@@ -32,7 +32,7 @@ import { Button, Card, TextField } from '@industry/mobile';
 
 **Layout e navegação** — `AppBar`, `TabBar`, `Tabs`, `Breadcrumbs`, `Menu`, `Sheet`, `Stepper`, `Accordion`, `FAB`, `IconButton`
 
-**Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `Chip`, `PieChart`, `Progress`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
+**Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `Chip`, `PieChart`, `RingProgress`, `AreaChart`, `StatTile`, `Progress`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
 
 Em relação ao [`@industry/web`](../web/README.md), este conjunto troca `AppShell`, `Popover` e `Sidebar` — conceitos de janela grande — por `AppBar`, `Chip`, `FAB`, `IconButton` e `PieChart`.
 
@@ -66,7 +66,7 @@ O Industry tem uma única aparência. `useTheme()` devolve sempre `{ colors }` c
 
 Seis páginas em `Foundations/*` renderizando os tokens reais (cores, `controlBorder`, os três gradientes, brilho, raios com `pill`, escala tipográfica), e três `Templates/*` com telas compostas — os mesmos do `@industry/web`, o que torna as duas plataformas comparáveis lado a lado.
 
-> **Limitação conhecida — SVG:** não renderiza no preview do Storybook. `Icon` e `PieChart` montam sem erro e aparecem vazios, e há um banner visível nas stories afetadas. Não afeta o app real — Metro e Fabric renderizam SVG normalmente.
+> **Limitação conhecida — SVG:** não renderiza no preview do Storybook. `Icon`, `PieChart`, `RingProgress` e `AreaChart` montam sem erro e aparecem vazios, e há um banner visível nas stories afetadas. Não afeta o app real — Metro e Fabric renderizam SVG normalmente.
 
 > **Limitação conhecida — gradiente:** o `react-native-web` do preview ignora `experimental_backgroundImage` e mostra a cor sólida de fallback. Stories de componentes que desenham gradiente levam o aviso. O gradiente e o brilho só aparecem no dispositivo.
 

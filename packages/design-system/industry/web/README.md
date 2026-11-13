@@ -37,7 +37,7 @@ import '@industry/tokens/styles.css'; // os tokens são globais
 
 **Layout e navegação** — `AppShell`, `Sidebar`, `TabBar`, `Tabs`, `Breadcrumbs`, `Menu`, `Popover`, `Sheet`, `Stepper`, `Accordion`
 
-**Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `Progress`, `Spinner`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
+**Dados e feedback** — `DataTable`, `ListRow`, `Card`, `Badge`, `RingProgress`, `AreaChart`, `StatTile`, `Progress`, `Spinner`, `Skeleton`, `EmptyState`, `Toast`, `Tooltip`
 
 Em relação ao [`@industry/mobile`](../mobile/README.md), este conjunto troca `AppBar`, `Chip`, `FAB`, `IconButton` e `PieChart` por `AppShell`, `Popover` e `Sidebar` — conceitos de janela grande. Não há `AppBar`: o `header` do `AppShell` faz esse papel, transparente e sem divisor, com o título em `--text-h4` e peso 600.
 
