@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { ActivityIndicator } from 'react-native';
 import { render, screen, fireEvent } from '../../test-utils';
 import { useTicketList } from '../../hooks/useTicketList';
+import { useAuthStore } from '../../store/useAuthStore';
 import { STATUS_LABELS } from '../../constants/ticketStatus';
 import type { Ticket } from '../../domain/ticket';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -60,6 +61,7 @@ describe('TicketList', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseTicketList.mockReturnValue(mockTicketListReturn());
+    useAuthStore.setState({ user: null, isAuthenticated: false });
   });
 
   it('shows loading indicator while fetching', () => {
@@ -130,6 +132,28 @@ describe('TicketList', () => {
     const tag = StyleSheet.flatten(screen.getByTestId('ticket-list-scope-tag').props.style);
     expect(tag.backgroundColor).toBe(color.surface2);
     expect(tag.borderWidth).toBeFalsy();
+  });
+
+  it('renders the admin scope as an outlined accent tag', () => {
+    useAuthStore.setState({
+      user: { uid: 'u1', email: 'a@a.com', name: 'Alice', role: 'admin', workspaceId: 'w1' },
+      isAuthenticated: true,
+    });
+
+    render(<TicketList navigation={mockNavigation} route={mockRoute} />);
+
+    const tag = StyleSheet.flatten(screen.getByTestId('ticket-list-scope-tag').props.style);
+    expect(tag.borderWidth).toBe(1);
+    expect(tag.borderColor).toBe(color.accent);
+    expect(screen.getByText('Admin · workspace todo')).toBeTruthy();
+  });
+
+  it('counts a single ticket in the singular', () => {
+    mockUseTicketList.mockReturnValue(mockTicketListReturn({ tickets: [makeTicket()] }));
+
+    render(<TicketList navigation={mockNavigation} route={mockRoute} />);
+
+    expect(screen.getByText('1 chamado')).toBeTruthy();
   });
 
   it('navigates back when the AppBar back button is pressed', () => {
