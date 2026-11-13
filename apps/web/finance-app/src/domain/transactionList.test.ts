@@ -7,6 +7,7 @@ import {
   groupByDate,
   isPending,
   matchesSearch,
+  signedAmount,
   transactionsOfMonth,
 } from './transactionList';
 
@@ -63,5 +64,13 @@ describe('transactionList', () => {
     expect(matchesSearch(market, 'CASA')).toBe(true);
     expect(matchesSearch(market, '  ')).toBe(true);
     expect(matchesSearch(market, 'uber')).toBe(false);
+  });
+
+  it('signs amounts by kind', () => {
+    const plain = (text: string) => text.replace(/\s/g, ' ');
+
+    expect(plain(signedAmount(tx({ kind: 'income', amountCents: 1000 })))).toBe('+R$ 10,00');
+    expect(plain(signedAmount(tx({ kind: 'expense', amountCents: 1000 })))).toBe('-R$ 10,00');
+    expect(plain(signedAmount(tx({ kind: 'transfer', amountCents: 1000 })))).toBe('R$ 10,00');
   });
 });

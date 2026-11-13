@@ -2,6 +2,7 @@ import type { Account } from './account';
 import type { CalendarDate, YearMonth } from './calendarDate';
 import { yearMonthOf } from './calendarDate';
 import type { Category } from './category';
+import { formatCents } from './money';
 import type { Transaction } from './transaction';
 
 export function groupByDate(
@@ -40,4 +41,11 @@ export function matchesSearch(transaction: Transaction, search: string): boolean
   return [transaction.description, ...transaction.tags].some((text) =>
     searchable(text).includes(term),
   );
+}
+
+export function signedAmount(transaction: Transaction): string {
+  const amount = formatCents(transaction.amountCents);
+  if (transaction.kind === 'income') return `+${amount}`;
+  if (transaction.kind === 'expense') return `-${amount}`;
+  return amount;
 }
