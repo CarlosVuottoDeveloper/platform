@@ -10,6 +10,7 @@ interface TransactionRowProps {
   accounts: Account[];
   categories: Category[];
   pending: boolean;
+  forecast: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }
@@ -26,6 +27,7 @@ export function TransactionRow({
   accounts,
   categories,
   pending,
+  forecast,
   onEdit,
   onDelete,
 }: TransactionRowProps) {
@@ -67,14 +69,16 @@ export function TransactionRow({
       >
         {signedAmount(transaction)}
       </span>
-      {isTransfer ? null : (
+      {isTransfer || forecast ? null : (
         <Button size="sm" variant="ghost" aria-label={`Editar ${title}`} onClick={onEdit}>
           Editar
         </Button>
       )}
-      <Button size="sm" variant="ghost" aria-label={`Excluir ${title}`} onClick={onDelete}>
-        Excluir
-      </Button>
+      {forecast ? null : (
+        <Button size="sm" variant="ghost" aria-label={`Excluir ${title}`} onClick={onDelete}>
+          Excluir
+        </Button>
+      )}
     </li>
   );
 }

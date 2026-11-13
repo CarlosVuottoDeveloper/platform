@@ -7,6 +7,10 @@ import { tx } from '../../domain/transaction.test-helpers';
 import type { Transaction } from '../../domain/transaction';
 import { subscribeToAccounts } from '../../services/accountsService';
 import { seedDefaultCategories, subscribeToCategories } from '../../services/categoriesService';
+import {
+  materializeDueRecurrences,
+  subscribeToRecurrences,
+} from '../../services/recurrencesService';
 import { deleteTransactions, subscribeToTransactions } from '../../services/transactionsService';
 import { mockSignedInAs, money, renderSignedIn, testUser } from '../../test-utils';
 import { Transactions } from './Transactions';
@@ -15,6 +19,7 @@ jest.mock('../../services/authService');
 jest.mock('../../services/accountsService');
 jest.mock('../../services/categoriesService');
 jest.mock('../../services/transactionsService');
+jest.mock('../../services/recurrencesService');
 
 const today = toCalendarDate(new Date());
 const thisMonth = yearMonthOf(today);
@@ -49,6 +54,8 @@ describe('Transactions', () => {
     jest.mocked(subscribeToAccounts).mockImplementation(publish(accounts));
     jest.mocked(subscribeToCategories).mockImplementation(publish(categories));
     mockTransactions([]);
+    jest.mocked(materializeDueRecurrences).mockResolvedValue();
+    jest.mocked(subscribeToRecurrences).mockImplementation(publish([]));
   });
 
   it('shows an empty state for a month without movements', () => {
@@ -255,5 +262,34 @@ describe('Transactions', () => {
       );
       expect(deleteTransactions).toHaveBeenCalledWith(testUser.uid, ['i3']);
     });
+  });
+
+  it('shows the upcoming occurrence of a recurring rule as a forecast that cannot be edited', async () => {
+    jest.mocked(subscribeToRecurrences).mockImplementation(
+      publish([
+        {
+          id: 'r1',
+          kind: 'expense' as const,
+          amountCents: 150000,
+          dayOfMonth: 5,
+          accountId: 'a1',
+          categoryId: 'c1',
+          description: 'Aluguel',
+          tags: [],
+          startMonth: '2020-01',
+          endMonth: null,
+          materializedThrough: thisMonth,
+        },
+      ]),
+    );
+    renderSignedIn(<Transactions />);
+
+    expect(screen.queryByText('Aluguel')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Próximo mês' }));
+
+    const row = screen.getByTestId(`transaction-r1_${addMonths(thisMonth, 1)}`);
+    expect(within(row).getByText('Aluguel')).toBeInTheDocument();
+    expect(within(row).getByText('Prevista')).toBeInTheDocument();
+    expect(within(row).queryByRole('button')).not.toBeInTheDocument();
   });
 });

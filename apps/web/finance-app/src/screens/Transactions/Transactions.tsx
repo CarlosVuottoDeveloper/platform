@@ -6,8 +6,14 @@ import { TransactionSheet } from '../../components/TransactionSheet/TransactionS
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import { formatDateBR, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
+import {
+  formatDateBR,
+  lastDayOfMonth,
+  toCalendarDate,
+  yearMonthOf,
+} from '../../domain/calendarDate';
 import { installmentsFrom } from '../../domain/installment';
+import { projectedOccurrences } from '../../domain/recurrence';
 import type { Transaction } from '../../domain/transaction';
 import {
   groupByDate,
@@ -26,14 +32,16 @@ type SheetState =
 export function Transactions() {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { accounts, categories, transactions } = useUserData();
+  const { accounts, categories, recurrences, transactions } = useUserData();
   const today = toCalendarDate(new Date());
   const [month, setMonth] = useState(yearMonthOf(today));
   const [search, setSearch] = useState('');
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
   const closeSheet = () => setSheet({ mode: 'closed' });
 
-  const visible = transactionsOfMonth(transactions, month).filter((transaction) =>
+  const forecast = projectedOccurrences(recurrences, today, lastDayOfMonth(month));
+  const forecastIds = new Set(forecast.map((projected) => projected.id));
+  const visible = transactionsOfMonth([...transactions, ...forecast], month).filter((transaction) =>
     matchesSearch(transaction, search),
   );
 
@@ -95,6 +103,7 @@ export function Transactions() {
                 accounts={accounts}
                 categories={categories}
                 pending={isPending(transaction, today)}
+                forecast={forecastIds.has(transaction.id)}
                 onEdit={() => setSheet({ mode: 'edit', transaction })}
                 onDelete={() => setSheet({ mode: 'delete', transaction })}
               />
