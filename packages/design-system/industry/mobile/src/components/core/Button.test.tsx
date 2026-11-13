@@ -221,4 +221,51 @@ describe('Button', () => {
 
     expect(getByTestId('button-root').props.accessibilityState).toMatchObject({ disabled: false });
   });
+
+  it('tints the ghost variant while pressed', () => {
+    const { getByTestId } = render(<Button variant="ghost">Save</Button>);
+    fireEvent(getByTestId('button-root'), 'responderGrant', grant);
+
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor).toBe(
+      alpha(color.accent, 22),
+    );
+  });
+
+  it('deepens the danger tint while pressed', () => {
+    const { getByTestId } = render(<Button variant="danger">Excluir</Button>);
+    fireEvent(getByTestId('button-root'), 'responderGrant', grant);
+
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).backgroundColor).toBe(
+      alpha(danger['400'], 28),
+    );
+  });
+
+  it('makes an icon-only button a square of the control height with no padding', () => {
+    const { getByTestId } = render(
+      <Button iconOnly>
+        <View />
+      </Button>,
+    );
+
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style)).toMatchObject({
+      width: control.height,
+      paddingHorizontal: 0,
+    });
+  });
+
+  it('sizes a small icon-only button by the small control height', () => {
+    const { getByTestId } = render(
+      <Button iconOnly size="sm">
+        <View />
+      </Button>,
+    );
+
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).width).toBe(control.heightSm);
+  });
+
+  it('stretches a block button to the full width', () => {
+    const { getByTestId } = render(<Button block>Save</Button>);
+
+    expect(StyleSheet.flatten(getByTestId('button-root').props.style).width).toBe('100%');
+  });
 });
