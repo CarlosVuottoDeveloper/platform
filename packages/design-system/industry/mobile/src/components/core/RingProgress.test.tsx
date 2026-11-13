@@ -28,6 +28,19 @@ describe('resolveRingDash', () => {
     expect(dashoffset).toBeCloseTo(CIRCUMFERENCE_AT_RADIUS_50);
   });
 
+  it('treats non-finite value or max as zero', () => {
+    expect(resolveRingDash(Number.NaN, 100, 50)).toMatchObject({ fraction: 0, now: 0 });
+    expect(resolveRingDash(10, Number.POSITIVE_INFINITY, 50)).toMatchObject({
+      fraction: 0,
+      now: 0,
+    });
+  });
+
+  it('returns the clamped value as now', () => {
+    expect(resolveRingDash(250, 100, 50).now).toBe(100);
+    expect(resolveRingDash(45, 100, 50).now).toBe(45);
+  });
+
   it('yields fraction 0 when max is zero or negative', () => {
     expect(resolveRingDash(10, 0, 50).fraction).toBe(0);
     expect(resolveRingDash(10, -5, 50).fraction).toBe(0);
@@ -71,6 +84,27 @@ describe('RingProgress', () => {
     render(<RingProgress value={-5} testID="ring" />);
     expect(screen.queryByTestId('ring-arc')).toBeNull();
     expect(screen.getByTestId('ring-track')).toBeTruthy();
+  });
+
+  it('treats a NaN value as zero', () => {
+    render(<RingProgress value={Number.NaN} testID="ring" />);
+    expect(screen.getByRole('progressbar').props.accessibilityValue.now).toBe(0);
+    expect(screen.queryByTestId('ring-arc')).toBeNull();
+  });
+
+  it('treats a non-finite max as zero', () => {
+    render(<RingProgress value={10} max={Number.NaN} />);
+    expect(screen.getByRole('progressbar').props.accessibilityValue).toEqual({
+      min: 0,
+      max: 0,
+      now: 0,
+    });
+  });
+
+  it('never uses a negative radius when thickness exceeds size', () => {
+    render(<RingProgress value={50} size={20} thickness={40} testID="ring" />);
+    expect(screen.getByTestId('ring-track').props.r).toBe(0);
+    expect(screen.getByTestId('ring-arc').props.r).toBe(0);
   });
 
   it('renders the centerLabel', () => {

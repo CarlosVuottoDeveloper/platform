@@ -1,7 +1,7 @@
 import { StyleSheet, processColor } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { accent2Ramp, neutral, viz } from '@industry/tokens';
-import { AreaChart, buildAreaPath } from './AreaChart';
+import { AreaChart, buildAreaPath, selectLabelIndexes } from './AreaChart';
 
 const POINTS = [
   { label: 'Jan', value: 50 },
@@ -10,7 +10,7 @@ const POINTS = [
 ];
 
 const measure = (testID: string, width = 300) =>
-  fireEvent(screen.getByTestId(testID), 'layout', {
+  fireEvent(screen.getByTestId(`${testID}-plot`), 'layout', {
     nativeEvent: { layout: { x: 0, y: 0, width, height: 180 } },
   });
 
@@ -72,6 +72,32 @@ describe('buildAreaPath', () => {
   });
 });
 
+describe('selectLabelIndexes', () => {
+  it('selects nothing for no points', () => {
+    expect(selectLabelIndexes(0, 7)).toEqual([]);
+  });
+
+  it('selects the only index for a single point', () => {
+    expect(selectLabelIndexes(1, 7)).toEqual([0]);
+  });
+
+  it('selects every index when the count fits the maximum', () => {
+    expect(selectLabelIndexes(7, 7)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+  });
+
+  it('thins to the maximum, keeping first and last, when one over', () => {
+    const indexes = selectLabelIndexes(8, 7);
+    expect(indexes).toHaveLength(7);
+    expect(indexes[0]).toBe(0);
+    expect(indexes[6]).toBe(7);
+    expect(new Set(indexes).size).toBe(7);
+  });
+
+  it('thins 30 points to 7 evenly spaced indexes including first and last', () => {
+    expect(selectLabelIndexes(30, 7)).toEqual([0, 5, 10, 15, 19, 24, 29]);
+  });
+});
+
 describe('AreaChart', () => {
   it('renders only the grid for an empty list, without error', () => {
     render(<AreaChart points={[]} testID="chart" />);
@@ -114,7 +140,8 @@ describe('AreaChart', () => {
   });
 
   it('shows the point labels on the x axis', () => {
-    render(<AreaChart points={POINTS} />);
+    render(<AreaChart points={POINTS} testID="chart" />);
+    measure('chart');
 
     expect(screen.getByText('Jan')).toBeTruthy();
     expect(screen.getByText('Fev')).toBeTruthy();
@@ -135,9 +162,109 @@ describe('AreaChart', () => {
   });
 
   it('mutes the labels with neutral 400', () => {
-    render(<AreaChart points={POINTS} />);
+    render(<AreaChart points={POINTS} testID="chart" />);
+    measure('chart');
 
     expect(StyleSheet.flatten(screen.getByText('Jan').props.style).color).toBe(neutral['400']);
+  });
+
+  it('formats the y ticks with at most one decimal in pt-BR by default', () => {
+    render(
+      <AreaChart
+        points={[
+          { label: 'a', value: 40 },
+          { label: 'b', value: 110 },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('86,7')).toBeTruthy();
+    expect(screen.getByText('63,3')).toBeTruthy();
+  });
+
+  it('hands a custom valueFormatter ticks rounded to one decimal', () => {
+    const formatter = jest.fn((v: number) => `#${v}`);
+    render(
+      <AreaChart
+        points={[
+          { label: 'a', value: 40 },
+          { label: 'b', value: 110 },
+        ]}
+        valueFormatter={formatter}
+      />,
+    );
+
+    expect(screen.getByText('#86.7')).toBeTruthy();
+  });
+
+  it('renders every label of a series with repeated labels', () => {
+    const days = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((label, i) => ({ label, value: i }));
+    render(<AreaChart points={days} testID="chart" />);
+    measure('chart');
+
+    expect(screen.getAllByText('S')).toHaveLength(3);
+    expect(screen.getAllByText('Q')).toHaveLength(2);
+  });
+
+  it('draws to the width of the plot, not of the padded root', () => {
+    render(<AreaChart points={POINTS} style={{ padding: 16 }} testID="chart" />);
+    fireEvent(screen.getByTestId('chart'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 332, height: 180 } },
+    });
+    expect(screen.queryByTestId('chart-line')).toBeNull();
+
+    measure('chart', 300);
+    expect(screen.getByTestId('chart-line').props.d).toContain('L300 ');
+  });
+
+  it('shows distinct y labels for a flat series', () => {
+    render(
+      <AreaChart
+        points={[
+          { label: 'a', value: 5 },
+          { label: 'b', value: 5 },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('6')).toBeTruthy();
+    expect(screen.getByText('4')).toBeTruthy();
+    expect(screen.getByText('5,3')).toBeTruthy();
+  });
+
+  it('shows at most 7 x labels for 30 points, keeping first and last', () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ label: `d${i}`, value: i }));
+    render(<AreaChart points={many} testID="chart" />);
+    measure('chart');
+
+    expect(screen.getAllByText(/^d\d+$/)).toHaveLength(7);
+    expect(screen.getByText('d0')).toBeTruthy();
+    expect(screen.getByText('d29')).toBeTruthy();
+  });
+
+  it('centres a single point label inside the plot', () => {
+    render(<AreaChart points={[{ label: 'Unico', value: 3 }]} testID="chart" />);
+    measure('chart', 280);
+
+    const style = StyleSheet.flatten(screen.getByText('Unico').props.style);
+    expect(style.left).toBe(120);
+    expect(style.width).toBe(40);
+  });
+
+  it('keeps the first and last labels inside the plot', () => {
+    render(<AreaChart points={POINTS} testID="chart" />);
+    measure('chart', 280);
+
+    expect(StyleSheet.flatten(screen.getByText('Jan').props.style).left).toBe(0);
+    expect(StyleSheet.flatten(screen.getByText('Mar').props.style).left).toBe(240);
+  });
+
+  it('is not an image and has no label without points', () => {
+    render(<AreaChart points={[]} testID="chart" />);
+
+    const chart = screen.getByTestId('chart');
+    expect(chart.props.accessibilityRole).toBeUndefined();
+    expect(chart.props.accessibilityLabel).toBeUndefined();
   });
 
   it('is an image whose label lists every point through valueFormatter', () => {

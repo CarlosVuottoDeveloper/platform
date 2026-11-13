@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { AreaChart, buildAreaPath } from './AreaChart';
+import { AreaChart, buildAreaPath, selectLabelIndexes } from './AreaChart';
 
 const POINTS = [
   { label: 'Jan', value: 50 },
@@ -65,13 +65,49 @@ describe('buildAreaPath', () => {
   });
 });
 
+describe('selectLabelIndexes', () => {
+  it('selects nothing for no points', () => {
+    expect(selectLabelIndexes(0, 7)).toEqual([]);
+  });
+
+  it('selects the only index for a single point', () => {
+    expect(selectLabelIndexes(1, 7)).toEqual([0]);
+  });
+
+  it('selects every index when the count fits the maximum', () => {
+    expect(selectLabelIndexes(7, 7)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+  });
+
+  it('thins to the maximum, keeping first and last, when one over', () => {
+    const indexes = selectLabelIndexes(8, 7);
+    expect(indexes).toHaveLength(7);
+    expect(indexes[0]).toBe(0);
+    expect(indexes[6]).toBe(7);
+    expect(new Set(indexes).size).toBe(7);
+  });
+
+  it('thins 30 points to 7 evenly spaced indexes including first and last', () => {
+    expect(selectLabelIndexes(30, 7)).toEqual([0, 5, 10, 15, 19, 24, 29]);
+  });
+});
+
 describe('AreaChart', () => {
+  it('insets the plot by 4px, the --space-1 step', () => {
+    const ys = buildAreaPath(POINTS, 200, 100)
+      .line.match(/-?\d+(\.\d+)?/g)!
+      .map(Number)
+      .filter((_, i) => i % 2 === 1);
+    expect(Math.min(...ys)).toBe(4);
+    expect(Math.max(...ys)).toBe(96);
+  });
+
   it('renders only the grid for an empty list, without error', () => {
     render(<AreaChart points={[]} testID="chart" />);
 
     expect(screen.getByTestId('chart-grid-0')).toBeInTheDocument();
-    expect(screen.getByTestId('chart-line').getAttribute('d')).toBe('');
-    expect(screen.getByTestId('chart-area').getAttribute('d')).toBe('');
+    expect(screen.queryByTestId('chart-line')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('chart-area')).not.toBeInTheDocument();
+    expect(document.querySelector('linearGradient')).toBeNull();
     expect(screen.queryByText('0')).not.toBeInTheDocument();
   });
 
@@ -134,6 +170,89 @@ describe('AreaChart', () => {
     render(<AreaChart points={POINTS} />);
 
     expect(screen.getByText('Jan').style.color).toBe('var(--color-neutral-400)');
+  });
+
+  it('formats the y ticks with at most one decimal in pt-BR by default', () => {
+    render(
+      <AreaChart
+        points={[
+          { label: 'a', value: 40 },
+          { label: 'b', value: 110 },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('86,7')).toBeInTheDocument();
+    expect(screen.getByText('63,3')).toBeInTheDocument();
+  });
+
+  it('hands a custom valueFormatter ticks rounded to one decimal', () => {
+    render(
+      <AreaChart
+        points={[
+          { label: 'a', value: 40 },
+          { label: 'b', value: 110 },
+        ]}
+        valueFormatter={(v) => `#${v}`}
+      />,
+    );
+
+    expect(screen.getByText('#86.7')).toBeInTheDocument();
+  });
+
+  it('renders every label of a series with repeated labels', () => {
+    const days = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((label, i) => ({ label, value: i }));
+    render(<AreaChart points={days} />);
+
+    expect(screen.getAllByText('S')).toHaveLength(3);
+    expect(screen.getAllByText('Q')).toHaveLength(2);
+  });
+
+  it('shows distinct y labels for a flat series', () => {
+    render(
+      <AreaChart
+        points={[
+          { label: 'a', value: 5 },
+          { label: 'b', value: 5 },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('6')).toBeInTheDocument();
+    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(screen.getByText('5,3')).toBeInTheDocument();
+  });
+
+  it('shows at most 7 x labels for 30 points, keeping first and last', () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ label: `d${i}`, value: i }));
+    render(<AreaChart points={many} />);
+
+    expect(screen.getAllByText(/^d\d+$/)).toHaveLength(7);
+    expect(screen.getByText('d0')).toBeInTheDocument();
+    expect(screen.getByText('d29')).toBeInTheDocument();
+  });
+
+  it('centres a single point label inside the plot', () => {
+    render(<AreaChart points={[{ label: 'Unico', value: 3 }]} />);
+    const label = screen.getByText('Unico');
+
+    expect(parseFloat(label.style.left)).toBeCloseTo(50 - 100 / 14);
+    expect(parseFloat(label.style.width)).toBeCloseTo(100 / 7);
+  });
+
+  it('keeps the first and last labels inside the plot', () => {
+    render(<AreaChart points={POINTS} />);
+
+    expect(parseFloat(screen.getByText('Jan').style.left)).toBe(0);
+    expect(parseFloat(screen.getByText('Mar').style.left)).toBeCloseTo(100 - 100 / 7);
+  });
+
+  it('is not an image and has no label without points', () => {
+    render(<AreaChart points={[]} testID="chart" />);
+
+    const chart = screen.getByTestId('chart');
+    expect(chart).not.toHaveAttribute('role');
+    expect(chart).not.toHaveAttribute('aria-label');
   });
 
   it('is an image whose label lists every point through valueFormatter', () => {

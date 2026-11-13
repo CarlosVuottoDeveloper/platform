@@ -42,7 +42,7 @@ export function StatTile({ icon, value, label, style, testID }: StatTileProps) {
           {icon}
         </View>
       ) : null}
-      <View>
+      <View style={{ flex: 1, minWidth: 0 }}>
         <Text
           style={{
             fontFamily: fontFamily.heading,

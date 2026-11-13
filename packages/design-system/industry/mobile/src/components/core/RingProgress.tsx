@@ -16,21 +16,24 @@ export interface RingProgressProps {
   testID?: string;
 }
 
-function clampToRange(value: number, max: number): number {
-  return max > 0 ? Math.min(Math.max(value, 0), max) : 0;
+function finiteOrZero(value: number): number {
+  return Number.isFinite(value) ? value : 0;
 }
 
 export function resolveRingDash(
   value: number,
   max: number,
   radius: number,
-): { dasharray: string; dashoffset: number; fraction: number } {
+): { dasharray: string; dashoffset: number; fraction: number; now: number } {
   const circumference = 2 * Math.PI * radius;
-  const fraction = max > 0 ? clampToRange(value, max) / max : 0;
+  const safeMax = Math.max(finiteOrZero(max), 0);
+  const now = Math.min(Math.max(finiteOrZero(value), 0), safeMax);
+  const fraction = safeMax > 0 ? now / safeMax : 0;
   return {
     dasharray: `${circumference} ${circumference}`,
     dashoffset: circumference * (1 - fraction),
     fraction,
+    now,
   };
 }
 
@@ -46,8 +49,9 @@ export function RingProgress({
 }: RingProgressProps) {
   const gradientId = useId();
   const center = size / 2;
-  const radius = (size - thickness) / 2;
-  const { dasharray, dashoffset, fraction } = resolveRingDash(value, max, radius);
+  const radius = Math.max((size - thickness) / 2, 0);
+  const safeMax = finiteOrZero(max);
+  const { dasharray, dashoffset, fraction, now } = resolveRingDash(value, safeMax, radius);
   const [from, to] = gradient.primary.colors;
 
   return (
@@ -56,7 +60,7 @@ export function RingProgress({
       accessible
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
-      accessibilityValue={{ min: 0, max, now: clampToRange(value, max) }}
+      accessibilityValue={{ min: 0, max: safeMax, now }}
       style={[{ width: size, height: size }, style]}
     >
       <Svg width={size} height={size}>

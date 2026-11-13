@@ -12,21 +12,24 @@ export interface RingProgressProps {
   testID?: string;
 }
 
-function clampToRange(value: number, max: number): number {
-  return max > 0 ? Math.min(Math.max(value, 0), max) : 0;
+function finiteOrZero(value: number): number {
+  return Number.isFinite(value) ? value : 0;
 }
 
 export function resolveRingDash(
   value: number,
   max: number,
   radius: number,
-): { dasharray: string; dashoffset: number; fraction: number } {
+): { dasharray: string; dashoffset: number; fraction: number; now: number } {
   const circumference = 2 * Math.PI * radius;
-  const fraction = max > 0 ? clampToRange(value, max) / max : 0;
+  const safeMax = Math.max(finiteOrZero(max), 0);
+  const now = Math.min(Math.max(finiteOrZero(value), 0), safeMax);
+  const fraction = safeMax > 0 ? now / safeMax : 0;
   return {
     dasharray: `${circumference} ${circumference}`,
     dashoffset: circumference * (1 - fraction),
     fraction,
+    now,
   };
 }
 
@@ -42,8 +45,9 @@ export function RingProgress({
 }: RingProgressProps) {
   const gradientId = useId();
   const center = size / 2;
-  const radius = (size - thickness) / 2;
-  const { dasharray, dashoffset, fraction } = resolveRingDash(value, max, radius);
+  const radius = Math.max((size - thickness) / 2, 0);
+  const safeMax = finiteOrZero(max);
+  const { dasharray, dashoffset, fraction, now } = resolveRingDash(value, safeMax, radius);
 
   return (
     <div
@@ -51,8 +55,8 @@ export function RingProgress({
       role="progressbar"
       aria-label={accessibilityLabel}
       aria-valuemin={0}
-      aria-valuemax={max}
-      aria-valuenow={clampToRange(value, max)}
+      aria-valuemax={safeMax}
+      aria-valuenow={now}
       style={{
         position: 'relative',
         width: size,
@@ -67,12 +71,12 @@ export function RingProgress({
         aria-hidden="true"
         width={size}
         height={size}
-        style={{ position: 'absolute', top: 0, left: 0 }}
+        style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
       >
         <defs>
           <linearGradient id={gradientId} x1="1" y1="0" x2="0" y2="0">
-            <stop offset="0" style={{ stopColor: 'var(--color-accent-600)' }} />
-            <stop offset="1" style={{ stopColor: 'var(--color-accent-800)' }} />
+            <stop offset="0" style={{ stopColor: 'var(--gradient-primary-start)' }} />
+            <stop offset="1" style={{ stopColor: 'var(--gradient-primary-end)' }} />
           </linearGradient>
         </defs>
         <g transform={`rotate(-90 ${center} ${center})`}>
@@ -101,7 +105,7 @@ export function RingProgress({
           ) : null}
         </g>
       </svg>
-      {centerLabel}
+      {centerLabel ? <div style={{ position: 'relative' }}>{centerLabel}</div> : null}
     </div>
   );
 }

@@ -32,6 +32,15 @@ describe('StatTile', () => {
     expect(screen.queryByTestId('tile-icon')).toBeNull();
   });
 
+  it('lets the text column shrink so long text wraps in a narrow card', () => {
+    render(<StatTile value="48" label="Uso" testID="tile" />);
+    const column = screen.getByText('48').parent?.parent as unknown as {
+      props: { style?: unknown };
+    };
+
+    expect(flat(column)).toMatchObject({ flex: 1, minWidth: 0 });
+  });
+
   it('styles the value as a heading and mutes the label', () => {
     render(<StatTile value="48" label="Uso" />);
 

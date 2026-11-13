@@ -15,13 +15,39 @@ export interface AreaChartProps {
 }
 
 const VIEW_WIDTH = 100;
-const INSET = 4;
+const PLOT_INSET_PX = 4;
 const GRID_LINE_COUNT = 4;
 const GRID_RATIOS = Array.from({ length: GRID_LINE_COUNT }, (_, i) => i / (GRID_LINE_COUNT - 1));
 const AREA_TOP_OPACITY = 0.35;
+const MAX_X_LABELS = 7;
+const LABEL_SLOT_PERCENT = 100 / MAX_X_LABELS;
+
+const defaultValueFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format;
+
+function roundToTenth(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+function resolveTicks(values: readonly number[]): number[] {
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  const padding = low === high ? Math.max(1, Math.abs(low) * 0.1) : 0;
+  const min = low - padding;
+  const max = high + padding;
+  return GRID_RATIOS.map((ratio) => roundToTenth(max - ratio * (max - min)));
+}
+
+function pointFraction(index: number, count: number): number {
+  return count === 1 ? 0.5 : index / (count - 1);
+}
+
+export function selectLabelIndexes(count: number, max: number): number[] {
+  if (count <= max) return Array.from({ length: count }, (_, i) => i);
+  return Array.from({ length: max }, (_, k) => Math.round((k * (count - 1)) / (max - 1)));
+}
 
 function yAt(ratioFromTop: number, height: number): number {
-  return Number((INSET + ratioFromTop * (height - 2 * INSET)).toFixed(2));
+  return Number((PLOT_INSET_PX + ratioFromTop * (height - 2 * PLOT_INSET_PX)).toFixed(2));
 }
 
 export function buildAreaPath(
@@ -54,14 +80,13 @@ export function buildAreaPath(
 export function AreaChart({
   points,
   height = 180,
-  valueFormatter = String,
+  valueFormatter = defaultValueFormatter,
   style,
   testID,
 }: AreaChartProps) {
   const gradientId = useId();
-  const values = points.map((p) => p.value);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
+  const hasPoints = points.length > 0;
+  const ticks = resolveTicks(points.map((p) => p.value));
   const { line, area } = buildAreaPath(points, VIEW_WIDTH, height);
   const labelStyle: CSSProperties = {
     fontFamily: 'var(--font-body)',
@@ -72,9 +97,9 @@ export function AreaChart({
   return (
     <div
       data-testid={testID}
-      role="img"
+      role={hasPoints ? 'img' : undefined}
       aria-label={
-        points.length > 0
+        hasPoints
           ? points.map((p) => `${p.label} ${valueFormatter(p.value)}`).join(', ')
           : undefined
       }
@@ -98,39 +123,45 @@ export function AreaChart({
             }}
           />
         ))}
-        <svg
-          viewBox={`0 0 ${VIEW_WIDTH} ${height}`}
-          preserveAspectRatio="none"
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-        >
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="0"
-                stopOpacity={AREA_TOP_OPACITY}
-                style={{ stopColor: 'var(--color-accent-2-400)' }}
-              />
-              <stop offset="1" stopOpacity={0} style={{ stopColor: 'var(--color-accent-2-400)' }} />
-            </linearGradient>
-          </defs>
-          <path
-            data-testid={testID ? `${testID}-area` : undefined}
-            d={area}
-            fill={`url(#${gradientId})`}
-          />
-          <path
-            data-testid={testID ? `${testID}-line` : undefined}
-            d={line}
-            stroke="var(--color-accent-2-400)"
-            strokeWidth={2}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-            fill="none"
-          />
-        </svg>
-        {points.length > 0
-          ? GRID_RATIOS.map((ratio) => (
+        {hasPoints ? (
+          <svg
+            viewBox={`0 0 ${VIEW_WIDTH} ${height}`}
+            preserveAspectRatio="none"
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+          >
+            <defs>
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0"
+                  stopOpacity={AREA_TOP_OPACITY}
+                  style={{ stopColor: 'var(--color-accent-2-400)' }}
+                />
+                <stop
+                  offset="1"
+                  stopOpacity={0}
+                  style={{ stopColor: 'var(--color-accent-2-400)' }}
+                />
+              </linearGradient>
+            </defs>
+            <path
+              data-testid={testID ? `${testID}-area` : undefined}
+              d={area}
+              fill={`url(#${gradientId})`}
+            />
+            <path
+              data-testid={testID ? `${testID}-line` : undefined}
+              d={line}
+              stroke="var(--color-accent-2-400)"
+              strokeWidth={2}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              fill="none"
+            />
+          </svg>
+        ) : null}
+        {hasPoints
+          ? GRID_RATIOS.map((ratio, i) => (
               <span
                 key={ratio}
                 style={{
@@ -140,19 +171,39 @@ export function AreaChart({
                   bottom: height - yAt(ratio, height),
                 }}
               >
-                {valueFormatter(max - ratio * (max - min))}
+                {valueFormatter(ticks[i] as number)}
               </span>
             ))
           : null}
       </div>
       <div
-        style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-2)' }}
+        style={{
+          position: 'relative',
+          height: 'calc(var(--text-h6) + var(--space-1))',
+          marginTop: 'var(--space-2)',
+        }}
       >
-        {points.map((p) => (
-          <span key={p.label} style={labelStyle}>
-            {p.label}
-          </span>
-        ))}
+        {selectLabelIndexes(points.length, MAX_X_LABELS).map((index) => {
+          const left = Math.min(
+            Math.max(pointFraction(index, points.length) * 100 - LABEL_SLOT_PERCENT / 2, 0),
+            100 - LABEL_SLOT_PERCENT,
+          );
+          return (
+            <span
+              key={index}
+              style={{
+                ...labelStyle,
+                position: 'absolute',
+                left: `${left}%`,
+                width: `${LABEL_SLOT_PERCENT}%`,
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {points[index]?.label}
+            </span>
+          );
+        })}
       </div>
     </div>
   );

@@ -21,6 +21,32 @@ const INSET = space[1];
 const GRID_LINE_COUNT = 4;
 const GRID_RATIOS = Array.from({ length: GRID_LINE_COUNT }, (_, i) => i / (GRID_LINE_COUNT - 1));
 const AREA_TOP_OPACITY = 0.35;
+const MAX_X_LABELS = 7;
+const X_LABEL_ROW_HEIGHT = fontSize.h6 + space[1];
+
+const defaultValueFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format;
+
+function roundToTenth(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+function resolveTicks(values: readonly number[]): number[] {
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  const padding = low === high ? Math.max(1, Math.abs(low) * 0.1) : 0;
+  const min = low - padding;
+  const max = high + padding;
+  return GRID_RATIOS.map((ratio) => roundToTenth(max - ratio * (max - min)));
+}
+
+function pointFraction(index: number, count: number): number {
+  return count === 1 ? 0.5 : index / (count - 1);
+}
+
+export function selectLabelIndexes(count: number, max: number): number[] {
+  if (count <= max) return Array.from({ length: count }, (_, i) => i);
+  return Array.from({ length: max }, (_, k) => Math.round((k * (count - 1)) / (max - 1)));
+}
 
 function yAt(ratioFromTop: number, height: number): number {
   return Number((INSET + ratioFromTop * (height - 2 * INSET)).toFixed(2));
@@ -56,33 +82,33 @@ export function buildAreaPath(
 export function AreaChart({
   points,
   height = 180,
-  valueFormatter = String,
+  valueFormatter = defaultValueFormatter,
   style,
   testID,
 }: AreaChartProps) {
   const gradientId = useId();
   const [width, setWidth] = useState(0);
-  const values = points.map((p) => p.value);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
+  const hasPoints = points.length > 0;
   const { line, area } = buildAreaPath(points, width, height);
+  const ticks = resolveTicks(points.map((p) => p.value));
+  const labelSlot = width / MAX_X_LABELS;
   const textStyle = { fontFamily: fontFamily.body, fontSize: fontSize.h6, color: neutral['400'] };
 
   return (
     <View
       testID={testID}
-      accessible
-      accessibilityRole="image"
+      accessible={hasPoints}
+      accessibilityRole={hasPoints ? 'image' : undefined}
       accessibilityLabel={
-        points.length > 0
+        hasPoints
           ? points.map((p) => `${p.label} ${valueFormatter(p.value)}`).join(', ')
           : undefined
       }
-      onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       style={style}
     >
       <View
         testID={testID ? `${testID}-plot` : undefined}
+        onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
         style={{ height, marginTop: fontSize.h6 }}
       >
         {GRID_RATIOS.map((ratio, i) => (
@@ -99,8 +125,8 @@ export function AreaChart({
             }}
           />
         ))}
-        {points.length > 0
-          ? GRID_RATIOS.map((ratio) => (
+        {hasPoints
+          ? GRID_RATIOS.map((ratio, i) => (
               <Text
                 key={ratio}
                 style={[
@@ -108,11 +134,11 @@ export function AreaChart({
                   { position: 'absolute', left: 0, bottom: height - yAt(ratio, height) },
                 ]}
               >
-                {valueFormatter(max - ratio * (max - min))}
+                {valueFormatter(ticks[i] as number)}
               </Text>
             ))
           : null}
-        {width > 0 && points.length > 0 ? (
+        {width > 0 && hasPoints ? (
           <Svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
             <Defs>
               <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -137,13 +163,28 @@ export function AreaChart({
           </Svg>
         ) : null}
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: space[2] }}>
-        {points.map((p) => (
-          <Text key={p.label} style={textStyle}>
-            {p.label}
-          </Text>
-        ))}
-      </View>
+      {width > 0 ? (
+        <View style={{ height: X_LABEL_ROW_HEIGHT, marginTop: space[2] }}>
+          {selectLabelIndexes(points.length, MAX_X_LABELS).map((index) => {
+            const left = Math.min(
+              Math.max(pointFraction(index, points.length) * width - labelSlot / 2, 0),
+              width - labelSlot,
+            );
+            return (
+              <Text
+                key={index}
+                numberOfLines={1}
+                style={[
+                  textStyle,
+                  { position: 'absolute', left, width: labelSlot, textAlign: 'center' },
+                ]}
+              >
+                {points[index]?.label}
+              </Text>
+            );
+          })}
+        </View>
+      ) : null}
     </View>
   );
 }

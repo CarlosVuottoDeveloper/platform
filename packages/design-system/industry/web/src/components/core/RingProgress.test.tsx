@@ -27,6 +27,19 @@ describe('resolveRingDash', () => {
     expect(dashoffset).toBeCloseTo(CIRCUMFERENCE_AT_RADIUS_50);
   });
 
+  it('treats non-finite value or max as zero', () => {
+    expect(resolveRingDash(Number.NaN, 100, 50)).toMatchObject({ fraction: 0, now: 0 });
+    expect(resolveRingDash(10, Number.POSITIVE_INFINITY, 50)).toMatchObject({
+      fraction: 0,
+      now: 0,
+    });
+  });
+
+  it('returns the clamped value as now', () => {
+    expect(resolveRingDash(250, 100, 50).now).toBe(100);
+    expect(resolveRingDash(45, 100, 50).now).toBe(45);
+  });
+
   it('yields fraction 0 when max is zero or negative', () => {
     expect(resolveRingDash(10, 0, 50).fraction).toBe(0);
     expect(resolveRingDash(10, -5, 50).fraction).toBe(0);
@@ -74,13 +87,10 @@ describe('RingProgress', () => {
   it('strokes the track with surface-2 and the arc with a gradient from the primary tokens', () => {
     render(<RingProgress value={50} testID="ring" />);
     const arc = screen.getByTestId('ring-arc');
-    const gradientId = (arc.getAttribute('stroke') as string).slice(5, -1);
-    const stops = document.getElementById(gradientId)?.querySelectorAll('stop');
 
+    expect(arc.getAttribute('stroke')).toMatch(/^url\(#.+\)$/);
     expect(screen.getByTestId('ring-track').getAttribute('stroke')).toBe('var(--color-surface-2)');
     expect(arc.getAttribute('stroke-linecap')).toBe('round');
-    expect(stops?.[0]?.style.stopColor).toBe('var(--color-accent-600)');
-    expect(stops?.[1]?.style.stopColor).toBe('var(--color-accent-800)');
   });
 
   it('gives each instance its own gradient id', () => {
@@ -93,6 +103,44 @@ describe('RingProgress', () => {
     expect(screen.getByTestId('a-arc').getAttribute('stroke')).not.toBe(
       screen.getByTestId('b-arc').getAttribute('stroke'),
     );
+  });
+
+  it('treats a NaN value as zero', () => {
+    render(<RingProgress value={Number.NaN} testID="ring" />);
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(screen.queryByTestId('ring-arc')).not.toBeInTheDocument();
+  });
+
+  it('treats a non-finite max as zero', () => {
+    render(<RingProgress value={10} max={Number.NaN} />);
+    const bar = screen.getByRole('progressbar');
+    expect(bar).toHaveAttribute('aria-valuemax', '0');
+    expect(bar).toHaveAttribute('aria-valuenow', '0');
+  });
+
+  it('never uses a negative radius when thickness exceeds size', () => {
+    render(<RingProgress value={50} size={20} thickness={40} testID="ring" />);
+    expect(screen.getByTestId('ring-track').getAttribute('r')).toBe('0');
+    expect(screen.getByTestId('ring-arc').getAttribute('r')).toBe('0');
+  });
+
+  it('lets pointer events reach the centerLabel through the svg', () => {
+    render(<RingProgress value={45} centerLabel={<button>detalhe</button>} testID="ring" />);
+    const svg = screen.getByTestId('ring-track').closest('svg') as SVGElement;
+
+    expect(svg.style.pointerEvents).toBe('none');
+  });
+
+  it('strokes the arc with the primary gradient start and end tokens', () => {
+    render(<RingProgress value={50} testID="ring" />);
+    const gradientId = (screen.getByTestId('ring-arc').getAttribute('stroke') as string).slice(
+      5,
+      -1,
+    );
+    const stops = document.getElementById(gradientId)?.querySelectorAll('stop');
+
+    expect(stops?.[0]?.style.stopColor).toBe('var(--gradient-primary-start)');
+    expect(stops?.[1]?.style.stopColor).toBe('var(--gradient-primary-end)');
   });
 
   it('renders the centerLabel', () => {
