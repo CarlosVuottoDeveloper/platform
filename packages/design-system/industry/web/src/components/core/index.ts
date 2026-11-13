@@ -81,3 +81,6 @@ export type { AccordionProps, AccordionItem } from './Accordion';
 
 export { RingProgress } from './RingProgress';
 export type { RingProgressProps } from './RingProgress';
+
+export { AreaChart } from './AreaChart';
+export type { AreaChartProps, AreaChartPoint } from './AreaChart';
