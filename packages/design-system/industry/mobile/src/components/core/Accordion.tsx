@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { color, radii, space } from '@industry/tokens';
+import { color, radii, space, fontFamily } from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface AccordionItem {
@@ -96,7 +96,9 @@ function AccordionSection({
         }}
       >
         {typeof item.title === 'string' ? (
-          <Text style={{ flex: 1, fontSize: 15, color: color.text }}>{item.title}</Text>
+          <Text style={{ fontFamily: fontFamily.body, flex: 1, fontSize: 15, color: color.text }}>
+            {item.title}
+          </Text>
         ) : (
           item.title
         )}
@@ -113,7 +115,9 @@ function AccordionSection({
           style={{ paddingHorizontal: space[3], paddingBottom: space[4] }}
         >
           {typeof item.content === 'string' ? (
-            <Text style={{ fontSize: 14, color: color.text }}>{item.content}</Text>
+            <Text style={{ fontFamily: fontFamily.body, fontSize: 14, color: color.text }}>
+              {item.content}
+            </Text>
           ) : (
             item.content
           )}

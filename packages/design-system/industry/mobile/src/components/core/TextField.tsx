@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import type { BlurEvent, FocusEvent, StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, control, fontSize, space } from '@industry/tokens';
+import { alpha, color, control, fontFamily, fontSize, space } from '@industry/tokens';
 import {
   fieldErrorStyle,
   fieldHintStyle,
@@ -54,11 +54,12 @@ export function TextField({
       selectionColor={color.accent}
       style={
         secureToggle
-          ? { flex: 1, fontSize: fontSize.body, color: color.text }
+          ? { flex: 1, fontFamily: fontFamily.body, fontSize: fontSize.body, color: color.text }
           : {
               minHeight: multiline ? 104 : control.height,
               paddingHorizontal: space[3],
               paddingVertical: multiline ? space[2] : 0,
+              fontFamily: fontFamily.body,
               fontSize: fontSize.body,
               color: color.text,
               ...frameStyle,

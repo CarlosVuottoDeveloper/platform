@@ -1,7 +1,7 @@
 import { ScrollView, Text } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, neutral, radii, space } from '@industry/tokens';
+import { color, neutral, radii, space, fontFamily } from '@industry/tokens';
 import { PillSegment } from './PillSegment';
 
 export interface TabItem {
@@ -26,6 +26,7 @@ function TabCount({ count }: { count: number }) {
   return (
     <Text
       style={{
+        fontFamily: fontFamily.body,
         fontSize: 12,
         paddingHorizontal: space[2],
         paddingVertical: space[1],

@@ -10,6 +10,7 @@ import {
   semanticColor,
   success,
   warning,
+  fontFamily,
 } from '@industry/tokens';
 
 export type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
@@ -63,12 +64,7 @@ export function Badge({ tone = 'neutral', solid, children, style, testID }: Badg
     >
       <View style={{ width: 6, height: 6, borderRadius: radii.pill, backgroundColor: textColor }} />
       {typeof children === 'string' ? (
-        <Text
-          style={{
-            fontSize: fontSize.h6,
-            color: textColor,
-          }}
-        >
+        <Text style={{ fontFamily: fontFamily.body, fontSize: fontSize.h6, color: textColor }}>
           {children}
         </Text>
       ) : (

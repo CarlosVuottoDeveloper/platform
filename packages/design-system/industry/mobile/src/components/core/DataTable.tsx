@@ -10,6 +10,7 @@ import {
   neutral,
   radii,
   space,
+  fontFamily,
 } from '@industry/tokens';
 import { Icon } from './Icon';
 
@@ -117,7 +118,13 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
                   {column.render ? (
                     <Cell>{column.render(row)}</Cell>
                   ) : (
-                    <Text style={{ fontSize: fontSize.body, color: color.text }}>
+                    <Text
+                      style={{
+                        fontFamily: fontFamily.body,
+                        fontSize: fontSize.body,
+                        color: color.text,
+                      }}
+                    >
                       {row[column.key]}
                     </Text>
                   )}
@@ -142,7 +149,9 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
 
 function Cell({ children }: { children?: ReactNode }) {
   return typeof children === 'string' || typeof children === 'number' ? (
-    <Text style={{ fontSize: fontSize.body, color: color.text }}>{children}</Text>
+    <Text style={{ fontFamily: fontFamily.body, fontSize: fontSize.body, color: color.text }}>
+      {children}
+    </Text>
   ) : (
     <>{children}</>
   );
@@ -151,7 +160,14 @@ function Cell({ children }: { children?: ReactNode }) {
 function ColumnLabel({ children }: { children?: ReactNode }) {
   return (
     <View style={{ minHeight: control.tap, justifyContent: 'center' }}>
-      <Text style={{ fontSize: fontSize.h6, fontWeight: fontWeight.medium, color: neutral['400'] }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          fontSize: fontSize.h6,
+          fontWeight: fontWeight.medium,
+          color: neutral['400'],
+        }}
+      >
         {children}
       </Text>
     </View>
@@ -187,6 +203,7 @@ function SortHeader({
     >
       <Text
         style={{
+          fontFamily: fontFamily.body,
           fontSize: fontSize.h6,
           fontWeight: fontWeight.medium,
           color: active ? accentRamp['200'] : neutral['400'],
@@ -229,7 +246,14 @@ function Pagination({
         paddingTop: space[3],
       }}
     >
-      <Text style={{ flexBasis: '100%', fontSize: fontSize.h6, color: neutral['400'] }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          flexBasis: '100%',
+          fontSize: fontSize.h6,
+          color: neutral['400'],
+        }}
+      >
         {total != null ? `${total} registros` : `Página ${page} de ${pageCount}`}
       </Text>
       <PagerButton disabled={page <= 1} onPress={onPage ? () => onPage(page - 1) : undefined}>
@@ -285,7 +309,13 @@ function PagerButton({
         opacity: disabled ? 0.35 : pressed ? 0.7 : 1,
       })}
     >
-      <Text style={{ fontSize: fontSize.h6, color: current ? color.bg : color.text }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          fontSize: fontSize.h6,
+          color: current ? color.bg : color.text,
+        }}
+      >
         {children}
       </Text>
     </Pressable>

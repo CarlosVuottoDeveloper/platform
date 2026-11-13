@@ -46,7 +46,14 @@ export function EmptyState({ icon, title, body, action, style, testID }: EmptySt
         </Text>
       ) : null}
       {body ? (
-        <Text style={{ fontSize: fontSize.h6, textAlign: 'center', color: neutral['400'] }}>
+        <Text
+          style={{
+            fontFamily: fontFamily.body,
+            fontSize: fontSize.h6,
+            textAlign: 'center',
+            color: neutral['400'],
+          }}
+        >
           {body}
         </Text>
       ) : null}

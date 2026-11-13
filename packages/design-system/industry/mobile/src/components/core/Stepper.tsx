@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import { Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, color, fontSize, neutral, radii } from '@industry/tokens';
+import { accentRamp, color, fontSize, neutral, radii, fontFamily } from '@industry/tokens';
 
 export interface Step {
   label?: ReactNode;
@@ -49,6 +49,7 @@ export function Stepper({ steps = [], current = 0, style }: StepperProps) {
               >
                 <Text
                   style={{
+                    fontFamily: fontFamily.body,
                     fontSize: 12,
                     color: isCurrent ? color.bg : done ? color.text : neutral['400'],
                   }}
@@ -58,6 +59,7 @@ export function Stepper({ steps = [], current = 0, style }: StepperProps) {
               </View>
               <Text
                 style={{
+                  fontFamily: fontFamily.body,
                   fontSize: fontSize.h6,
                   textAlign: 'center',
                   color: isCurrent ? color.text : done ? neutral['200'] : neutral['400'],

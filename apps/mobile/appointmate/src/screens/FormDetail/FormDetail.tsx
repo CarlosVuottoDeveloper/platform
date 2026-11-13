@@ -87,7 +87,8 @@ function ListField({
           <Text
             style={[
               styles.listItemNumber,
-              { fontFamily: numbered ? monoFontFamily : undefined, color: alpha(colors.text, 50) },
+              numbered ? { fontFamily: monoFontFamily } : null,
+              { color: alpha(colors.text, 50) },
             ]}
           >
             {numbered ? String(index + 1).padStart(2, '0') : '•'}

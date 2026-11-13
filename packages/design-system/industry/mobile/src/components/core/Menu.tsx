@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Modal, Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { accentRamp, alpha, color, control, radii, shadow, space } from '@industry/tokens';
+import {
+  accentRamp,
+  alpha,
+  color,
+  control,
+  radii,
+  shadow,
+  space,
+  fontFamily,
+} from '@industry/tokens';
 import { Icon } from './Icon';
 
 export interface MenuItem {
@@ -93,6 +102,7 @@ export function Menu({
             {header ? (
               <Text
                 style={{
+                  fontFamily: fontFamily.body,
                   fontSize: 11,
                   color: alpha(color.text, 50),
                   paddingHorizontal: space[4],
@@ -143,7 +153,13 @@ function MenuItemRow({ item, onSelect }: { item: MenuItem; onSelect: () => void 
       <View style={{ width: 16 }}>
         {item.selected ? <Icon name="Check" size={16} color={accentRamp['300']} /> : null}
       </View>
-      <Text style={{ fontSize: 14, color: item.selected ? accentRamp['300'] : color.text }}>
+      <Text
+        style={{
+          fontFamily: fontFamily.body,
+          fontSize: 14,
+          color: item.selected ? accentRamp['300'] : color.text,
+        }}
+      >
         {item.label}
       </Text>
     </Pressable>
