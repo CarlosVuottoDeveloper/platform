@@ -1,10 +1,10 @@
-import { EmptyState } from '@industry/web';
+import { ChartsTab } from './ChartsTab';
 
 export function Reports() {
   return (
-    <section>
-      <h1>Relatórios</h1>
-      <EmptyState title="Em breve" body="Gráficos e relatórios aparecem aqui." />
-    </section>
+    <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
+      <h1 style={{ margin: 0 }}>Relatórios</h1>
+      <ChartsTab />
+    </div>
   );
 }
