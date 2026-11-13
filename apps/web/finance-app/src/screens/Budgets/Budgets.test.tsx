@@ -10,6 +10,7 @@ jest.mock('../../services/authService');
 jest.mock('../../services/accountsService');
 jest.mock('../../services/budgetsService');
 jest.mock('../../services/categoriesService');
+jest.mock('../../services/goalsService');
 jest.mock('../../services/recurrencesService');
 jest.mock('../../services/transactionsService');
 

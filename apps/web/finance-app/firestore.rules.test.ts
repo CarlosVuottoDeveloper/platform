@@ -450,4 +450,52 @@ describe('Firestore security rules — finance-app', () => {
       );
     });
   });
+
+  describe('goals and contributions', () => {
+    const goalPath = `users/${alice}/goals/g1`;
+    const contributionPath = `${goalPath}/contributions/k1`;
+    const validGoal = () => ({ name: 'Viagem', targetCents: 1000000, deadline: '2027-01-31' });
+
+    it('lets the owner create and update a goal, with or without a deadline', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(setDoc(doc(db, goalPath), validGoal()));
+      await assertSucceeds(updateDoc(doc(db, goalPath), { deadline: null, targetCents: 2000000 }));
+    });
+
+    it.each([
+      ['an undeclared field', { extra: 1 }],
+      ['an empty name', { name: '' }],
+      ['a name over 60 characters', { name: 'n'.repeat(61) }],
+      ['a zero target', { targetCents: 0 }],
+      ['a fractional target', { targetCents: 10.5 }],
+      ['a malformed deadline', { deadline: '31/01/2027' }],
+    ])('denies a goal with %s', async (_label, override) => {
+      await assertFails(setDoc(doc(ownerDb(alice), goalPath), { ...validGoal(), ...override }));
+    });
+
+    it('lets the owner record, read and delete a contribution', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(
+        setDoc(doc(db, contributionPath), { amountCents: 5000, date: '2026-03-01' }),
+      );
+      await assertSucceeds(getDoc(doc(db, contributionPath)));
+      await assertSucceeds(deleteDoc(doc(db, contributionPath)));
+    });
+
+    it.each([
+      ['an undeclared field', { amountCents: 5000, date: '2026-03-01', extra: 1 }],
+      ['a zero amount', { amountCents: 0, date: '2026-03-01' }],
+      ['a malformed date', { amountCents: 5000, date: 'ontem' }],
+    ])('denies a contribution with %s', async (_label, data) => {
+      await assertFails(setDoc(doc(ownerDb(alice), contributionPath), data));
+    });
+
+    it('denies another user touching goals or contributions', async () => {
+      await assertFails(setDoc(doc(strangerDb(), goalPath), validGoal()));
+      await assertFails(
+        setDoc(doc(strangerDb(), contributionPath), { amountCents: 5000, date: '2026-03-01' }),
+      );
+      await assertFails(getDoc(doc(strangerDb(), contributionPath)));
+    });
+  });
 });

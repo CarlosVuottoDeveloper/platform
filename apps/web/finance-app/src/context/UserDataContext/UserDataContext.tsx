@@ -4,11 +4,13 @@ import type { Account } from '../../domain/account';
 import type { Budget } from '../../domain/budget';
 import { toCalendarDate } from '../../domain/calendarDate';
 import type { Category } from '../../domain/category';
+import type { Goal } from '../../domain/goal';
 import type { Recurrence } from '../../domain/recurrence';
 import type { Transaction } from '../../domain/transaction';
 import { subscribeToAccounts } from '../../services/accountsService';
 import { subscribeToBudgets } from '../../services/budgetsService';
 import { seedDefaultCategories, subscribeToCategories } from '../../services/categoriesService';
+import { subscribeToGoals } from '../../services/goalsService';
 import {
   materializeDueRecurrences,
   subscribeToRecurrences,
@@ -21,6 +23,7 @@ interface UserDataContextValue {
   accounts: Account[];
   budgets: Budget[];
   categories: Category[];
+  goals: Goal[];
   recurrences: Recurrence[];
   transactions: Transaction[];
   loading: boolean;
@@ -74,6 +77,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
   const accounts = useUserCollection(subscribeToAccounts);
   const budgets = useUserCollection(subscribeToBudgets);
   const categories = useUserCollection(subscribeToCategories);
+  const goals = useUserCollection(subscribeToGoals);
   const recurrences = useUserCollection(subscribeToRecurrences);
   const transactions = useUserCollection(subscribeToTransactions);
   useRecurrenceMaterialization(recurrences);
@@ -83,11 +87,12 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       accounts: accounts ?? [],
       budgets: budgets ?? [],
       categories: categories ?? [],
+      goals: goals ?? [],
       recurrences: recurrences ?? [],
       transactions: transactions ?? [],
-      loading: [accounts, budgets, categories, recurrences, transactions].includes(null),
+      loading: [accounts, budgets, categories, goals, recurrences, transactions].includes(null),
     }),
-    [accounts, budgets, categories, recurrences, transactions],
+    [accounts, budgets, categories, goals, recurrences, transactions],
   );
 
   return <UserDataContext.Provider value={value}>{children}</UserDataContext.Provider>;
