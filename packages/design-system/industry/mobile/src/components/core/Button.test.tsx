@@ -199,4 +199,26 @@ describe('Button', () => {
       selected: false,
     });
   });
+
+  it('keeps a caller accessibilityState.selected when the selected prop is not passed', () => {
+    const { getByTestId } = render(<Button accessibilityState={{ selected: true }}>Opção</Button>);
+
+    expect(getByTestId('button-root').props.accessibilityState).toMatchObject({ selected: true });
+  });
+
+  it('lets the selected prop win over a caller accessibilityState.selected', () => {
+    const { getByTestId } = render(
+      <Button selected={false} accessibilityState={{ selected: true }}>
+        Opção
+      </Button>,
+    );
+
+    expect(getByTestId('button-root').props.accessibilityState).toMatchObject({ selected: false });
+  });
+
+  it('still takes disabled from the component, not from a caller accessibilityState', () => {
+    const { getByTestId } = render(<Button accessibilityState={{ disabled: true }}>Opção</Button>);
+
+    expect(getByTestId('button-root').props.accessibilityState).toMatchObject({ disabled: false });
+  });
 });

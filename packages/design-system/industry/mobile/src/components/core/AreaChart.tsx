@@ -24,7 +24,16 @@ const AREA_TOP_OPACITY = 0.35;
 const MAX_X_LABELS = 7;
 const X_LABEL_ROW_HEIGHT = fontSize.h6 + space[1];
 
-const defaultValueFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format;
+let defaultNumberFormat: Intl.NumberFormat | undefined;
+
+function defaultValueFormatter(value: number): string {
+  defaultNumberFormat ??= new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 });
+  return defaultNumberFormat.format(value);
+}
+
+function finitePointsOf(points: readonly AreaChartPoint[]): AreaChartPoint[] {
+  return points.filter((point) => Number.isFinite(point.value));
+}
 
 function resolveTicks(values: readonly number[]): number[] {
   const low = Math.min(...values);
@@ -76,13 +85,14 @@ export function buildAreaPath(
 }
 
 export function AreaChart({
-  points,
+  points: allPoints,
   height = 180,
   valueFormatter = defaultValueFormatter,
   style,
   testID,
 }: AreaChartProps) {
   const gradientId = useId();
+  const points = finitePointsOf(allPoints);
   const [width, setWidth] = useState(0);
   const hasPoints = points.length > 0;
   const { line, area } = buildAreaPath(points, width, height);
@@ -121,19 +131,6 @@ export function AreaChart({
             }}
           />
         ))}
-        {hasPoints
-          ? GRID_RATIOS.map((ratio, i) => (
-              <Text
-                key={ratio}
-                style={[
-                  textStyle,
-                  { position: 'absolute', left: 0, bottom: height - yAt(ratio, height) },
-                ]}
-              >
-                {valueFormatter(ticks[i] as number)}
-              </Text>
-            ))
-          : null}
         {width > 0 && hasPoints ? (
           <Svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
             <Defs>
@@ -158,6 +155,19 @@ export function AreaChart({
             />
           </Svg>
         ) : null}
+        {hasPoints
+          ? GRID_RATIOS.map((ratio, i) => (
+              <Text
+                key={ratio}
+                style={[
+                  textStyle,
+                  { position: 'absolute', left: 0, bottom: height - yAt(ratio, height) },
+                ]}
+              >
+                {valueFormatter(ticks[i] as number)}
+              </Text>
+            ))
+          : null}
       </View>
       {width > 0 ? (
         <View style={{ height: X_LABEL_ROW_HEIGHT, marginTop: space[2] }}>

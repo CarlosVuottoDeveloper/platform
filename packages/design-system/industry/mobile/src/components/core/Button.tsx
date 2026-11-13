@@ -99,7 +99,7 @@ export function Button({
       accessibilityState={{
         ...accessibilityState,
         disabled: Boolean(disabled),
-        selected: Boolean(selected),
+        selected: Boolean(selected ?? accessibilityState?.selected),
       }}
       style={({ pressed }) => [
         {

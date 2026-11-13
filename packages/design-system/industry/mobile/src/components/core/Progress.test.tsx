@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import { color, gradient, neutral, radii, space } from '@industry/tokens';
 import { Progress, Spinner } from './Progress';
@@ -84,14 +84,12 @@ describe('Progress look', () => {
     expect(fill).toMatchObject({ borderRadius: radii.pill, overflow: 'hidden', width: '40%' });
   });
 
-  it('draws the primary gradient at the full track width so it does not rescale', () => {
+  it('draws the vertical primary gradient across the fill without measuring the track', () => {
     const { getByTestId } = render(<Progress value={40} testID="progress" />);
-    fireEvent(getByTestId('progress'), 'layout', {
-      nativeEvent: { layout: { x: 0, y: 0, width: 200, height: space[2] } },
-    });
     const gradientStyle = flat(getByTestId('progress-gradient'));
 
-    expect(gradientStyle.width).toBe(200);
+    expect(gradient.primary.angle).toBe(180);
+    expect(gradientStyle).toMatchObject({ width: '100%', height: '100%' });
     expect(gradientStyle.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
     expect(gradientStyle.experimental_backgroundImage).toContain(gradient.primary.colors[1]);
     expect(gradientStyle.boxShadow).toBeUndefined();

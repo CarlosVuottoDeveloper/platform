@@ -24,7 +24,6 @@ export interface MenuItem {
 export interface MenuProps {
   /** Usually a `<Button>` or `<IconButton>` — receives the press that opens the menu. */
   trigger: ReactNode;
-  /** Small label above the items, e.g. a group heading like "Período". */
   header?: string;
   items?: MenuItem[];
   open?: boolean;

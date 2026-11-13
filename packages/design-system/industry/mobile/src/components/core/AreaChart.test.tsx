@@ -1,5 +1,6 @@
 import { StyleSheet, processColor } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import type { ReactTestRendererJSON } from 'react-test-renderer';
 import { accent2Ramp, neutral, viz } from '@industry/tokens';
 import { AreaChart, buildAreaPath, selectLabelIndexes } from './AreaChart';
 
@@ -13,6 +14,19 @@ const measure = (testID: string, width = 300) =>
   fireEvent(screen.getByTestId(`${testID}-plot`), 'layout', {
     nativeEvent: { layout: { x: 0, y: 0, width, height: 180 } },
   });
+
+function findByTestID(
+  tree: ReturnType<typeof screen.toJSON>,
+  testID: string,
+): ReactTestRendererJSON | undefined {
+  const visit = (node: ReactTestRendererJSON | string): ReactTestRendererJSON | undefined => {
+    if (typeof node === 'string') return undefined;
+    if (node.props.testID === testID) return node;
+    return node.children?.map(visit).find(Boolean);
+  };
+  const roots = Array.isArray(tree) ? tree : tree ? [tree] : [];
+  return roots.map(visit).find(Boolean);
+}
 
 const numbersIn = (path: string) => (path.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
 
@@ -281,5 +295,79 @@ describe('AreaChart', () => {
 
     rerender(<AreaChart points={POINTS} height={240} testID="chart" />);
     expect(StyleSheet.flatten(screen.getByTestId('chart-plot').props.style).height).toBe(240);
+  });
+
+  describe('non-finite values', () => {
+    const WITH_NAN = [
+      { label: 'Seg', value: 3 },
+      { label: 'Ter', value: NaN },
+      { label: 'Qua', value: 5 },
+    ];
+
+    it('skips the bad point in the path, ticks, x labels and accessible label', () => {
+      render(<AreaChart testID="c" points={WITH_NAN} />);
+      measure('c');
+
+      expect(screen.getByTestId('c-line').props.d).not.toContain('NaN');
+      expect(screen.getByTestId('c-area').props.d).not.toContain('NaN');
+      expect(screen.queryByText(/NaN/)).toBeNull();
+      expect(screen.queryByText('Ter')).toBeNull();
+      expect(screen.getByText('Seg')).toBeTruthy();
+      expect(screen.getByText('Qua')).toBeTruthy();
+      expect(screen.getByTestId('c').props.accessibilityLabel).toBe('Seg 3, Qua 5');
+    });
+
+    it('draws the remaining points as if the bad one were absent', () => {
+      render(<AreaChart testID="c" points={WITH_NAN} />);
+      measure('c');
+      const clean = buildAreaPath([{ value: 3 }, { value: 5 }], 300, 180);
+
+      expect(screen.getByTestId('c-line').props.d).toBe(clean.line);
+    });
+
+    it('treats Infinity like a missing value', () => {
+      render(
+        <AreaChart
+          testID="c"
+          points={[
+            { label: 'A', value: Infinity },
+            { label: 'B', value: 2 },
+            { label: 'C', value: -Infinity },
+          ]}
+        />,
+      );
+      measure('c');
+
+      expect(screen.getByTestId('c-line').props.d).not.toMatch(/NaN|Infinity/);
+      expect(screen.queryByText(/Infinity|NaN/)).toBeNull();
+    });
+
+    it('renders like an empty chart when no value is finite', () => {
+      render(<AreaChart testID="c" points={[{ label: 'A', value: NaN }]} />);
+      measure('c');
+
+      expect(screen.queryByTestId('c-line')).toBeNull();
+      expect(screen.getByTestId('c').props.accessible).toBe(false);
+    });
+  });
+
+  it('paints the y labels above the svg', () => {
+    render(<AreaChart testID="c" points={POINTS} />);
+    measure('c');
+    const plot = findByTestID(screen.toJSON(), 'c-plot');
+    const kinds = (plot?.children ?? []).map((child) =>
+      typeof child === 'string' ? 'text' : child.type,
+    );
+
+    expect(kinds.indexOf('Text')).toBeGreaterThan(kinds.findIndex((kind) => /svg/i.test(kind)));
+  });
+
+  it('does not build the default number format until a chart renders', () => {
+    const NumberFormat = jest.spyOn(Intl, 'NumberFormat');
+    jest.isolateModules(() => {
+      jest.requireActual('./AreaChart');
+    });
+    expect(NumberFormat).not.toHaveBeenCalled();
+    NumberFormat.mockRestore();
   });
 });

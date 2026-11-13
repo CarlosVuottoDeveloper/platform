@@ -79,9 +79,9 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
                 paddingHorizontal: space[3],
               }}
             >
-              {column.sortable === false || !onSort ? (
+              {column.sortable === false ? (
                 <ColumnLabel>{column.label}</ColumnLabel>
-              ) : (
+              ) : onSort ? (
                 <SortHeader
                   columnKey={column.key}
                   active={sort?.key === column.key}
@@ -90,6 +90,13 @@ export function DataTable<Row extends Record<string, ReactNode> = Record<string,
                 >
                   {column.label}
                 </SortHeader>
+              ) : (
+                <ColumnLabel
+                  active={sort?.key === column.key}
+                  direction={sort?.key === column.key ? sort.dir : undefined}
+                >
+                  {column.label}
+                </ColumnLabel>
               )}
             </View>
           ))}
@@ -157,19 +164,59 @@ function Cell({ children }: { children?: ReactNode }) {
   );
 }
 
-function ColumnLabel({ children }: { children?: ReactNode }) {
+function HeaderLabel({
+  active = false,
+  direction,
+  children,
+}: {
+  active?: boolean;
+  direction?: 'asc' | 'desc';
+  children?: ReactNode;
+}) {
   return (
-    <View style={{ minHeight: control.tap, justifyContent: 'center' }}>
+    <>
       <Text
         style={{
           fontFamily: fontFamily.body,
           fontSize: fontSize.h6,
           fontWeight: fontWeight.medium,
-          color: neutral['400'],
+          color: active ? accentRamp['200'] : neutral['400'],
         }}
       >
         {children}
       </Text>
+      {active ? (
+        <Icon
+          name={direction === 'desc' ? 'ChevronDown' : 'ChevronUp'}
+          size="xs"
+          color={accentRamp['200']}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function ColumnLabel({
+  active,
+  direction,
+  children,
+}: {
+  active?: boolean;
+  direction?: 'asc' | 'desc';
+  children?: ReactNode;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space[1],
+        minHeight: control.tap,
+      }}
+    >
+      <HeaderLabel active={active} direction={direction}>
+        {children}
+      </HeaderLabel>
     </View>
   );
 }
@@ -201,23 +248,9 @@ function SortHeader({
         opacity: pressed ? 0.6 : 1,
       })}
     >
-      <Text
-        style={{
-          fontFamily: fontFamily.body,
-          fontSize: fontSize.h6,
-          fontWeight: fontWeight.medium,
-          color: active ? accentRamp['200'] : neutral['400'],
-        }}
-      >
+      <HeaderLabel active={active} direction={direction}>
         {children}
-      </Text>
-      {active ? (
-        <Icon
-          name={direction === 'desc' ? 'ChevronDown' : 'ChevronUp'}
-          size="xs"
-          color={accentRamp['200']}
-        />
-      ) : null}
+      </HeaderLabel>
     </Pressable>
   );
 }
