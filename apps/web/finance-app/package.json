@@ -9,15 +9,18 @@
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "test:rules": "firebase emulators:exec --only firestore \"jest --testPathIgnorePatterns=/node_modules/ --testPathPatterns=firestore.rules.test\""
   },
   "dependencies": {
     "@industry/tokens": "*",
     "@industry/web": "*",
+    "firebase": "^11.0.0",
     "react": "19.2.5",
     "react-dom": "19.2.5"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.0",
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@testing-library/dom": "^10.0.0",
@@ -25,6 +28,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
+    "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.7.0",
