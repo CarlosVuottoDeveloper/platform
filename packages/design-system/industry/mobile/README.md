@@ -43,7 +43,7 @@ Paridade de nome não significa paridade de implementação. As diferenças são
 
 ## Tema
 
-`useTheme()` segue a aparência do sistema operacional por padrão e, num aparelho em modo claro, cai para a paleta clara — mesmo o Industry não tendo tema claro como produto. **Os dois apps deste monorepo fixam a preferência em escuro no `App.tsx`, e qualquer novo consumidor precisa fazer o mesmo.**
+`useTheme()` devolve sempre a paleta do Industry, que tem uma única aparência e não responde ao modo claro do sistema operacional.
 
 ## Fundações no Storybook
 

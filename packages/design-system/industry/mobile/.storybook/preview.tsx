@@ -1,7 +1,7 @@
 import type { Preview, Decorator } from '@storybook/react';
 import { Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { color, lightColor } from '@industry/tokens';
+import { color } from '@industry/tokens';
 import { industryTheme } from './theme';
 
 // react-native-svg's WebShape never mounts a real <svg> in this Storybook's
@@ -41,10 +41,7 @@ const preview: Preview = {
   parameters: {
     backgrounds: {
       default: 'industry',
-      values: [
-        { name: 'industry', value: color.bg },
-        { name: 'industry-light', value: lightColor.bg },
-      ],
+      values: [{ name: 'industry', value: color.bg }],
     },
     docs: { theme: industryTheme },
   },

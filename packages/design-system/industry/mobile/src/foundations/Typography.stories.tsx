@@ -38,7 +38,7 @@ export const Headings: Story = {
               color: color.text,
             }}
           >
-            Um design system em Barlow Condensed
+            Um design system de uma só voz
           </Text>
         </View>
       ))}

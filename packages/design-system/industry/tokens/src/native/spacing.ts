@@ -9,7 +9,7 @@ export const space = {
 } as const;
 
 export const control = {
-  height: 44,
-  heightSm: 36,
+  height: 48,
+  heightSm: 40,
   tap: 44,
 } as const;

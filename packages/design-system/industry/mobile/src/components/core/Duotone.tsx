@@ -9,9 +9,6 @@ export interface DuotoneProps {
 }
 
 export function Duotone({ children, style }: DuotoneProps) {
-  // Resolved on every render, not hoisted to module scope, so this picks up
-  // a future theme/dark-mode change to color.accent instead of staying
-  // frozen at whatever it resolved to on first import.
   const overlayColor = alpha(color.accent, 55);
 
   return (
