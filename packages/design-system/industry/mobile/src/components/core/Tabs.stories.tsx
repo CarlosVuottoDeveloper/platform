@@ -4,6 +4,7 @@ import { Tabs } from './Tabs';
 const meta: Meta<typeof Tabs> = {
   title: 'Core/Tabs',
   component: Tabs,
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;

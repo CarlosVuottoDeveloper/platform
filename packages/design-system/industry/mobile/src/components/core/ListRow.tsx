@@ -49,7 +49,7 @@ export function ListRow({
           paddingHorizontal: space[4],
           paddingVertical: space[3],
           borderBottomWidth: 1,
-          borderBottomColor: alpha(color.text, 9),
+          borderBottomColor: color.divider,
           backgroundColor: pressed ? alpha(color.text, 5) : 'transparent',
         },
         style,

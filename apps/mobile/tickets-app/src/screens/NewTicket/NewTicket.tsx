@@ -127,7 +127,6 @@ export function NewTicket({ navigation }: Props) {
           <Button
             style={styles.submitButton}
             variant="primary"
-            framed
             block
             onPress={handleSave}
             disabled={!title.trim() || loading}

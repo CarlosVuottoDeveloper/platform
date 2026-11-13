@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { alpha, color, control, danger, semanticColor, space } from '@industry/tokens';
+import { alpha, color, control, fontSize, radii, space } from '@industry/tokens';
+import {
+  fieldErrorStyle,
+  fieldHintStyle,
+  fieldLabelStyle,
+  resolveFieldFrameStyle,
+} from './fieldFrame';
 import { Icon } from './Icon';
 
 export interface DatePickerProps {
@@ -84,7 +90,6 @@ export function DatePicker({
 }: DatePickerProps) {
   const [open, setOpen] = useState(false);
   const [viewDate, setViewDate] = useState(() => startOfDay(value ?? new Date()));
-  const borderColor = error ? semanticColor.danger : color.divider;
   const close = () => setOpen(false);
 
   function selectDate(date: Date) {
@@ -101,7 +106,7 @@ export function DatePicker({
 
   return (
     <View style={[{ gap: 6 }, style]}>
-      {label ? <Text style={{ fontSize: 13, color: alpha(color.text, 70) }}>{label}</Text> : null}
+      {label ? <Text style={fieldLabelStyle}>{label}</Text> : null}
       <Pressable
         testID={testID}
         disabled={disabled}
@@ -114,21 +119,24 @@ export function DatePicker({
           alignItems: 'center',
           height: control.height,
           paddingHorizontal: space[3],
-          backgroundColor: color.surface,
-          borderWidth: 1,
-          borderColor,
-          opacity: disabled ? 0.45 : 1,
+          ...resolveFieldFrameStyle({ focused: open, invalid: Boolean(error), disabled }),
         }}
       >
-        <Text style={{ flex: 1, fontSize: 15, color: value ? color.text : alpha(color.text, 50) }}>
+        <Text
+          style={{
+            flex: 1,
+            fontSize: fontSize.body,
+            color: value ? color.text : alpha(color.text, 50),
+          }}
+        >
           {value ? formatDate(value) : placeholder}
         </Text>
         <Icon name="Calendar" size="sm" color={alpha(color.text, 70)} />
       </Pressable>
       {error ? (
-        <Text style={{ fontSize: 12, color: danger['300'] }}>{error}</Text>
+        <Text style={fieldErrorStyle}>{error}</Text>
       ) : hint ? (
-        <Text style={{ fontSize: 12, color: alpha(color.text, 50) }}>{hint}</Text>
+        <Text style={fieldHintStyle}>{hint}</Text>
       ) : null}
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={close}>
@@ -142,8 +150,10 @@ export function DatePicker({
             onStartShouldSetResponder={() => true}
             style={{
               backgroundColor: color.surface,
-              borderTopWidth: 1,
+              borderWidth: 1,
               borderColor: color.divider,
+              borderTopLeftRadius: radii.lg,
+              borderTopRightRadius: radii.lg,
               padding: space[4],
               gap: space[3],
             }}
@@ -219,6 +229,7 @@ function NavButton({
       accessibilityLabel={label}
       style={({ pressed }) => ({
         padding: space[1],
+        borderRadius: radii.pill,
         backgroundColor: pressed ? color.surface2 : 'transparent',
       })}
     >
@@ -253,12 +264,13 @@ function DayCell({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: selected ? color.accent : pressed ? color.surface2 : 'transparent',
+        borderRadius: radii.pill,
         borderWidth: 1,
         borderColor: isToday && !selected ? color.dividerStrong : 'transparent',
         opacity: disabled ? 0.35 : 1,
       })}
     >
-      <Text style={{ fontSize: 12, color: selected ? color.surface : color.text }}>
+      <Text style={{ fontSize: 12, color: selected ? color.bg : color.text }}>
         {date.getDate()}
       </Text>
     </Pressable>

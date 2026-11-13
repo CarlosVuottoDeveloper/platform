@@ -1,4 +1,5 @@
-import { Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { color, fontSize, fontWeight, radii } from '@industry/tokens';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { AppBar } from './AppBar';
 
@@ -55,6 +56,36 @@ describe('AppBar', () => {
     );
 
     expect(screen.getByText('filtro')).toBeTruthy();
+  });
+
+  it('is transparent with no bottom border and a heading-sized title', () => {
+    render(<AppBar title="Painel" testID="bar" />);
+
+    const bar = StyleSheet.flatten(screen.getByTestId('bar').props.style);
+    expect(bar.backgroundColor).toBe('transparent');
+    expect(bar.borderBottomWidth).toBeUndefined();
+    expect(screen.getByText('Painel').props.style).toMatchObject({
+      fontSize: fontSize.h4,
+      fontWeight: fontWeight.heading,
+      color: color.text,
+    });
+  });
+
+  it('renders the back button and actions as circular surface buttons', () => {
+    render(
+      <AppBar
+        title="Painel"
+        onBackPress={jest.fn()}
+        actions={[{ icon: 'Bell', label: 'Notificações', onPress: jest.fn() }]}
+      />,
+    );
+
+    for (const label of ['Voltar', 'Notificações']) {
+      expect(StyleSheet.flatten(screen.getByLabelText(label).props.style)).toMatchObject({
+        backgroundColor: color.surface2,
+        borderRadius: radii.pill,
+      });
+    }
   });
 
   it('works without a testID on the back button', () => {

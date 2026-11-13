@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 import { Text } from 'react-native';
-import { color, semanticColor } from '@industry/tokens';
+import { color, radii, semanticColor } from '@industry/tokens';
 import { TextField } from './TextField';
 
 describe('TextField', () => {
@@ -35,7 +35,7 @@ describe('TextField', () => {
     );
     const input = getByPlaceholderText('Digite algo');
 
-    expect(input.props.style).toMatchObject({ borderColor: color.divider });
+    expect(input.props.style).toMatchObject({ borderColor: color.controlBorder });
 
     fireEvent(input, 'focus', { nativeEvent: {} });
     expect(onFocus).toHaveBeenCalled();
@@ -43,13 +43,29 @@ describe('TextField', () => {
 
     fireEvent(input, 'blur', { nativeEvent: {} });
     expect(onBlur).toHaveBeenCalled();
-    expect(input.props.style).toMatchObject({ borderColor: color.divider });
+    expect(input.props.style).toMatchObject({ borderColor: color.controlBorder });
   });
 
   it('uses the danger color for the border when there is an error, regardless of focus', () => {
     const { getByPlaceholderText } = render(<TextField error="Inválido" placeholder="x" />);
     expect(getByPlaceholderText('x').props.style).toMatchObject({
       borderColor: semanticColor.danger,
+    });
+  });
+
+  it('rounds the field with the md radius on a surface fill', () => {
+    const { getByPlaceholderText } = render(<TextField placeholder="x" />);
+    expect(getByPlaceholderText('x').props.style).toMatchObject({
+      borderRadius: radii.md,
+      backgroundColor: color.surface,
+    });
+  });
+
+  it('rounds and outlines the secure-toggle container like a plain field', () => {
+    const { getByPlaceholderText } = render(<TextField secureToggle placeholder="x" />);
+    expect(getByPlaceholderText('x').parent?.parent?.props.style).toMatchObject({
+      borderRadius: radii.md,
+      borderColor: color.controlBorder,
     });
   });
 

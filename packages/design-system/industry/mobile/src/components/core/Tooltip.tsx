@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, shadow } from '@industry/tokens';
+import { color, radii, shadow } from '@industry/tokens';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 
@@ -86,7 +86,8 @@ export function Tooltip({ label, side = 'top', children, style, testID }: Toolti
               position: 'absolute',
               paddingHorizontal: 9,
               paddingVertical: 5,
-              backgroundColor: color.surface,
+              backgroundColor: color.surface2,
+              borderRadius: radii.md,
               borderWidth: 1,
               borderColor: color.dividerStrong,
             },

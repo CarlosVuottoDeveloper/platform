@@ -1,13 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { color } from '@industry/tokens';
-import { FAB, resolveFabBackground } from './FAB';
+import { StyleSheet } from 'react-native';
+import { glow, radii, shadow } from '@industry/tokens';
+import { FAB } from './FAB';
+import { PRIMARY_ACTION_FILL } from './PrimaryActionSurface';
 
-describe('resolveFabBackground', () => {
-  it('tints darker while pressed, otherwise the accent color', () => {
-    expect(resolveFabBackground(true)).toBe(color.accent2);
-    expect(resolveFabBackground(false)).toBe(color.accent);
-  });
-});
+const grant = {
+  nativeEvent: { touches: [], changedTouches: [], timestamp: 0 },
+  persist: jest.fn(),
+};
 
 describe('FAB', () => {
   it('renders with its accessible label', () => {
@@ -33,12 +33,45 @@ describe('FAB', () => {
     expect(onPress).not.toHaveBeenCalled();
   });
 
-  it('tints darker while pressed', () => {
+  it('is a circle with the primary gradient and the accent glow', () => {
     render(<FAB label="Novo chamado" />);
-    fireEvent(screen.getByLabelText('Novo chamado'), 'pressIn');
+    const surface = StyleSheet.flatten(screen.getByTestId('fab-surface').props.style);
+    expect(surface.borderRadius).toBe(radii.pill);
+    expect(surface.boxShadow).toBe(glow.accent);
+    expect(StyleSheet.flatten(screen.getByLabelText('Novo chamado').props.style).borderRadius).toBe(
+      radii.pill,
+    );
+  });
 
-    const [flattened] = screen.getByLabelText('Novo chamado').props.style;
-    expect(flattened).toMatchObject({ backgroundColor: expect.any(String) });
+  it('keeps an opaque fill and the large elevation on the container', () => {
+    render(<FAB label="Novo chamado" />);
+    expect(StyleSheet.flatten(screen.getByLabelText('Novo chamado').props.style)).toMatchObject({
+      backgroundColor: PRIMARY_ACTION_FILL,
+      elevation: shadow.lg.elevation,
+    });
+  });
+
+  it('shows no glow and dims when disabled', () => {
+    render(<FAB label="Novo chamado" disabled />);
+    expect(
+      StyleSheet.flatten(screen.getByTestId('fab-surface').props.style).boxShadow,
+    ).toBeUndefined();
+    expect(StyleSheet.flatten(screen.getByLabelText('Novo chamado').props.style).opacity).toBe(
+      0.45,
+    );
+  });
+
+  it('dims the surface while pressed and forwards onPressIn', () => {
+    const onPressIn = jest.fn();
+    render(<FAB label="Novo chamado" onPressIn={onPressIn} />);
+    const surfaceOpacity = () =>
+      StyleSheet.flatten(screen.getByTestId('fab-surface').props.style).opacity;
+    expect(surfaceOpacity()).toBe(1);
+
+    fireEvent(screen.getByLabelText('Novo chamado'), 'responderGrant', grant);
+
+    expect(surfaceOpacity()).toBe(0.85);
+    expect(onPressIn).toHaveBeenCalled();
   });
 
   it('sizes the icon down and shrinks the box for the "md" size', () => {

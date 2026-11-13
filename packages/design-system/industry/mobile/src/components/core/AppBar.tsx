@@ -1,8 +1,9 @@
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import { color, fontFamily, fontSize, fontWeight, space } from '@industry/tokens';
-import { Icon, type IconName } from './Icon';
+import { IconButton } from './IconButton';
+import type { IconName } from './Icon';
 
 export interface AppBarAction {
   icon: IconName;
@@ -34,24 +35,18 @@ export function AppBar({ title, onBackPress, trailing, actions = [], style, test
           gap: space[3],
           height: 56,
           paddingHorizontal: space[3],
-          backgroundColor: color.surface,
-          borderBottomWidth: 1,
-          borderBottomColor: color.divider,
+          backgroundColor: 'transparent',
         },
         style,
       ]}
     >
       {onBackPress ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Voltar"
+        <IconButton
+          icon="ArrowLeft"
+          label="Voltar"
           onPress={onBackPress}
-          hitSlop={8}
-          style={{ padding: space[2] }}
           testID={testID ? `${testID}-back` : undefined}
-        >
-          <Icon name="ArrowLeft" size="md" color={color.text} />
-        </Pressable>
+        />
       ) : null}
       <Text
         numberOfLines={1}
@@ -59,7 +54,7 @@ export function AppBar({ title, onBackPress, trailing, actions = [], style, test
           flex: 1,
           fontFamily: fontFamily.heading,
           fontWeight: fontWeight.heading,
-          fontSize: fontSize.h5,
+          fontSize: fontSize.h4,
           color: color.text,
         }}
       >
@@ -67,17 +62,13 @@ export function AppBar({ title, onBackPress, trailing, actions = [], style, test
       </Text>
       {trailing}
       {actions.map((action) => (
-        <Pressable
+        <IconButton
           key={action.label}
-          accessibilityRole="button"
-          accessibilityLabel={action.label}
+          icon={action.icon}
+          label={action.label}
           onPress={action.onPress}
-          hitSlop={8}
-          style={{ padding: space[2] }}
           testID={action.testID}
-        >
-          <Icon name={action.icon} size="md" color={color.text} />
-        </Pressable>
+        />
       ))}
     </View>
   );

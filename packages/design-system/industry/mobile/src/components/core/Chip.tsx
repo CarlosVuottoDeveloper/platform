@@ -1,6 +1,16 @@
 import { Pressable, Text } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
-import { accentRamp, alpha, color, control, fontFamily, fontWeight, space } from '@industry/tokens';
+import {
+  accentRamp,
+  alpha,
+  color,
+  control,
+  fontFamily,
+  fontSize,
+  fontWeight,
+  radii,
+  space,
+} from '@industry/tokens';
 
 export interface ChipProps {
   children: string;
@@ -13,7 +23,7 @@ export interface ChipProps {
 }
 
 export function resolveChipBackground(selected: boolean): string {
-  return selected ? alpha(color.accent, 22) : 'transparent';
+  return selected ? alpha(color.accent, 22) : color.surface2;
 }
 
 export function Chip({
@@ -39,7 +49,8 @@ export function Chip({
           justifyContent: 'center' as const,
           backgroundColor: resolveChipBackground(selected),
           borderWidth: 1,
-          borderColor: selected ? color.accent : color.divider,
+          borderRadius: radii.pill,
+          borderColor: selected ? color.accent : alpha(color.text, 10),
           opacity: disabled ? 0.5 : 1,
         },
         style,
@@ -49,7 +60,7 @@ export function Chip({
         style={{
           fontFamily: fontFamily.body,
           fontWeight: selected ? fontWeight.heading : fontWeight.body,
-          fontSize: 14,
+          fontSize: fontSize.h6,
           color: selected ? accentRamp['300'] : alpha(color.text, 70),
         }}
       >

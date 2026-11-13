@@ -15,6 +15,15 @@ describe('RadioGroup', () => {
     expect(getByTestId('radio-dot-b').props.style).toMatchObject({ backgroundColor: color.accent });
   });
 
+  it('outlines an unchecked dot with the control border', () => {
+    const { getByTestId } = render(
+      <RadioGroup options={['a', 'b']} value="b" onValueChange={jest.fn()} />,
+    );
+    expect(getByTestId('radio-dot-a').props.style).toMatchObject({
+      borderColor: color.controlBorder,
+    });
+  });
+
   it('calls onValueChange with the pressed option value', () => {
     const onValueChange = jest.fn();
     const { getByTestId } = render(

@@ -3,7 +3,16 @@ import { Platform, Pressable, Text, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
 import Svg, { Circle, G } from 'react-native-svg';
-import { alpha, color, fontFamily, fontFamilyMono, fontWeight, space } from '@industry/tokens';
+import {
+  color,
+  fontFamily,
+  fontFamilyMono,
+  fontSize,
+  fontWeight,
+  neutral,
+  radii,
+  space,
+} from '@industry/tokens';
 
 const monoFontFamily = Platform.select(fontFamilyMono);
 
@@ -152,13 +161,20 @@ export function PieChart({
                 opacity: activeIndex !== null && !active ? 0.5 : 1,
               }}
             >
-              <View style={{ width: 10, height: 10, backgroundColor: slice.color }} />
+              <View
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: radii.pill,
+                  backgroundColor: slice.color,
+                }}
+              />
               <Text
                 style={{
                   flex: 1,
                   fontFamily: fontFamily.body,
                   fontWeight: active ? fontWeight.heading : fontWeight.body,
-                  fontSize: 13,
+                  fontSize: fontSize.h6,
                   color: color.text,
                 }}
               >
@@ -168,7 +184,7 @@ export function PieChart({
                 style={{
                   fontFamily: monoFontFamily,
                   fontSize: 12,
-                  color: alpha(color.text, 50),
+                  color: neutral['400'],
                 }}
               >
                 {legendValue === 'percent' ? `${pct}%` : `${valueFormatter(slice.value)} · ${pct}%`}

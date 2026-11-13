@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, Frame, TextField } from '../components/core';
-import { color, space } from '@industry/tokens';
+import { Button, Card, TextField } from '../components/core';
+import { color, fontSize, fontWeight, neutral, space } from '@industry/tokens';
 
 const meta: Meta = {
   title: 'Templates/Login',
+  parameters: { gradientKnownIssue: true },
 };
 
 export default meta;
@@ -28,10 +29,16 @@ function LoginScreen() {
         paddingHorizontal: space[4],
       }}
     >
-      <Frame style={{ padding: space[4], gap: space[4] }}>
+      <Card style={{ gap: space[4] }}>
         <View style={{ gap: space[1] }}>
-          <Text style={{ fontSize: 22, fontWeight: '600', color: color.text }}>Entrar</Text>
-          <Text style={{ fontSize: 13, color: color.text }}>Acesse sua conta para continuar</Text>
+          <Text
+            style={{ fontSize: fontSize.h3, fontWeight: fontWeight.heading, color: color.text }}
+          >
+            Entrar
+          </Text>
+          <Text style={{ fontSize: fontSize.h6, color: neutral['400'] }}>
+            Acesse sua conta para continuar
+          </Text>
         </View>
         <TextField
           label="E-mail"
@@ -51,7 +58,7 @@ function LoginScreen() {
         <Button variant="primary" block>
           Entrar
         </Button>
-      </Frame>
+      </Card>
     </View>
   );
 }

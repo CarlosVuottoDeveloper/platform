@@ -1,7 +1,8 @@
-import { Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { color, space, control } from '@industry/tokens';
+import { color, radii } from '@industry/tokens';
+import { PillSegment } from './PillSegment';
 
 export interface SegmentOption {
   value: string;
@@ -35,39 +36,30 @@ export function SegmentedControl({
       testID={testID}
       accessibilityRole="radiogroup"
       accessibilityLabel={accessibilityLabel}
-      style={[{ flexDirection: 'row', borderWidth: 1, borderColor: color.divider }, style]}
+      style={[
+        {
+          flexDirection: 'row',
+          backgroundColor: color.surface,
+          borderRadius: radii.pill,
+        },
+        style,
+      ]}
     >
-      {options.map((option, index) => {
+      {options.map((option) => {
         const opt = resolveOption(option);
         const checked = value === opt.value;
         return (
-          <Pressable
+          <PillSegment
             key={opt.value}
-            testID={`segment-option-${opt.value}`}
+            active={checked}
             onPress={() => onValueChange?.(opt.value)}
+            testID={`segment-option-${opt.value}`}
+            surfaceTestID={`segment-surface-${opt.value}`}
             accessibilityRole="radio"
             accessibilityState={{ checked }}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: space[2],
-              minHeight: control.height,
-              paddingHorizontal: space[4],
-              borderLeftWidth: index > 0 ? 1 : 0,
-              borderLeftColor: color.divider,
-              backgroundColor: checked ? color.accent : 'transparent',
-            }}
-          >
-            {opt.icon}
-            {typeof opt.label === 'string' || typeof opt.label === 'number' ? (
-              <Text style={{ fontSize: 14, color: checked ? color.bg : color.text }}>
-                {opt.label}
-              </Text>
-            ) : (
-              opt.label
-            )}
-          </Pressable>
+            icon={opt.icon}
+            label={opt.label}
+          />
         );
       })}
     </View>

@@ -2,7 +2,8 @@ import { Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ReactNode } from 'react';
-import { alpha, color, fontFamily, fontWeight, shadow, space } from '@industry/tokens';
+import { alpha, color, fontFamily, fontSize, fontWeight, shadow, space } from '@industry/tokens';
+import { GradientSurface } from './GradientSurface';
 
 export interface SheetProps {
   open?: boolean;
@@ -34,7 +35,8 @@ export function Sheet({
         onPress={onDismiss}
         style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: alpha(color.bg, 60) }}
       >
-        <View
+        <GradientSurface
+          variant="surface"
           testID={testID}
           onStartShouldSetResponder={() => true}
           style={[
@@ -43,9 +45,10 @@ export function Sheet({
               paddingHorizontal: space[4],
               paddingTop: space[3],
               paddingBottom: space[6] + insets.bottom,
-              backgroundColor: color.surface,
-              borderTopWidth: 1,
-              borderTopColor: color.dividerStrong,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+              borderWidth: 1,
+              borderColor: color.divider,
             },
             shadow.lg,
             style,
@@ -64,7 +67,7 @@ export function Sheet({
               style={{
                 fontFamily: fontFamily.heading,
                 fontWeight: fontWeight.heading,
-                fontSize: 21,
+                fontSize: fontSize.h4,
                 color: color.text,
               }}
             >
@@ -73,7 +76,7 @@ export function Sheet({
           ) : null}
           {children}
           {actions}
-        </View>
+        </GradientSurface>
       </Pressable>
     </Modal>
   );

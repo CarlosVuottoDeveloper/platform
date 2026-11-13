@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { SegmentedControl } from './SegmentedControl';
 import { Icon } from './Icon';
-import { color } from '@industry/tokens';
+import { color, neutral } from '@industry/tokens';
 
 const meta: Meta<typeof SegmentedControl> = {
   title: 'Core/SegmentedControl',
   component: SegmentedControl,
-  parameters: { svgKnownIssue: true },
+  parameters: { svgKnownIssue: true, gradientKnownIssue: true },
 };
 
 export default meta;
@@ -39,12 +39,24 @@ export const WithIcons: Story = {
             {
               value: 'grid',
               label: 'Grade',
-              icon: <Icon name="Grid2x2" size="sm" color={color.text} />,
+              icon: (
+                <Icon
+                  name="Grid2x2"
+                  size="sm"
+                  color={value === 'grid' ? color.text : neutral['400']}
+                />
+              ),
             },
             {
               value: 'list',
               label: 'Lista',
-              icon: <Icon name="List" size="sm" color={color.text} />,
+              icon: (
+                <Icon
+                  name="List"
+                  size="sm"
+                  color={value === 'list' ? color.text : neutral['400']}
+                />
+              ),
             },
           ]}
           value={value}

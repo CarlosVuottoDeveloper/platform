@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { color, control, gradient, neutral, radii } from '@industry/tokens';
 import { Tabs } from './Tabs';
 
 const ITEMS = [
@@ -73,5 +74,80 @@ describe('Tabs', () => {
     const { getByTestId } = render(<Tabs items={[{ id: 'home', icon: <Text>icon</Text> }]} />);
 
     expect(getByTestId('tab-home')).toBeTruthy();
+  });
+
+  it('wraps the tabs in a surface pill', () => {
+    const { UNSAFE_getByType } = render(<Tabs items={ITEMS} />);
+
+    expect(
+      StyleSheet.flatten(UNSAFE_getByType(ScrollView).props.contentContainerStyle),
+    ).toMatchObject({
+      backgroundColor: color.surface,
+      borderRadius: radii.pill,
+    });
+  });
+
+  it('keeps scrolling horizontally', () => {
+    const { UNSAFE_getByType } = render(<Tabs items={ITEMS} />);
+
+    expect(UNSAFE_getByType(ScrollView).props.horizontal).toBe(true);
+  });
+
+  it('paints only the active tab with the primary gradient and no glow', () => {
+    const { getByTestId, queryByTestId } = render(<Tabs items={ITEMS} current="overview" />);
+
+    const style = StyleSheet.flatten(getByTestId('tab-surface-overview').props.style);
+    expect(style.experimental_backgroundImage).toContain(gradient.primary.colors[0]);
+    expect(style.boxShadow).toBeUndefined();
+    expect(queryByTestId('tab-surface-settings')).toBeNull();
+  });
+
+  it('shows the active label in the text colour and inactive labels muted', () => {
+    const { getByText } = render(<Tabs items={ITEMS} current="overview" />);
+
+    expect(getByText('Visão geral').props.style).toMatchObject({ color: color.text });
+    expect(getByText('Configurações').props.style).toMatchObject({ color: neutral['400'] });
+  });
+
+  it('makes every tab at least as tall as the tap target', () => {
+    const { getByTestId } = render(<Tabs items={ITEMS} />);
+
+    expect(
+      StyleSheet.flatten(getByTestId('tab-settings').props.style).minHeight,
+    ).toBeGreaterThanOrEqual(control.tap);
+  });
+
+  it('draws the count as a pill', () => {
+    const { getByText } = render(<Tabs items={[{ id: 'a', label: 'Atividade', count: 3 }]} />);
+
+    expect(StyleSheet.flatten(getByText('3').props.style)).toMatchObject({
+      backgroundColor: color.surface2,
+      borderRadius: radii.pill,
+    });
+  });
+
+  it('wraps fragment and array labels in a Text with the state colour', () => {
+    const { getByTestId } = render(
+      <Tabs
+        current="open"
+        items={[
+          { id: 'open', label: <>Abertos</> },
+          { id: 'closed', label: ['Fechados ', 2] as unknown as string },
+        ]}
+      />,
+    );
+
+    const open = getByTestId('tab-open').findByType(Text);
+    const closed = getByTestId('tab-closed').findByType(Text);
+    expect(open.props.style).toMatchObject({ color: color.text });
+    expect(closed.props.style).toMatchObject({ color: neutral['400'] });
+  });
+
+  it('renders no label element for an empty label', () => {
+    const { getByTestId } = render(
+      <Tabs items={[{ id: 'home', label: '', icon: <View testID="i" /> }]} />,
+    );
+
+    expect(getByTestId('tab-home').findAllByType(Text)).toHaveLength(0);
   });
 });
