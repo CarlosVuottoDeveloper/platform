@@ -21,6 +21,7 @@ Turborepo + Yarn Workspaces v1 monorepo. **Always use Yarn** — the lockfile an
 ```
 apps/mobile/appointmate/    # Expo app — mental health check-in log (LGPD sensitive data)
 apps/mobile/tickets-app/    # Expo app — multi-tenant ticketing, published on Play Store
+apps/web/finance-app/       # Vite + React SPA — personal finance tracker (@app/finance), consumes @industry/web
 packages/design-system/industry/
   web/                        # @industry/web — React components (Industry design system), no MUI/Emotion
   mobile/                     # @industry/mobile — React Native components (Industry design system), no React Native Paper
@@ -29,7 +30,7 @@ packages/eslint-config/     # @repo/eslint-config — ESLint v9 flat configs
 packages/typescript-config/ # @repo/typescript-config — shared tsconfigs
 ```
 
-The Industry design system (`@industry/*`) is the design system used by both mobile apps (tickets-app, appointmate), migrated to it in REB-88/89/90. `@industry/web` is still maintained and documented in Storybook, but has no consuming application since todo-app was removed. Its previous generation, Vuotto Tech (`@vuotto/*`), was fully removed from the monorepo (REB-100) once the migration completed.
+The Industry design system (`@industry/*`) is the design system used by both mobile apps (tickets-app, appointmate), migrated to it in REB-88/89/90. `@industry/web` is consumed by `apps/web/finance-app` (`@app/finance`) and documented in Storybook. Its previous generation, Vuotto Tech (`@vuotto/*`), was fully removed from the monorepo (REB-100) once the migration completed.
 
 ## Git workflow
 
@@ -159,8 +160,9 @@ Industry has a single appearance: deep navy background, filled rounded surfaces 
 
 | Workflow                        | Trigger                                                                                           | What it does                                                                   |
 | ------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `coverage.yml`                  | PR → main (tickets-app, appointmate, industry/{web,mobile,tokens} paths)                          | Runs Jest only on changed source files; enforces ≥ 95% coverage on those files |
+| `coverage.yml`                  | PR → main (tickets-app, appointmate, finance-app, industry/{web,mobile,tokens} paths)             | Runs Jest only on changed source files; enforces ≥ 95% coverage on those files |
 | `storybook-vercel.yml`          | Push → main (industry/{web,mobile,tokens} paths) + manual                                         | Builds both Storybooks and deploys them to Vercel                              |
+| `web-apps.yml`                  | PR → main (apps/web, industry/web, industry/tokens, eslint-config, typescript-config paths)       | Lint/check-types/test for finance-app                                          |
 | `mobile-apps.yml`               | PR → main (mobile apps, industry/mobile, industry/tokens, eslint-config, typescript-config paths) | Lint/check-types/test for appointmate + tickets-app                            |
 | `storybook-industry-web.yml`    | Push/PR → main (industry/web, industry/tokens paths)                                              | Chromatic publish for `@industry/web`                                          |
 | `storybook-industry-mobile.yml` | Push/PR → main (industry/mobile, industry/tokens paths)                                           | Chromatic publish for `@industry/mobile`                                       |

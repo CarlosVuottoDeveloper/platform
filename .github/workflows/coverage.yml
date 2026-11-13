@@ -7,6 +7,7 @@ on:
     paths:
       - 'apps/mobile/tickets-app/**'
       - 'apps/mobile/appointmate/**'
+      - 'apps/web/finance-app/**'
       - 'packages/design-system/industry/mobile/**'
       - 'packages/design-system/industry/web/**'
       - 'packages/design-system/industry/tokens/**'
@@ -27,6 +28,12 @@ jobs:
             path: apps/mobile/appointmate
             build: yarn workspace @industry/tokens build && yarn workspace @industry/mobile build
             exclude_pattern: ''
+          - name: finance-app
+            path: apps/web/finance-app
+            build: yarn workspace @industry/tokens build && yarn workspace @industry/web build
+            # main.tsx only mounts the app and firebaseConfig.ts only reads
+            # import.meta.env, which Jest's CommonJS transform cannot parse.
+            exclude_pattern: 'src/main\.tsx$|vite\.config\.ts$|services/firebaseConfig\.ts$'
           - name: industry-mobile
             path: packages/design-system/industry/mobile
             build: yarn workspace @industry/tokens build
