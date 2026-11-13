@@ -424,4 +424,30 @@ describe('Firestore security rules — finance-app', () => {
       });
     });
   });
+
+  describe('budgets', () => {
+    const budgetPath = `users/${alice}/budgets/c1`;
+
+    it('lets the owner set and change the limit of a category', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(setDoc(doc(db, budgetPath), { categoryId: 'c1', limitCents: 100000 }));
+      await assertSucceeds(setDoc(doc(db, budgetPath), { categoryId: 'c1', limitCents: 120000 }));
+    });
+
+    it.each([
+      ['an undeclared field', { categoryId: 'c1', limitCents: 100000, extra: 1 }],
+      ['a zero limit', { categoryId: 'c1', limitCents: 0 }],
+      ['a fractional limit', { categoryId: 'c1', limitCents: 10.5 }],
+      ['a category different from its key', { categoryId: 'c2', limitCents: 100000 }],
+      ['no limit', { categoryId: 'c1' }],
+    ])('denies a budget with %s', async (_label, data) => {
+      await assertFails(setDoc(doc(ownerDb(alice), budgetPath), data));
+    });
+
+    it('denies another user setting a budget in the owner tree', async () => {
+      await assertFails(
+        setDoc(doc(strangerDb(), budgetPath), { categoryId: 'c1', limitCents: 100000 }),
+      );
+    });
+  });
 });

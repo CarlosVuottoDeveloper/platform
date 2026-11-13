@@ -154,5 +154,17 @@ service cloud.firestore {
     match /users/{uid}/recurrences/{recurrenceId} {
       allow create, update: if isOwner(uid) && isValidRecurrence(request.resource.data);
     }
+
+    function isValidBudget(data, categoryId) {
+      return hasExactly(data, ['categoryId', 'limitCents'])
+        && data.categoryId == categoryId
+        && data.limitCents is int
+        && data.limitCents >= 1
+        && data.limitCents <= 99999999999;
+    }
+
+    match /users/{uid}/budgets/{categoryId} {
+      allow create, update: if isOwner(uid) && isValidBudget(request.resource.data, categoryId);
+    }
   }
 }
