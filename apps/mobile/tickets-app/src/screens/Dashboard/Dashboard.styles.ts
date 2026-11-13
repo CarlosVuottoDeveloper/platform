@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontFamily, fontSize, fontWeight, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -13,24 +13,18 @@ export const styles = StyleSheet.create({
   trailingActions: { flexDirection: 'row', alignItems: 'center' },
   trailingIconButton: { padding: space[2] },
   trailingTextButton: { paddingHorizontal: space[3], paddingVertical: space[2] },
-  trailingTextButtonLabel: { fontSize: 15, fontWeight: '600' },
+  trailingTextButtonLabel: {
+    fontFamily: fontFamily.heading,
+    fontSize: 15,
+    fontWeight: fontWeight.heading,
+  },
   chartCard: {
-    borderWidth: 1,
+    borderRadius: radii.lg,
     padding: space[4],
   },
-  chartTotalText: { fontSize: 19 },
-  sectionLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionLabel: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
-  },
-  sectionLabelCount: { fontSize: 12 },
-  sectionHairline: { height: 1, marginTop: space[2], marginBottom: space[3] },
+  chartTotalText: { fontFamily: fontFamily.body, fontSize: 19 },
+  sectionLabelBlock: { marginBottom: space[3] },
+  sectionLabelCount: { fontFamily: fontFamily.body, fontSize: 12 },
   recentList: { gap: space[3] },
   recentItem: { gap: space[1] },
   recentHeader: {
@@ -39,8 +33,13 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: space[2],
   },
-  recentTitle: { flex: 1, fontSize: 17, fontWeight: '600' },
-  recentMeta: { fontSize: 12 },
+  recentTitle: {
+    fontFamily: fontFamily.heading,
+    flex: 1,
+    fontSize: fontSize.h5,
+    fontWeight: fontWeight.heading,
+  },
+  recentMeta: { fontFamily: fontFamily.body, fontSize: 12 },
   statCardWrapper: { marginLeft: space[2] },
   sectionPad: { paddingHorizontal: space[4] },
   listHeaderSpacer: { width: space[2] },

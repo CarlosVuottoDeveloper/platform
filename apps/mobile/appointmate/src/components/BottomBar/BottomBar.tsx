@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@industry/mobile';
-import { space } from '@industry/tokens';
+import { radii, space } from '@industry/tokens';
 
 export interface BottomBarProps {
   children: ReactNode;
@@ -19,9 +19,9 @@ export function BottomBar({ children, testID }: BottomBarProps) {
       style={{
         flexDirection: 'row',
         gap: space[3],
-        borderTopWidth: 1,
-        borderTopColor: colors.divider,
-        backgroundColor: colors.bg,
+        borderTopLeftRadius: radii.lg,
+        borderTopRightRadius: radii.lg,
+        backgroundColor: colors.surface,
         paddingTop: space[3],
         paddingHorizontal: space[6],
         paddingBottom: 20 + insets.bottom,

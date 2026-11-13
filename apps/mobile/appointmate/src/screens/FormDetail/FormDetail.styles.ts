@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontFamily, fontSize, fontWeight, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1 },
@@ -10,37 +10,41 @@ export const styles = StyleSheet.create({
   },
   titleBlock: { gap: space[1] },
   kicker: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.h6,
   },
   heading: {
+    fontFamily: fontFamily.body,
     fontSize: 30,
     lineHeight: 36,
   },
   updatedAt: {
+    fontFamily: fontFamily.body,
     fontSize: 11,
   },
   summaryGrid: {
-    gap: 1,
+    gap: space[2],
   },
   summaryCell: {
+    borderRadius: radii.md,
     padding: space[4],
     gap: space[1],
   },
   summaryCellLabel: {
-    fontSize: 10,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.h6,
   },
   summaryCellValue: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   fieldLabel: {
+    fontFamily: fontFamily.heading,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: fontWeight.heading,
   },
   fieldValue: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   field: {
@@ -51,9 +55,11 @@ export const styles = StyleSheet.create({
     gap: space[2],
   },
   listItemNumber: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   listItem: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
   },
   bottomBarPrimary: { flex: 1 },

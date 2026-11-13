@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppBar, Button, Select, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
-import { accentRamp, alpha, fontFamilyMono } from '@industry/tokens';
+import { alpha, fontFamilyMono } from '@industry/tokens';
 import { TICKET_TITLE_MAX_LENGTH } from '../../domain/ticket';
 import { createTicket } from '../../services/ticketService';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -13,6 +13,7 @@ import {
   type TicketPriority,
 } from '../../constants/ticketPriority';
 import { BottomBar } from '../../components/BottomBar';
+import { SectionLabel } from '../../components/SectionLabel';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { styles } from './NewTicket.styles';
@@ -20,16 +21,6 @@ import { styles } from './NewTicket.styles';
 const monoFontFamily = Platform.select(fontFamilyMono);
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NewTicket'>;
-
-function SectionLabel({ children }: { children: string }) {
-  const { colors } = useTheme();
-  return (
-    <View style={styles.sectionLabelBlock}>
-      <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>{children}</Text>
-      <View style={[styles.sectionHairline, { backgroundColor: colors.divider }]} />
-    </View>
-  );
-}
 
 export function NewTicket({ navigation }: Props) {
   const { colors } = useTheme();

@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppBar, Button, Spinner, TextField, useTheme, useToast } from '@industry/mobile';
-import { accentRamp, alpha } from '@industry/tokens';
+import { alpha } from '@industry/tokens';
 import { createUser } from '../../services/authService';
 import { passwordMinLengthError } from '../../domain/validation';
 import { useAuthStore } from '../../store/useAuthStore';
 import { BottomBar } from '../../components/BottomBar';
+import { SectionLabel } from '../../components/SectionLabel';
 import type { UserRole } from '../../domain/user';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
@@ -18,16 +19,6 @@ const ROLE_OPTIONS: { label: string; value: UserRole }[] = [
   { label: 'Padrão', value: 'standard' },
   { label: 'Administrador', value: 'admin' },
 ];
-
-function SectionLabel({ children }: { children: string }) {
-  const { colors } = useTheme();
-  return (
-    <View style={styles.sectionLabelBlock}>
-      <Text style={[styles.sectionLabel, { color: accentRamp['300'] }]}>{children}</Text>
-      <View style={[styles.sectionHairline, { backgroundColor: colors.divider }]} />
-    </View>
-  );
-}
 
 export function CreateUser({ navigation }: Props) {
   const { colors } = useTheme();
@@ -81,7 +72,9 @@ export function CreateUser({ navigation }: Props) {
           convite — entregue as credenciais à pessoa.
         </Text>
 
-        <SectionLabel>Dados de acesso</SectionLabel>
+        <View style={styles.sectionLabelBlock}>
+          <SectionLabel>Dados de acesso</SectionLabel>
+        </View>
         <TextField label="Nome" placeholder="Nome completo" value={name} onChangeText={setName} />
         <TextField
           label="E-mail"
@@ -102,7 +95,9 @@ export function CreateUser({ navigation }: Props) {
           onChangeText={setPassword}
         />
 
-        <SectionLabel>Perfil</SectionLabel>
+        <View style={styles.sectionLabelBlock}>
+          <SectionLabel>Perfil</SectionLabel>
+        </View>
         <View style={styles.roleRow}>
           {ROLE_OPTIONS.map((option) => {
             const selected = role === option.value;

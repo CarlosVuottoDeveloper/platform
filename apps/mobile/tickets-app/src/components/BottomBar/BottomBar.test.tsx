@@ -1,5 +1,5 @@
 import { StyleSheet, Text } from 'react-native';
-import { space } from '@industry/tokens';
+import { color, radii, space } from '@industry/tokens';
 import { render, screen } from '../../test-utils';
 import { useKeyboardVisible } from '../../hooks/useKeyboardVisible';
 import { BottomBar } from './BottomBar';
@@ -45,5 +45,13 @@ describe('BottomBar', () => {
     mockUseKeyboardVisible.mockReturnValue(true);
 
     expect(renderBar().paddingBottom).toBe(space[3]);
+  });
+
+  it('sits on a filled surface with rounded top corners and no border', () => {
+    const style = renderBar();
+    expect(style.backgroundColor).toBe(color.surface);
+    expect(style.borderTopLeftRadius).toBe(radii.lg);
+    expect(style.borderTopRightRadius).toBe(radii.lg);
+    expect(style.borderTopWidth).toBeUndefined();
   });
 });

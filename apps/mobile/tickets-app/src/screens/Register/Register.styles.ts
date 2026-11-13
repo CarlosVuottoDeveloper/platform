@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { space } from '@industry/tokens';
+import { fontFamily, fontSize, radii, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
@@ -12,14 +12,14 @@ export const styles = StyleSheet.create({
   adminNotice: {
     padding: space[3],
     gap: space[1],
-    borderLeftWidth: 2,
+    borderRadius: radii.md,
   },
   adminNoticeKicker: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
+    fontFamily: fontFamily.body,
+    fontSize: fontSize.h6,
   },
   adminNoticeText: {
+    fontFamily: fontFamily.body,
     fontSize: 13,
     lineHeight: 19,
   },

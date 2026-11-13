@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontSize, space } from '@industry/tokens';
+import { fontFamily, fontSize, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
     gap: space[6],
   },
   description: {
+    fontFamily: fontFamily.body,
     fontSize: fontSize.body,
     lineHeight: 24,
   },

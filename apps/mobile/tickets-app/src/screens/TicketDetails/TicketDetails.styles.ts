@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fontFamily, fontWeight, space } from '@industry/tokens';
+import { fontFamily, fontSize, fontWeight, space } from '@industry/tokens';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -13,31 +13,27 @@ export const styles = StyleSheet.create({
     paddingHorizontal: space[6],
   },
   title: {
-    fontSize: 26,
+    fontSize: fontSize.h3,
     fontFamily: fontFamily.heading,
     fontWeight: fontWeight.heading,
     paddingHorizontal: space[6],
   },
-  titleEditing: { fontSize: 19, fontWeight: '600', paddingHorizontal: space[6] },
+  titleEditing: {
+    fontFamily: fontFamily.heading,
+    fontSize: 19,
+    fontWeight: fontWeight.heading,
+    paddingHorizontal: space[6],
+  },
   description: {
+    fontFamily: fontFamily.body,
     fontSize: 15,
     lineHeight: 22,
     paddingHorizontal: space[6],
   },
-  sectionLabelBlock: { gap: space[2], paddingHorizontal: space[6], marginTop: space[2] },
-  sectionLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionHairline: { height: 1 },
-  sectionLabel: {
-    fontSize: 11,
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
-  },
-  sectionLabelCount: { fontSize: 12 },
+  sectionLabelBlock: { paddingHorizontal: space[6], marginTop: space[2] },
+  sectionLabelCount: { fontFamily: fontFamily.body, fontSize: 12 },
   emptyComments: {
+    fontFamily: fontFamily.body,
     fontSize: 13,
     paddingHorizontal: space[6],
   },
@@ -48,6 +44,10 @@ export const styles = StyleSheet.create({
     paddingVertical: space[2],
     borderBottomWidth: 1,
   },
-  diffLabel: { width: 88, fontSize: 10, letterSpacing: 1, textTransform: 'uppercase' },
-  diffValue: { flex: 1, fontSize: 15 },
+  diffLabel: {
+    fontFamily: fontFamily.body,
+    width: space[12] * 2,
+    fontSize: fontSize.h6,
+  },
+  diffValue: { fontFamily: fontFamily.body, flex: 1, fontSize: 15 },
 });
