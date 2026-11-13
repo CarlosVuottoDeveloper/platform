@@ -92,7 +92,7 @@ describe('TicketList', () => {
     render(<TicketList navigation={mockNavigation} route={mockRoute} />);
 
     expect(screen.getByText('Nenhum ticket encontrado.')).toBeTruthy();
-    expect(screen.UNSAFE_getByProps({ name: 'Plus' })).toBeTruthy();
+    expect(screen.UNSAFE_queryByProps({ name: 'Plus' })).toBeNull();
   });
 
   it('pluralizes the status in the empty-state body', () => {
