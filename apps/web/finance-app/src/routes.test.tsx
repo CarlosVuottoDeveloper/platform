@@ -87,17 +87,40 @@ describe('AppRoutes', () => {
     expect(logout).toHaveBeenCalledTimes(1);
   });
 
-  it('uses a bottom tab bar on a narrow screen', async () => {
+  it('uses a five-entry bottom tab bar on a narrow screen', async () => {
     mockWideScreen(false);
     mockSignedInAs(testUser);
     renderWithProviders(<AppRoutes />);
 
     const navigation = screen.getByRole('navigation');
-    expect(within(navigation).getAllByRole('button')).toHaveLength(NAV_LABELS.length);
+    expect(
+      within(navigation)
+        .getAllByRole('button')
+        .map((button) => button.textContent),
+    ).toEqual(['Painel', 'Transações', 'Contas', 'Orçamentos', 'Mais']);
 
-    await userEvent.click(within(navigation).getByRole('button', { name: 'Metas' }));
+    await userEvent.click(within(navigation).getByRole('button', { name: 'Contas' }));
+
+    expect(screen.getByRole('heading', { name: 'Contas' })).toBeInTheDocument();
+  });
+
+  it('reaches the remaining screens through the "Mais" tab on a narrow screen', async () => {
+    mockWideScreen(false);
+    mockSignedInAs(testUser);
+    renderWithProviders(<AppRoutes />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Mais' }));
+    expect(screen.getByRole('button', { name: 'Mais' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Metas',
+      'Relatórios',
+      'Configurações',
+    ]);
+
+    await userEvent.click(screen.getByRole('link', { name: 'Metas' }));
 
     expect(screen.getByRole('heading', { name: 'Metas' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mais' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('lets a narrow-screen user sign out from the settings screen', async () => {

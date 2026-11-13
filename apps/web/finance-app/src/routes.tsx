@@ -8,6 +8,7 @@ import { Budgets } from './screens/Budgets/Budgets';
 import { Dashboard } from './screens/Dashboard/Dashboard';
 import { Goals } from './screens/Goals/Goals';
 import { Login } from './screens/Login/Login';
+import { More } from './screens/More/More';
 import { Reports } from './screens/Reports/Reports';
 import { Settings } from './screens/Settings/Settings';
 import { Transactions } from './screens/Transactions/Transactions';
@@ -54,6 +55,7 @@ export function AppRoutes() {
           <Route path="/metas" element={<Goals />} />
           <Route path="/relatorios" element={<Reports />} />
           <Route path="/configuracoes" element={<Settings />} />
+          <Route path="/mais" element={<More />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>
