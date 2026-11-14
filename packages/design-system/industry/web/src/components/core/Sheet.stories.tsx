@@ -13,7 +13,10 @@ export const Default: Story = {
   render: () => (
     <div style={{ position: 'relative', height: 320, border: '1px solid var(--color-divider)' }}>
       <Sheet title="Filtrar por status" onDismiss={() => {}}>
-        <p>Conteúdo da sheet.</p>
+        <label style={{ display: 'grid', gap: 6 }}>
+          Status
+          <input defaultValue="Aberto" />
+        </label>
       </Sheet>
     </div>
   ),

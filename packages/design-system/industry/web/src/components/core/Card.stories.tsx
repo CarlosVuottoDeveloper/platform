@@ -29,3 +29,19 @@ export const Elevated: Story = {
     </div>
   ),
 };
+
+export const WithAction: Story = {
+  render: () => (
+    <div style={{ width: 420 }}>
+      <Card
+        title="Últimas movimentações"
+        action={
+          <a href="#todas" style={{ color: 'var(--color-accent-300)', fontSize: 14 }}>
+            Ver todas
+          </a>
+        }
+        body="A ação fica na linha do título, alinhada à direita."
+      />
+    </div>
+  ),
+};

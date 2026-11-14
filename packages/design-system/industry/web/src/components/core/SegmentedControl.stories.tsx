@@ -47,3 +47,26 @@ export const WithIcons: Story = {
     return <Demo />;
   },
 };
+
+export const Block: Story = {
+  render: () => {
+    function Demo() {
+      const [value, setValue] = useState('despesa');
+      return (
+        <div style={{ width: 420 }}>
+          <SegmentedControl
+            name="tipo"
+            block
+            options={[
+              { value: 'despesa', label: 'Despesa' },
+              { value: 'receita', label: 'Receita' },
+            ]}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </div>
+      );
+    }
+    return <Demo />;
+  },
+};

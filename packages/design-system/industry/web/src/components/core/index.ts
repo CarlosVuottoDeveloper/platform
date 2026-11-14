@@ -11,7 +11,7 @@ export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 
 export { TextField } from './TextField';
-export type { TextFieldProps } from './TextField';
+export type { TextFieldProps, TextFieldSize } from './TextField';
 export { SearchField } from './SearchField';
 export type { SearchFieldProps } from './SearchField';
 export { Select } from './Select';
@@ -85,8 +85,11 @@ export type { RingProgressProps } from './RingProgress';
 export { AreaChart } from './AreaChart';
 export type { AreaChartProps, AreaChartPoint } from './AreaChart';
 
+export { IconBubble } from './IconBubble';
+export type { IconBubbleProps, IconBubbleSize } from './IconBubble';
+
 export { StatTile } from './StatTile';
-export type { StatTileProps } from './StatTile';
+export type { StatTileProps, StatTileTone } from './StatTile';
 
 export { PieChart } from './PieChart';
 export type {

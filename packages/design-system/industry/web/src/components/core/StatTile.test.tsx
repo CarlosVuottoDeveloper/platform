@@ -20,6 +20,14 @@ describe('StatTile', () => {
     expect(circle.style.background).toBe('var(--color-accent-800)');
   });
 
+  it('lets a long value wrap inside the tile instead of overflowing', () => {
+    render(<StatTile value="R$ 999.999.999,99" label="Saldo" testID="tile" />);
+
+    const text = screen.getByText('R$ 999.999.999,99').parentElement;
+    expect(text?.style.minWidth).toBe('0');
+    expect(text?.style.overflowWrap).toBe('anywhere');
+  });
+
   it('does not reserve the circle without an icon', () => {
     render(<StatTile value="1" label="x" testID="tile" />);
 
@@ -35,5 +43,23 @@ describe('StatTile', () => {
     expect(value.style.color).toBe('var(--color-text)');
     expect(screen.getByText('Uso').style.fontSize).toBe('var(--text-h6)');
     expect(screen.getByText('Uso').style.color).toBe('var(--color-neutral-400)');
+  });
+
+  it('keeps the label readable on a primary surface', () => {
+    render(
+      <StatTile
+        icon={<span>i</span>}
+        value="R$ 1"
+        label="Saldo geral"
+        tone="onPrimary"
+        testID="t"
+      />,
+    );
+
+    expect(screen.getByText('Saldo geral').style.color).toBe('var(--color-text)');
+    expect(screen.getByTestId('t-icon').style.background).toBe(
+      'color-mix(in srgb, var(--color-text) 16%, transparent)',
+    );
+    expect(screen.getByTestId('t-icon').style.color).toBe('var(--color-text)');
   });
 });

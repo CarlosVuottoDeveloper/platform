@@ -142,4 +142,22 @@ describe('SegmentedControl', () => {
 
     expect(segmentOf(screen.getByRole('radio', { name: 'dia' })).style.flexShrink).toBe('');
   });
+
+  it('stretches across its container with equal segments when block', () => {
+    render(
+      <SegmentedControl name="kind" options={OPTIONS} value="dia" onChange={jest.fn()} block />,
+    );
+
+    const group = screen.getByRole('radiogroup');
+    expect(group.style.display).toBe('flex');
+    expect(group.style.width).toBe('100%');
+    expect(segmentOf(screen.getByRole('radio', { name: 'dia' })).style.flexGrow).toBe('1');
+  });
+
+  it('keeps its natural width by default', () => {
+    render(<SegmentedControl name="kind" options={OPTIONS} value="dia" onChange={jest.fn()} />);
+
+    expect(screen.getByRole('radiogroup').style.display).toBe('inline-flex');
+    expect(segmentOf(screen.getByRole('radio', { name: 'dia' })).style.flexGrow).toBe('');
+  });
 });

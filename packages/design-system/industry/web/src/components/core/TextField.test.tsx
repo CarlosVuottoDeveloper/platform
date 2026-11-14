@@ -77,4 +77,28 @@ describe('TextField', () => {
     expect(screen.getByLabelText('Nome')).toBeDisabled();
     expect(screen.getByLabelText('Nome').style.opacity).toBe('0.45');
   });
+
+  it('keeps the regular size by default', () => {
+    render(<TextField label="Nome" />);
+
+    const input = screen.getByLabelText('Nome');
+    expect(input.style.minHeight).toBe('var(--control-h)');
+    expect(input.style.fontSize).toBe('var(--text-body)');
+  });
+
+  it('grows the input font and height when large', () => {
+    render(<TextField label="Valor" size="lg" />);
+
+    const input = screen.getByLabelText('Valor');
+    expect(input.style.fontSize).toBe('var(--text-h3)');
+    expect(input.style.minHeight).toBe('calc(var(--control-h) * 1.5)');
+  });
+
+  it('ignores the size on a multiline field', () => {
+    render(<TextField label="Notas" multiline size="lg" />);
+
+    const textarea = screen.getByLabelText('Notas');
+    expect(textarea.style.fontSize).toBe('var(--text-body)');
+    expect(textarea.style.minHeight).toBe('104px');
+  });
 });

@@ -1,37 +1,38 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { IconBubble } from './IconBubble';
+
+export type StatTileTone = 'default' | 'onPrimary';
+
+const ON_PRIMARY_BUBBLE = {
+  background: 'color-mix(in srgb, var(--color-text) 16%, transparent)',
+  color: 'var(--color-text)',
+};
 
 export interface StatTileProps {
   icon?: ReactNode;
   value: ReactNode;
   label: ReactNode;
+  tone?: StatTileTone;
   style?: CSSProperties;
   testID?: string;
 }
 
-export function StatTile({ icon, value, label, style, testID }: StatTileProps) {
+export function StatTile({ icon, value, label, tone = 'default', style, testID }: StatTileProps) {
+  const onPrimary = tone === 'onPrimary';
   return (
     <div
       data-testid={testID}
       style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', ...style }}
     >
       {icon ? (
-        <div
-          data-testid={testID ? `${testID}-icon` : undefined}
-          style={{
-            width: 'var(--control-h-sm)',
-            height: 'var(--control-h-sm)',
-            flexShrink: 0,
-            borderRadius: 'var(--radius-pill)',
-            background: 'var(--color-accent-800)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+        <IconBubble
+          testID={testID ? `${testID}-icon` : undefined}
+          style={onPrimary ? ON_PRIMARY_BUBBLE : undefined}
         >
           {icon}
-        </div>
+        </IconBubble>
       ) : null}
-      <div>
+      <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
         <div
           style={{
             fontFamily: 'var(--font-heading)',
@@ -46,7 +47,7 @@ export function StatTile({ icon, value, label, style, testID }: StatTileProps) {
           style={{
             fontFamily: 'var(--font-body)',
             fontSize: 'var(--text-h6)',
-            color: 'var(--color-neutral-400)',
+            color: onPrimary ? 'var(--color-text)' : 'var(--color-neutral-400)',
           }}
         >
           {label}

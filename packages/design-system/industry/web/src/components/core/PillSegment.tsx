@@ -21,6 +21,7 @@ interface PillSegmentProps extends Omit<
   active: boolean;
   focused?: boolean;
   scrollable?: boolean;
+  grow?: boolean;
   icon?: ReactNode;
   label?: ReactNode;
   trailing?: ReactNode;
@@ -32,6 +33,7 @@ export function PillSegment({
   active,
   focused = false,
   scrollable = false,
+  grow = false,
   icon,
   label,
   trailing,
@@ -61,6 +63,7 @@ export function PillSegment({
         outlineOffset: -2,
         font: 'inherit',
         color: active ? 'var(--color-text)' : 'var(--color-neutral-400)',
+        flex: grow ? 1 : undefined,
         flexShrink: scrollable ? 0 : undefined,
         whiteSpace: scrollable ? 'nowrap' : undefined,
         cursor: 'pointer',
