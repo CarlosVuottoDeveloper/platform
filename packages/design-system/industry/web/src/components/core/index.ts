@@ -87,3 +87,13 @@ export type { AreaChartProps, AreaChartPoint } from './AreaChart';
 
 export { StatTile } from './StatTile';
 export type { StatTileProps } from './StatTile';
+
+export { PieChart } from './PieChart';
+export type {
+  PieChartProps,
+  PieChartSlice,
+  PieChartLegendPlacement,
+  PieChartLegendValue,
+} from './PieChart';
+export { BarChart } from './BarChart';
+export type { BarChartProps, BarChartSeries, BarChartGroup } from './BarChart';
