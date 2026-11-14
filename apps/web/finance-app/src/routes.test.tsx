@@ -141,4 +141,21 @@ describe('AppRoutes', () => {
 
     expect(screen.getByRole('heading', { name: 'Painel' })).toBeInTheDocument();
   });
+
+  it.each([
+    ['wide', true],
+    ['narrow', false],
+  ])('opens the new movement form from any screen on a %s screen', async (_label, isWide) => {
+    mockWideScreen(isWide);
+    mockSignedInAs(testUser);
+    renderWithProviders(<AppRoutes />, { route: '/contas' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nova movimentação' }));
+
+    expect(within(screen.getByRole('dialog')).getByText('Nova movimentação')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
 });

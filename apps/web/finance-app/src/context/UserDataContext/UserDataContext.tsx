@@ -1,14 +1,24 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Account } from '../../domain/account';
+import { toCalendarDate } from '../../domain/calendarDate';
+import type { Category } from '../../domain/category';
+import type { Recurrence } from '../../domain/recurrence';
 import type { Transaction } from '../../domain/transaction';
 import { subscribeToAccounts } from '../../services/accountsService';
+import { seedDefaultCategories, subscribeToCategories } from '../../services/categoriesService';
+import {
+  materializeDueRecurrences,
+  subscribeToRecurrences,
+} from '../../services/recurrencesService';
 import { subscribeToTransactions } from '../../services/transactionsService';
 import { useAuth } from '../AuthContext/AuthContext';
 import { useToast } from '../ToastContext/ToastContext';
 
 interface UserDataContextValue {
   accounts: Account[];
+  categories: Category[];
+  recurrences: Recurrence[];
   transactions: Transaction[];
   loading: boolean;
 }
@@ -36,17 +46,43 @@ function useUserCollection<T>(subscribe: Subscribe<T>): T[] | null {
   return items;
 }
 
+function useDefaultCategoriesSeeding() {
+  const { user } = useAuth();
+  const uid = user?.uid;
+
+  useEffect(() => {
+    if (!uid) return;
+    seedDefaultCategories(uid).catch(() => undefined);
+  }, [uid]);
+}
+
+function useRecurrenceMaterialization(recurrences: Recurrence[] | null) {
+  const { user } = useAuth();
+  const uid = user?.uid;
+
+  useEffect(() => {
+    if (!uid || !recurrences) return;
+    void materializeDueRecurrences(uid, recurrences, toCalendarDate(new Date()));
+  }, [uid, recurrences]);
+}
+
 export function UserDataProvider({ children }: { children: ReactNode }) {
+  useDefaultCategoriesSeeding();
   const accounts = useUserCollection(subscribeToAccounts);
+  const categories = useUserCollection(subscribeToCategories);
+  const recurrences = useUserCollection(subscribeToRecurrences);
   const transactions = useUserCollection(subscribeToTransactions);
+  useRecurrenceMaterialization(recurrences);
 
   const value = useMemo(
     () => ({
       accounts: accounts ?? [],
+      categories: categories ?? [],
+      recurrences: recurrences ?? [],
       transactions: transactions ?? [],
-      loading: accounts === null || transactions === null,
+      loading: [accounts, categories, recurrences, transactions].includes(null),
     }),
-    [accounts, transactions],
+    [accounts, categories, recurrences, transactions],
   );
 
   return <UserDataContext.Provider value={value}>{children}</UserDataContext.Provider>;

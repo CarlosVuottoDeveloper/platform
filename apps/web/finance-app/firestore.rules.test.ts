@@ -6,7 +6,17 @@ import {
   assertFails,
 } from '@firebase/rules-unit-testing';
 import type { RulesTestEnvironment } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
+import { materializeRecurrence } from './src/services/recurrenceMaterializer';
 
 describe('Firestore security rules — finance-app', () => {
   let testEnv: RulesTestEnvironment;
@@ -279,6 +289,138 @@ describe('Firestore security rules — finance-app', () => {
             updatedAt: serverTimestamp(),
           }),
         );
+      });
+    });
+  });
+
+  describe('categories and the seeding marker', () => {
+    const categoryPath = `users/${alice}/categories/c1`;
+    const validCategory = () => ({
+      name: 'Alimentação',
+      kind: 'expense',
+      color: 'viz-5',
+      icon: 'utensils',
+      archived: false,
+    });
+
+    it('lets the owner create, rename and archive a category', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(setDoc(doc(db, categoryPath), validCategory()));
+      await assertSucceeds(updateDoc(doc(db, categoryPath), { name: 'Mercado', archived: true }));
+    });
+
+    it.each([
+      ['an undeclared field', { extra: 'x' }],
+      ['an unknown kind', { kind: 'transfer' }],
+      ['an empty name', { name: '' }],
+      ['a name over 40 characters', { name: 'n'.repeat(41) }],
+      ['a non-boolean archived flag', { archived: 0 }],
+    ])('denies a category with %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), categoryPath), { ...validCategory(), ...override }),
+      );
+    });
+
+    it('denies another user creating a category in the owner tree', async () => {
+      await assertFails(setDoc(doc(strangerDb(), categoryPath), validCategory()));
+    });
+
+    it('lets the owner read and write the seeding marker once, stamped by the server', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(getDoc(doc(db, `users/${alice}`)));
+      await assertSucceeds(setDoc(doc(db, `users/${alice}`), { seededAt: serverTimestamp() }));
+      await assertFails(setDoc(doc(db, `users/${alice}`), { seededAt: serverTimestamp() }));
+    });
+
+    it('denies a seeding marker with other fields or a client-chosen time', async () => {
+      const db = ownerDb(alice);
+      await assertFails(
+        setDoc(doc(db, `users/${alice}`), { seededAt: serverTimestamp(), role: 'admin' }),
+      );
+      await assertFails(setDoc(doc(db, `users/${alice}`), { seededAt: new Date(2020, 0, 1) }));
+    });
+
+    it('denies another user reading or writing the seeding marker', async () => {
+      await assertFails(getDoc(doc(strangerDb(), `users/${alice}`)));
+      await assertFails(
+        setDoc(doc(strangerDb(), `users/${alice}`), { seededAt: serverTimestamp() }),
+      );
+    });
+  });
+
+  describe('recurrences', () => {
+    const recurrencePath = `users/${alice}/recurrences/r1`;
+    const validRecurrence = () => ({
+      kind: 'expense',
+      amountCents: 150000,
+      dayOfMonth: 5,
+      accountId: 'a1',
+      categoryId: 'c1',
+      description: 'Aluguel',
+      tags: ['casa'],
+      startMonth: '2026-01',
+      endMonth: null,
+      materializedThrough: null,
+    });
+
+    it('lets the owner create and update a rule', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(setDoc(doc(db, recurrencePath), validRecurrence()));
+      await assertSucceeds(
+        updateDoc(doc(db, recurrencePath), { endMonth: '2026-12', materializedThrough: '2026-02' }),
+      );
+    });
+
+    it.each([
+      ['an undeclared field', { extra: 'x' }],
+      ['a transfer kind', { kind: 'transfer' }],
+      ['a zero amount', { amountCents: 0 }],
+      ['day 0', { dayOfMonth: 0 }],
+      ['day 32', { dayOfMonth: 32 }],
+      ['a fractional day', { dayOfMonth: 5.5 }],
+      ['a malformed start month', { startMonth: '2026-1' }],
+      ['a malformed end month', { endMonth: 'dezembro' }],
+      ['no category', { categoryId: null }],
+    ])('denies a rule with %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), recurrencePath), { ...validRecurrence(), ...override }),
+      );
+    });
+
+    it('denies another user creating a rule in the owner tree', async () => {
+      await assertFails(setDoc(doc(strangerDb(), recurrencePath), validRecurrence()));
+    });
+
+    describe('materialising', () => {
+      const transactionIds = async () =>
+        (await getDocs(collection(ownerDb(alice), `users/${alice}/transactions`))).docs
+          .map((document) => document.id)
+          .sort();
+
+      beforeEach(async () => {
+        await setDoc(doc(ownerDb(alice), recurrencePath), validRecurrence());
+      });
+
+      it('creates exactly one movement per month when two tabs run at the same time', async () => {
+        const outcomes = await Promise.allSettled([
+          materializeRecurrence(ownerDb(alice), alice, 'r1', '2026-03-10'),
+          materializeRecurrence(ownerDb(alice), alice, 'r1', '2026-03-10'),
+        ]);
+
+        expect(outcomes.some((outcome) => outcome.status === 'fulfilled')).toBe(true);
+
+        expect(await transactionIds()).toEqual(['r1_2026-01', 'r1_2026-02', 'r1_2026-03']);
+        const rule = await getDoc(doc(ownerDb(alice), recurrencePath));
+        expect(rule.data()?.materializedThrough).toBe('2026-03');
+      });
+
+      it('does not recreate an occurrence the user deleted', async () => {
+        await materializeRecurrence(ownerDb(alice), alice, 'r1', '2026-03-10');
+        await deleteDoc(doc(ownerDb(alice), `users/${alice}/transactions/r1_2026-02`));
+
+        await materializeRecurrence(ownerDb(alice), alice, 'r1', '2026-03-10');
+
+        expect(await transactionIds()).toEqual(['r1_2026-01', 'r1_2026-03']);
       });
     });
   });

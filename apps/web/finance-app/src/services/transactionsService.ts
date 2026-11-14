@@ -7,6 +7,7 @@ import {
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
+import { buildInstallments } from '../domain/installment';
 import type { Transaction, TransactionInput } from '../domain/transaction';
 import { errorCode } from './errorCode';
 import { db } from './firebase';
@@ -49,12 +50,32 @@ export async function createTransactions(uid: string, inputs: TransactionInput[]
   await batch.commit();
 }
 
+export async function createInstallments(
+  uid: string,
+  draft: TransactionInput,
+  count: number,
+): Promise<void> {
+  const groupId = doc(transactionsOf(uid)).id;
+  await createTransactions(uid, buildInstallments(draft, count, groupId));
+}
+
 export async function updateTransaction(
   uid: string,
   id: string,
   input: TransactionInput,
 ): Promise<void> {
   await updateDoc(transactionOf(uid, id), { ...input, updatedAt: serverTimestamp() });
+}
+
+export async function updateTransactions(
+  uid: string,
+  updates: { id: string; input: TransactionInput }[],
+): Promise<void> {
+  const batch = writeBatch(db);
+  updates.forEach(({ id, input }) =>
+    batch.update(transactionOf(uid, id), { ...input, updatedAt: serverTimestamp() }),
+  );
+  await batch.commit();
 }
 
 export async function deleteTransactions(uid: string, ids: string[]): Promise<void> {
