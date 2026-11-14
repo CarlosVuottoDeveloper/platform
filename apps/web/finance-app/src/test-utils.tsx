@@ -4,7 +4,19 @@ import { MemoryRouter } from 'react-router';
 import { AuthProvider } from './context/AuthContext/AuthContext';
 import { ToastProvider } from './context/ToastContext/ToastContext';
 import { UserDataProvider } from './context/UserDataContext/UserDataContext';
+import type { Account } from './domain/account';
+import type { Budget } from './domain/budget';
+import type { Category } from './domain/category';
+import type { Contribution, Goal } from './domain/goal';
+import type { Recurrence } from './domain/recurrence';
+import type { Transaction } from './domain/transaction';
+import { subscribeToAccounts } from './services/accountsService';
 import type { AuthUser } from './services/authService';
+import { subscribeToBudgets } from './services/budgetsService';
+import { seedDefaultCategories, subscribeToCategories } from './services/categoriesService';
+import { subscribeToContributions, subscribeToGoals } from './services/goalsService';
+import { materializeDueRecurrences, subscribeToRecurrences } from './services/recurrencesService';
+import { subscribeToTransactions } from './services/transactionsService';
 import { subscribeToAuthChanges } from './services/authService';
 
 export const testUser: AuthUser = {
@@ -50,4 +62,36 @@ export function renderSignedIn(ui: ReactElement, options: { route?: string } = {
 
 export function money(expected: string) {
   return (content: string) => content.replace(/\s/g, ' ') === expected;
+}
+
+interface UserDataFixture {
+  accounts?: Account[];
+  budgets?: Budget[];
+  categories?: Category[];
+  contributions?: Record<string, Contribution[]>;
+  goals?: Goal[];
+  recurrences?: Recurrence[];
+  transactions?: Transaction[];
+}
+
+function publish<T>(items: T[]) {
+  return (_uid: string, onChange: (items: T[]) => void) => {
+    onChange(items);
+    return jest.fn();
+  };
+}
+
+export function mockUserData(data: UserDataFixture = {}) {
+  jest.mocked(seedDefaultCategories).mockResolvedValue();
+  jest.mocked(materializeDueRecurrences).mockResolvedValue();
+  jest.mocked(subscribeToAccounts).mockImplementation(publish(data.accounts ?? []));
+  jest.mocked(subscribeToBudgets).mockImplementation(publish(data.budgets ?? []));
+  jest.mocked(subscribeToCategories).mockImplementation(publish(data.categories ?? []));
+  jest.mocked(subscribeToGoals).mockImplementation(publish(data.goals ?? []));
+  jest.mocked(subscribeToContributions).mockImplementation((_uid, goalId, onChange) => {
+    onChange(data.contributions?.[goalId] ?? []);
+    return jest.fn();
+  });
+  jest.mocked(subscribeToRecurrences).mockImplementation(publish(data.recurrences ?? []));
+  jest.mocked(subscribeToTransactions).mockImplementation(publish(data.transactions ?? []));
 }

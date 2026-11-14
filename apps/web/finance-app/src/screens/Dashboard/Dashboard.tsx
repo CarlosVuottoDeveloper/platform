@@ -2,11 +2,19 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Card, EmptyState, Icon, StatTile } from '@industry/web';
 import type { IconName } from '@industry/web';
+import { BudgetStatusBadge } from '../../components/BudgetStatusBadge/BudgetStatusBadge';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import { formatDateBR, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
+import { budgetProgress, expensesOfMonth } from '../../domain/budget';
+import {
+  formatDateBR,
+  lastDayOfMonth,
+  toCalendarDate,
+  yearMonthOf,
+} from '../../domain/calendarDate';
 import { formatCents } from '../../domain/money';
 import { summarizeMonth } from '../../domain/monthSummary';
+import { projectedOccurrences } from '../../domain/recurrence';
 import type { Transaction } from '../../domain/transaction';
 import { categoryName, signedAmount } from '../../domain/transactionList';
 
@@ -40,7 +48,7 @@ function latestRealised(transactions: Transaction[], today: string): Transaction
 }
 
 export function Dashboard() {
-  const { accounts, categories, recurrences, transactions } = useUserData();
+  const { accounts, budgets, categories, recurrences, transactions } = useUserData();
   const today = toCalendarDate(new Date());
   const [month, setMonth] = useState(yearMonthOf(today));
 
@@ -63,6 +71,18 @@ export function Dashboard() {
 
   const summary = summarizeMonth({ accounts, transactions, recurrences, month, today });
   const latest = latestRealised(transactions, today);
+  const monthExpenses = expensesOfMonth(
+    transactions,
+    projectedOccurrences(recurrences, today, lastDayOfMonth(month)),
+    month,
+  );
+  const budgetAlerts = budgets
+    .map((budget) => ({
+      budget,
+      category: categories.find((category) => category.id === budget.categoryId),
+      status: budgetProgress(budget, monthExpenses).status,
+    }))
+    .filter((alert) => alert.status !== 'ok' && alert.category && !alert.category.archived);
 
   return (
     <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
@@ -110,6 +130,27 @@ export function Dashboard() {
           cents={summary.expectedEndBalanceCents}
         />
       </div>
+      {budgetAlerts.length > 0 ? (
+        <section aria-label="Orçamentos em alerta">
+          <h2 style={{ fontSize: 'var(--text-h4)' }}>Orçamentos em alerta</h2>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {budgetAlerts.map(({ budget, category, status }) => (
+              <li
+                key={budget.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-3)',
+                  padding: 'var(--space-2) 0',
+                }}
+              >
+                <span style={{ flex: 1, minWidth: 0 }}>{category?.name}</span>
+                <BudgetStatusBadge status={status} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <section aria-label="Últimas movimentações">
         <h2 style={{ fontSize: 'var(--text-h4)' }}>Últimas movimentações</h2>
         {latest.length === 0 ? (

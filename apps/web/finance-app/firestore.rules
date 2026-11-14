@@ -154,5 +154,42 @@ service cloud.firestore {
     match /users/{uid}/recurrences/{recurrenceId} {
       allow create, update: if isOwner(uid) && isValidRecurrence(request.resource.data);
     }
+
+    function isValidBudget(data, categoryId) {
+      return hasExactly(data, ['categoryId', 'limitCents'])
+        && data.categoryId == categoryId
+        && data.limitCents is int
+        && data.limitCents >= 1
+        && data.limitCents <= 99999999999;
+    }
+
+    match /users/{uid}/budgets/{categoryId} {
+      allow create, update: if isOwner(uid) && isValidBudget(request.resource.data, categoryId);
+    }
+
+    function isValidGoal(data) {
+      return hasExactly(data, ['name', 'targetCents', 'deadline'])
+        && isText(data.name, 1, 60)
+        && data.targetCents is int
+        && data.targetCents >= 1
+        && data.targetCents <= 99999999999
+        && (data.deadline == null || isCalendarDate(data.deadline));
+    }
+
+    function isValidContribution(data) {
+      return hasExactly(data, ['amountCents', 'date'])
+        && data.amountCents is int
+        && data.amountCents >= 1
+        && data.amountCents <= 99999999999
+        && isCalendarDate(data.date);
+    }
+
+    match /users/{uid}/goals/{goalId} {
+      allow create, update: if isOwner(uid) && isValidGoal(request.resource.data);
+    }
+
+    match /users/{uid}/goals/{goalId}/contributions/{contributionId} {
+      allow create: if isOwner(uid) && isValidContribution(request.resource.data);
+    }
   }
 }

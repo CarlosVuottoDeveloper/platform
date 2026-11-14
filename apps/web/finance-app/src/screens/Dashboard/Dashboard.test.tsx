@@ -6,6 +6,7 @@ import type { Recurrence } from '../../domain/recurrence';
 import { tx } from '../../domain/transaction.test-helpers';
 import type { Transaction } from '../../domain/transaction';
 import { subscribeToAccounts } from '../../services/accountsService';
+import { subscribeToBudgets } from '../../services/budgetsService';
 import { seedDefaultCategories, subscribeToCategories } from '../../services/categoriesService';
 import {
   materializeDueRecurrences,
@@ -17,6 +18,7 @@ import { Dashboard } from './Dashboard';
 
 jest.mock('../../services/authService');
 jest.mock('../../services/accountsService');
+jest.mock('../../services/budgetsService');
 jest.mock('../../services/categoriesService');
 jest.mock('../../services/transactionsService');
 jest.mock('../../services/recurrencesService');
@@ -112,6 +114,7 @@ describe('Dashboard', () => {
     jest.mocked(seedDefaultCategories).mockResolvedValue();
     jest.mocked(materializeDueRecurrences).mockResolvedValue();
     jest.mocked(subscribeToCategories).mockImplementation(publish(categories));
+    jest.mocked(subscribeToBudgets).mockImplementation(publish([]));
     mockData([account], marchTransactions, [rent]);
   });
 
@@ -182,5 +185,31 @@ describe('Dashboard', () => {
       'href',
       '/contas',
     );
+  });
+
+  it('lists the budgets that are near or over their limit this month', () => {
+    jest.mocked(subscribeToBudgets).mockImplementation(
+      publish([
+        { id: 'c1', categoryId: 'c1', limitCents: 100000 },
+        { id: 'c2', categoryId: 'c2', limitCents: 100000 },
+      ]),
+    );
+
+    renderSignedIn(<Dashboard />);
+
+    const alerts = within(screen.getByRole('region', { name: 'Orçamentos em alerta' }));
+    expect(alerts.getByText('Moradia')).toBeInTheDocument();
+    expect(alerts.getByText('Perto do limite')).toBeInTheDocument();
+    expect(alerts.queryByText('Salário')).not.toBeInTheDocument();
+  });
+
+  it('shows no budget alert section when every budget is fine', () => {
+    jest
+      .mocked(subscribeToBudgets)
+      .mockImplementation(publish([{ id: 'c1', categoryId: 'c1', limitCents: 1000000 }]));
+
+    renderSignedIn(<Dashboard />);
+
+    expect(screen.queryByRole('region', { name: 'Orçamentos em alerta' })).not.toBeInTheDocument();
   });
 });
