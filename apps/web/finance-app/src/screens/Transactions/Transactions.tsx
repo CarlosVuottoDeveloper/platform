@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EmptyState, SearchField } from '@industry/web';
+import { Card, EmptyState, SearchField } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
 import { MovementRow } from '../../components/MovementRow/MovementRow';
@@ -85,30 +85,40 @@ export function Transactions() {
           body="Use o botão Nova movimentação para registrar uma receita ou despesa."
         />
       ) : null}
-      {groupByDate(visible).map((group) => (
-        <section key={group.date} aria-label={formatDateBR(group.date)}>
-          <h2 style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
-            {formatDateBR(group.date)}
-          </h2>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {group.items.map((transaction) => (
-              <MovementRow
-                key={transaction.id}
-                transaction={transaction}
-                accounts={accounts}
-                categories={categories}
-                pending={isPending(transaction, today)}
-                forecast={forecastIds.has(transaction.id)}
-                showDate={false}
-                actions={{
-                  onEdit: () => setSheet({ mode: 'edit', transaction }),
-                  onDelete: () => setSheet({ mode: 'delete', transaction }),
+      {visible.length > 0 ? (
+        <Card data-testid="transactions-card" elevation="sm">
+          {groupByDate(visible).map((group) => (
+            <section key={group.date} aria-label={formatDateBR(group.date)}>
+              <h2
+                style={{
+                  margin: 'var(--space-3) 0 0',
+                  fontSize: 'var(--text-h6)',
+                  color: 'var(--color-neutral-400)',
                 }}
-              />
-            ))}
-          </ul>
-        </section>
-      ))}
+              >
+                {formatDateBR(group.date)}
+              </h2>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {group.items.map((transaction) => (
+                  <MovementRow
+                    key={transaction.id}
+                    transaction={transaction}
+                    accounts={accounts}
+                    categories={categories}
+                    pending={isPending(transaction, today)}
+                    forecast={forecastIds.has(transaction.id)}
+                    showDate={false}
+                    actions={{
+                      onEdit: () => setSheet({ mode: 'edit', transaction }),
+                      onDelete: () => setSheet({ mode: 'delete', transaction }),
+                    }}
+                  />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </Card>
+      ) : null}
       {sheet.mode === 'edit' ? (
         <TransactionSheet transaction={sheet.transaction} onClose={closeSheet} />
       ) : null}

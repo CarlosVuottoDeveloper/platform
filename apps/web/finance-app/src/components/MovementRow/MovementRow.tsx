@@ -55,7 +55,7 @@ export function MovementRow({
       <IconBubble size="sm">
         <Icon name={movementIconName(transaction, { pending })} size="sm" />
       </IconBubble>
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, width: 0, minWidth: '45%' }}>
         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {title}
         </div>
