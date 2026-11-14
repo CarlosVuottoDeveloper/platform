@@ -76,11 +76,11 @@ export function DotGrid({ values, columns, legend, label, style, testID }: DotGr
             color: 'var(--color-neutral-300)',
           }}
         >
-          {legend.low}
+          <span>{legend.low}</span>
           {LEVELS.map((level) => (
             <Dot key={level} level={level} size={10} />
           ))}
-          {legend.high}
+          <span>{legend.high}</span>
         </div>
       ) : null}
     </div>
