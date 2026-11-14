@@ -1,13 +1,15 @@
 export type CalendarDate = string;
 export type YearMonth = string;
 
-const CALENDAR_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
+const yearOf = (month: YearMonth) => Number(month.slice(0, 4));
+const monthNumberOf = (month: YearMonth) => Number(month.slice(5, 7));
+
 function monthIndex(month: YearMonth): number {
-  const [year = '0', monthNumber = '1'] = month.split('-');
-  return Number(year) * 12 + Number(monthNumber) - 1;
+  return yearOf(month) * 12 + monthNumberOf(month) - 1;
 }
 
 function fromMonthIndex(index: number): YearMonth {
@@ -15,8 +17,7 @@ function fromMonthIndex(index: number): YearMonth {
 }
 
 function daysInMonth(month: YearMonth): number {
-  const [year = '0', monthNumber = '1'] = month.split('-');
-  return new Date(Number(year), Number(monthNumber), 0).getDate();
+  return new Date(yearOf(month), monthNumberOf(month), 0).getDate();
 }
 
 export function toCalendarDate(now: Date): CalendarDate {
@@ -46,22 +47,19 @@ export function monthsBetween(first: YearMonth, last: YearMonth): YearMonth[] {
 }
 
 export function formatDateBR(date: CalendarDate): string {
-  const [year, month, day] = date.split('-');
-  return `${day}/${month}/${year}`;
+  return `${date.slice(8, 10)}/${date.slice(5, 7)}/${date.slice(0, 4)}`;
 }
 
 export function formatMonthBR(month: YearMonth): string {
-  const [year = '0', monthNumber = '1'] = month.split('-');
   return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
-    new Date(Number(year), Number(monthNumber) - 1, 1),
+    new Date(yearOf(month), monthNumberOf(month) - 1, 1),
   );
 }
 
 export function isCalendarDate(text: string): boolean {
-  const match = CALENDAR_DATE.exec(text);
-  if (!match) return false;
-  const monthNumber = Number(match[2]);
+  if (!CALENDAR_DATE.test(text)) return false;
+  const monthNumber = monthNumberOf(text);
   if (monthNumber < 1 || monthNumber > 12) return false;
-  const day = Number(match[3]);
+  const day = Number(text.slice(8, 10));
   return day >= 1 && day <= daysInMonth(text.slice(0, 7));
 }

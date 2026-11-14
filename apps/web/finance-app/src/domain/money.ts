@@ -2,7 +2,7 @@ export type Cents = number;
 
 const GROUPED_INTEGER = /^\d{1,3}(\.\d{3})+$/;
 const PLAIN_INTEGER = /^\d+$/;
-const DOT_DECIMAL = /^(\d+)\.(\d{1,2})$/;
+const DOT_DECIMAL = /^\d+\.\d{1,2}$/;
 const FRACTION = /^\d{1,2}$/;
 
 const brlFormat = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -24,19 +24,19 @@ function toCents(integer: string, fraction: string): Cents {
 export function parseBRLToCents(input: string): Cents | null {
   const text = input.replace(/R\$/i, '').replace(/\s/g, '');
 
-  const commaParts = text.split(',');
-  if (commaParts.length === 2) {
-    const [integerPart = '', fractionPart = ''] = commaParts;
-    const integer = integerDigits(integerPart);
-    return integer !== null && FRACTION.test(fractionPart) ? toCents(integer, fractionPart) : null;
+  const comma = text.indexOf(',');
+  if (comma !== -1) {
+    const integer = integerDigits(text.slice(0, comma));
+    const fraction = text.slice(comma + 1);
+    return integer !== null && FRACTION.test(fraction) ? toCents(integer, fraction) : null;
   }
-  if (commaParts.length > 2) return null;
 
   const integer = integerDigits(text);
   if (integer !== null) return toCents(integer, '');
 
-  const dotDecimal = DOT_DECIMAL.exec(text);
-  return dotDecimal ? toCents(dotDecimal[1] ?? '', dotDecimal[2] ?? '') : null;
+  if (!DOT_DECIMAL.test(text)) return null;
+  const dot = text.indexOf('.');
+  return toCents(text.slice(0, dot), text.slice(dot + 1));
 }
 
 export function formatCents(cents: Cents): string {
