@@ -4,19 +4,19 @@ import type { IconName } from '@industry/web';
 import { AccountSheet } from '../../components/AccountSheet/AccountSheet';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { TransferSheet } from '../../components/TransferSheet/TransferSheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { ACCOUNT_TYPE_LABELS, groupAccounts, isLiability } from '../../domain/account';
 import type { Account } from '../../domain/account';
 import { colorVariable } from '../../domain/appearance';
 import {
   accountBalanceOn,
-  accountHasTransactions,
   consolidatedBalanceOn,
+  isAccountInUse,
   pendingTotalAfter,
 } from '../../domain/balance';
-import { toCalendarDate } from '../../domain/calendarDate';
 import { formatCents } from '../../domain/money';
 import type { Transaction } from '../../domain/transaction';
 import { deleteAccount, setAccountArchived } from '../../services/accountsService';
@@ -37,12 +37,14 @@ interface AccountActions {
 interface AccountRowProps extends AccountActions {
   account: Account;
   transactions: Transaction[];
+  inUse: boolean;
   today: string;
 }
 
 function AccountRow({
   account,
   transactions,
+  inUse,
   today,
   onEdit,
   onToggleArchived,
@@ -96,7 +98,7 @@ function AccountRow({
       >
         {archiveLabel}
       </Button>
-      {accountHasTransactions(account.id, transactions) ? null : (
+      {inUse ? null : (
         <Button
           size="sm"
           variant="ghost"
@@ -114,10 +116,11 @@ interface AccountSectionProps extends AccountActions {
   title: string;
   accounts: Account[];
   transactions: Transaction[];
+  isInUse: (account: Account) => boolean;
   today: string;
 }
 
-function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
+function AccountSection({ title, accounts, isInUse, ...rowProps }: AccountSectionProps) {
   if (accounts.length === 0) return null;
 
   return (
@@ -125,7 +128,7 @@ function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
       <h2 style={{ fontSize: 'var(--text-h4)' }}>{title}</h2>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {accounts.map((account) => (
-          <AccountRow key={account.id} account={account} {...rowProps} />
+          <AccountRow key={account.id} account={account} inUse={isInUse(account)} {...rowProps} />
         ))}
       </ul>
     </section>
@@ -133,11 +136,11 @@ function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
 }
 
 export function Accounts() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
-  const { accounts, transactions } = useUserData();
+  const { accounts, recurrences, transactions } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
-  const today = toCalendarDate(new Date());
+  const today = useToday();
   const groups = groupAccounts(accounts);
   const activeAccounts = [...groups.assets, ...groups.liabilities];
   const closeSheet = () => setSheet({ mode: 'closed' });
@@ -151,18 +154,17 @@ export function Accounts() {
   }
 
   function toggleArchived(account: Account) {
-    if (!user) return;
     void runOrWarn(() => setAccountArchived(user.uid, account.id, !account.archived));
   }
 
   function confirmDelete(account: Account) {
-    if (!user) return;
     closeSheet();
     void runOrWarn(() => deleteAccount(user.uid, account.id));
   }
 
   const sectionProps = {
     transactions,
+    isInUse: (account: Account) => isAccountInUse(account.id, transactions, recurrences),
     today,
     onEdit: (account: Account) => setSheet({ mode: 'edit', account }),
     onToggleArchived: toggleArchived,

@@ -45,6 +45,7 @@ export function TagsField({ value, onChange, suggestions }: TagsFieldProps) {
         disabled={isFull}
         onChange={(event) => handleChange(event.target.value)}
         onKeyDown={handleKeyDown}
+        onBlur={() => addTag(text)}
       />
       <datalist id={listId}>
         {suggestions

@@ -7,7 +7,7 @@ import { projectedOccurrences } from './recurrence';
 import type { Recurrence } from './recurrence';
 import type { Transaction, TransactionKind } from './transaction';
 
-export interface MonthSummary {
+interface MonthSummary {
   balanceCents: Cents;
   incomeCents: Cents;
   expenseCents: Cents;

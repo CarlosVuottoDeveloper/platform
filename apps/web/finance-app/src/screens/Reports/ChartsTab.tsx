@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { AreaChart, BarChart, Card, EmptyState, PieChart } from '@industry/web';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import {
   addMonths,
   formatMonthShortBR,
   lastDayOfMonth,
   monthsBetween,
-  toCalendarDate,
   yearMonthOf,
 } from '../../domain/calendarDate';
 import { dailyConsolidatedBalance, expensesByCategory, monthlyCashFlow } from '../../domain/charts';
@@ -21,15 +21,16 @@ const CASH_FLOW_SERIES = [
 
 export function ChartsTab() {
   const { accounts, categories, transactions } = useUserData();
-  const today = toCalendarDate(new Date());
+  const today = useToday();
   const currentMonth = yearMonthOf(today);
   const [month, setMonth] = useState(currentMonth);
 
+  const monthEnd = lastDayOfMonth(month);
   const spending = expensesByCategory(
     transactions,
     categories,
     `${month}-01`,
-    lastDayOfMonth(month),
+    monthEnd < today ? monthEnd : today,
   );
   const cashFlow = monthlyCashFlow(
     transactions,

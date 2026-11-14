@@ -6,9 +6,12 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
 } from 'firebase/firestore';
-import { firebaseOptions, useEmulators } from './firebaseConfig';
+import { enableAppCheck } from './appCheck';
+import { firebaseOptions, recaptchaSiteKey, useEmulators } from './firebaseConfig';
 
 const app = initializeApp(firebaseOptions);
+
+enableAppCheck(app, useEmulators ? undefined : recaptchaSiteKey);
 
 export const auth = getAuth(app);
 

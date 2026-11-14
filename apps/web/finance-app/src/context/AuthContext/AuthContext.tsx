@@ -34,3 +34,9 @@ export function useAuth(): AuthContextValue {
   if (!value) throw new Error('useAuth precisa de um AuthProvider');
   return value;
 }
+
+export function useSignedInUser(): AuthUser {
+  const { user } = useAuth();
+  if (!user) throw new Error('Esta tela exige um usuário autenticado');
+  return user;
+}

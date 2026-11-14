@@ -18,8 +18,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,3 +38,30 @@ jobs:
 
       - name: Test
         run: yarn workspace @app/finance test --runInBand
+
+  finance-app-rules:
+    name: finance-app — Firestore rules (emulator)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npx yarn install
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools@15
+
+      - name: Test Firestore rules
+        run: yarn workspace @app/finance test:rules

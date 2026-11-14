@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Icon } from '@industry/web';
 import type { IconName } from '@industry/web';
 import { CategorySheet } from '../../components/CategorySheet/CategorySheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { colorVariable } from '../../domain/appearance';
@@ -70,13 +70,12 @@ function CategoryList({ title, categories, onEdit, onToggleArchived }: CategoryL
 }
 
 export function CategoriesSection() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { categories } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
 
   async function toggleArchived(category: Category) {
-    if (!user) return;
     try {
       await setCategoryArchived(user.uid, category.id, !category.archived);
     } catch {

@@ -19,13 +19,13 @@ export interface Recurrence {
 
 export type RecurrenceInput = Omit<Recurrence, 'id' | 'materializedThrough'>;
 
-export interface Occurrence {
+interface Occurrence {
   id: string;
   month: YearMonth;
   input: TransactionInput;
 }
 
-export function occurrenceId(recurrenceId: string, month: YearMonth): string {
+function occurrenceId(recurrenceId: string, month: YearMonth): string {
   return `${recurrenceId}_${month}`;
 }
 

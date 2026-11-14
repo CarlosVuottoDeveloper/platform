@@ -1,6 +1,16 @@
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  deleteUser,
+  onAuthStateChanged,
+  reauthenticateWithPopup,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
 import type { User } from 'firebase/auth';
+import { reloadPage } from './browser';
+import { errorCode } from './errorCode';
 import { auth } from './firebase';
+import { clearLocalCache } from './localCache';
 
 export interface AuthUser {
   uid: string;
@@ -21,8 +31,7 @@ function toAuthUser(user: User): AuthUser {
 }
 
 function isPopupDismissed(error: unknown): boolean {
-  if (typeof error !== 'object' || error === null || !('code' in error)) return false;
-  return typeof error.code === 'string' && POPUP_DISMISSED_CODES.includes(error.code);
+  return POPUP_DISMISSED_CODES.includes(errorCode(error));
 }
 
 export function subscribeToAuthChanges(onChange: (user: AuthUser | null) => void): () => void {
@@ -39,6 +48,35 @@ export async function loginWithGoogle(): Promise<AuthUser | null> {
   }
 }
 
-export function logout(): Promise<void> {
-  return signOut(auth);
+async function leaveNoDataBehind(): Promise<void> {
+  await clearLocalCache();
+  reloadPage();
+}
+
+export async function logout(): Promise<void> {
+  await signOut(auth);
+  await leaveNoDataBehind();
+}
+
+const RECENT_LOGIN_WINDOW_MS = 4 * 60 * 1000;
+
+export async function confirmRecentLogin(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) return;
+  const lastSignIn = Date.parse(user.metadata.lastSignInTime ?? '');
+  if (Date.now() - lastSignIn < RECENT_LOGIN_WINDOW_MS) return;
+  await reauthenticateWithPopup(user, new GoogleAuthProvider());
+}
+
+export async function deleteCurrentUser(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await deleteUser(user);
+  } catch (error) {
+    if (errorCode(error) !== 'auth/requires-recent-login') throw error;
+    await reauthenticateWithPopup(user, new GoogleAuthProvider());
+    await deleteUser(user);
+  }
+  await leaveNoDataBehind();
 }

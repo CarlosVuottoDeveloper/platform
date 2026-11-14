@@ -1,12 +1,13 @@
 import { AreaChart, Card, EmptyState, Icon, StatTile } from '@industry/web';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import { formatMonthShortBR, toCalendarDate } from '../../domain/calendarDate';
+import { formatMonthShortBR } from '../../domain/calendarDate';
 import { formatCents } from '../../domain/money';
 import { netWorthByMonth } from '../../domain/netWorth';
 
 export function NetWorthTab() {
   const { accounts, transactions } = useUserData();
-  const history = netWorthByMonth(accounts, transactions, toCalendarDate(new Date()));
+  const history = netWorthByMonth(accounts, transactions, useToday());
   const current = history[history.length - 1];
 
   if (!current) {

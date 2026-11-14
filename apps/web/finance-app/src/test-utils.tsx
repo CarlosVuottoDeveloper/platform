@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { AuthProvider } from './context/AuthContext/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext/AuthContext';
 import { ToastProvider } from './context/ToastContext/ToastContext';
 import { UserDataProvider } from './context/UserDataContext/UserDataContext';
 import type { Account } from './domain/account';
@@ -56,8 +56,17 @@ export function renderWithProviders(ui: ReactElement, { route = '/' }: { route?:
   );
 }
 
+function SignedInOnly({ children }: { children: ReactElement }) {
+  const { user } = useAuth();
+  return user ? children : null;
+}
+
+export function renderForUser(ui: ReactElement, options: { route?: string } = {}) {
+  return renderWithProviders(<SignedInOnly>{ui}</SignedInOnly>, options);
+}
+
 export function renderSignedIn(ui: ReactElement, options: { route?: string } = {}) {
-  return renderWithProviders(<UserDataProvider>{ui}</UserDataProvider>, options);
+  return renderForUser(<UserDataProvider>{ui}</UserDataProvider>, options);
 }
 
 export function money(expected: string) {

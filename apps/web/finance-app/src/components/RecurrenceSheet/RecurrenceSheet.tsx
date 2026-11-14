@@ -1,13 +1,13 @@
 import { Controller, useForm } from 'react-hook-form';
 import { SegmentedControl, Select, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import { toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
+import { dateInMonth, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
 import type { CategoryKind } from '../../domain/category';
 import type { Cents } from '../../domain/money';
 import type { Recurrence, RecurrenceInput } from '../../domain/recurrence';
 import { createRecurrence, updateRecurrence } from '../../services/recurrencesService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 
@@ -53,8 +53,8 @@ function isValidDay(text: string): boolean {
 }
 
 export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
-  const { user } = useAuth();
-  const { showToast } = useToast();
+  const user = useSignedInUser();
+  const submit = useSubmitWrite(onClose);
   const { accounts, categories } = useUserData();
   const {
     control,
@@ -77,8 +77,19 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
   });
   const kind = watch('kind');
 
+  function validateStartMonth(startMonth: string) {
+    if (!YEAR_MONTH.test(startMonth)) return 'Informe o mês de início';
+    const { accountId, dayOfMonth } = getValues();
+    const account = accounts.find((candidate) => candidate.id === accountId);
+    if (!account || !isValidDay(dayOfMonth)) return true;
+    return (
+      dateInMonth(startMonth, Number(dayOfMonth)) >= account.openingDate ||
+      'O primeiro lançamento seria antes da abertura da conta'
+    );
+  }
+
   async function save(values: RecurrenceFormValues) {
-    if (!user || values.amountCents === null) return;
+    if (values.amountCents === null) return;
     const input: RecurrenceInput = {
       kind: values.kind,
       amountCents: values.amountCents,
@@ -90,16 +101,13 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
       startMonth: values.startMonth,
       endMonth: values.endMonth === '' ? null : values.endMonth,
     };
-    try {
+    await submit(async () => {
       if (recurrence) {
         await updateRecurrence(user.uid, recurrence.id, input);
       } else {
         await createRecurrence(user.uid, input);
       }
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (
@@ -195,9 +203,15 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
       <Controller
         control={control}
         name="startMonth"
-        rules={{ validate: (value) => YEAR_MONTH.test(value) || 'Informe o mês de início' }}
+        rules={{ validate: validateStartMonth }}
         render={({ field, fieldState }) => (
-          <TextField label="Início" type="month" error={fieldState.error?.message} {...field} />
+          <TextField
+            label="Início"
+            type="month"
+            placeholder="AAAA-MM"
+            error={fieldState.error?.message}
+            {...field}
+          />
         )}
       />
       <Controller
@@ -213,6 +227,7 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
           <TextField
             label="Fim (opcional)"
             type="month"
+            placeholder="AAAA-MM"
             error={fieldState.error?.message}
             {...field}
           />

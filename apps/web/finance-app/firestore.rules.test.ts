@@ -17,6 +17,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { materializeRecurrence } from './src/services/recurrenceMaterializer';
+import { eraseUserTree } from './src/services/userDataEraser';
 
 describe('Firestore security rules — finance-app', () => {
   let testEnv: RulesTestEnvironment;
@@ -32,6 +33,13 @@ describe('Firestore security rules — finance-app', () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       await setDoc(doc(context.firestore(), documentPath), data);
     });
+  }
+
+  async function seedReferences() {
+    await seed(`users/${alice}/accounts/a1`, { name: 'Nubank' });
+    await seed(`users/${alice}/accounts/a2`, { name: 'Poupança' });
+    await seed(`users/${alice}/categories/c1`, { name: 'Alimentação' });
+    await seed(`users/${bob}/accounts/bob-account`, { name: 'Conta do Bob' });
   }
 
   beforeAll(async () => {
@@ -170,6 +178,10 @@ describe('Firestore security rules — finance-app', () => {
 
   describe('transactions', () => {
     const transactionPath = `users/${alice}/transactions/t1`;
+
+    beforeEach(async () => {
+      await seedReferences();
+    });
     const validExpense = () => ({
       kind: 'expense',
       amountCents: 1999,
@@ -200,6 +212,22 @@ describe('Firestore security rules — finance-app', () => {
       await assertSucceeds(setDoc(doc(db, `users/${alice}/transactions/t3`), validTransfer()));
     });
 
+    it.each([
+      ['an account that does not exist', { accountId: 'gone' }],
+      ['a category that does not exist', { categoryId: 'gone' }],
+      ['an account of another user', { accountId: 'bob-account' }],
+    ])('denies a movement pointing to %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), transactionPath), { ...validExpense(), ...override }),
+      );
+    });
+
+    it('denies a transfer to an account that does not exist', async () => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), transactionPath), { ...validTransfer(), toAccountId: 'gone' }),
+      );
+    });
+
     it('accepts an instalment and a recurrence link', async () => {
       await assertSucceeds(
         setDoc(doc(ownerDb(alice), transactionPath), {
@@ -223,6 +251,9 @@ describe('Firestore security rules — finance-app', () => {
       ['a fractional amount', { amountCents: 10.5 }],
       ['an amount beyond the limit', { amountCents: 100000000000 }],
       ['a malformed date', { date: '05/03/2026' }],
+      ['an impossible month', { date: '2026-13-01' }],
+      ['an impossible day', { date: '2026-03-45' }],
+      ['day zero', { date: '2026-03-00' }],
       ['no account', { accountId: '' }],
       ['an expense without a category', { categoryId: null }],
       ['an expense with a destination account', { toAccountId: 'a2' }],
@@ -350,6 +381,10 @@ describe('Firestore security rules — finance-app', () => {
 
   describe('recurrences', () => {
     const recurrencePath = `users/${alice}/recurrences/r1`;
+
+    beforeEach(async () => {
+      await seedReferences();
+    });
     const validRecurrence = () => ({
       kind: 'expense',
       amountCents: 150000,
@@ -379,8 +414,12 @@ describe('Firestore security rules — finance-app', () => {
       ['day 32', { dayOfMonth: 32 }],
       ['a fractional day', { dayOfMonth: 5.5 }],
       ['a malformed start month', { startMonth: '2026-1' }],
+      ['an impossible start month', { startMonth: '2026-13' }],
+      ['month zero', { startMonth: '2026-00' }],
       ['a malformed end month', { endMonth: 'dezembro' }],
       ['no category', { categoryId: null }],
+      ['an account that does not exist', { accountId: 'gone' }],
+      ['a category that does not exist', { categoryId: 'gone' }],
     ])('denies a rule with %s', async (_label, override) => {
       await assertFails(
         setDoc(doc(ownerDb(alice), recurrencePath), { ...validRecurrence(), ...override }),
@@ -427,6 +466,19 @@ describe('Firestore security rules — finance-app', () => {
 
   describe('budgets', () => {
     const budgetPath = `users/${alice}/budgets/c1`;
+
+    beforeEach(async () => {
+      await seedReferences();
+    });
+
+    it('denies a budget for a category that does not exist', async () => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), `users/${alice}/budgets/gone`), {
+          categoryId: 'gone',
+          limitCents: 100,
+        }),
+      );
+    });
 
     it('lets the owner set and change the limit of a category', async () => {
       const db = ownerDb(alice);
@@ -496,6 +548,166 @@ describe('Firestore security rules — finance-app', () => {
         setDoc(doc(strangerDb(), contributionPath), { amountCents: 5000, date: '2026-03-01' }),
       );
       await assertFails(getDoc(doc(strangerDb(), contributionPath)));
+    });
+  });
+
+  describe('every collection, from the outside', () => {
+    const documents: [string, Record<string, unknown>][] = [
+      [
+        'accounts/x',
+        {
+          name: 'Conta',
+          type: 'bank',
+          color: 'viz-1',
+          icon: 'landmark',
+          initialBalanceCents: 0,
+          openingDate: '2026-01-01',
+          archived: false,
+        },
+      ],
+      [
+        'categories/x',
+        { name: 'Categoria', kind: 'expense', color: 'viz-1', icon: 'tag', archived: false },
+      ],
+      [
+        'transactions/x',
+        {
+          kind: 'expense',
+          amountCents: 100,
+          date: '2026-01-01',
+          accountId: 'a',
+          toAccountId: null,
+          categoryId: 'c',
+          description: '',
+          tags: [],
+          recurrenceId: null,
+          installment: null,
+        },
+      ],
+      [
+        'recurrences/x',
+        {
+          kind: 'expense',
+          amountCents: 100,
+          dayOfMonth: 1,
+          accountId: 'a',
+          categoryId: 'c',
+          description: '',
+          tags: [],
+          startMonth: '2026-01',
+          endMonth: null,
+          materializedThrough: null,
+        },
+      ],
+      ['budgets/x', { categoryId: 'x', limitCents: 100 }],
+      ['goals/x', { name: 'Meta', targetCents: 100, deadline: null }],
+      ['goals/x/contributions/y', { amountCents: 100, date: '2026-01-01' }],
+    ];
+
+    describe.each(documents)('%s', (relativePath, data) => {
+      const path = `users/${alice}/${relativePath}`;
+
+      beforeEach(async () => {
+        await seed(path, data);
+      });
+
+      it('denies another user reading, creating, updating and deleting', async () => {
+        const db = strangerDb();
+        await assertFails(getDoc(doc(db, path)));
+        await assertFails(getDocs(collection(db, path.slice(0, path.lastIndexOf('/')))));
+        await assertFails(setDoc(doc(db, `${path}-new`), data));
+        await assertFails(updateDoc(doc(db, path), { ...data }));
+        await assertFails(deleteDoc(doc(db, path)));
+      });
+
+      it('denies anonymous reading, creating, updating and deleting', async () => {
+        const db = anonymousDb();
+        await assertFails(getDoc(doc(db, path)));
+        await assertFails(setDoc(doc(db, `${path}-new`), data));
+        await assertFails(updateDoc(doc(db, path), { ...data }));
+        await assertFails(deleteDoc(doc(db, path)));
+      });
+
+      it('lets the owner read, list and delete', async () => {
+        const db = ownerDb(alice);
+        await assertSucceeds(getDoc(doc(db, path)));
+        await assertSucceeds(getDocs(collection(db, path.slice(0, path.lastIndexOf('/')))));
+        await assertSucceeds(deleteDoc(doc(db, path)));
+      });
+
+      it('denies the owner writing it without one of its fields', async () => {
+        const [firstField] = Object.keys(data);
+        const { [firstField as string]: _omitted, ...incomplete } = data;
+
+        await assertFails(setDoc(doc(ownerDb(alice), `${path}-new`), incomplete));
+      });
+
+      it('denies the owner writing it with an undeclared field', async () => {
+        await assertFails(setDoc(doc(ownerDb(alice), `${path}-new`), { ...data, isAdmin: true }));
+      });
+    });
+
+    it('denies everyone outside the users tree, even when signed in', async () => {
+      await assertFails(setDoc(doc(ownerDb(alice), 'config/app'), { open: true }));
+      await assertFails(getDoc(doc(ownerDb(alice), 'config/app')));
+      await assertFails(getDocs(collection(ownerDb(alice), 'users')));
+    });
+
+    it('denies an immutable contribution being edited', async () => {
+      const path = `users/${alice}/goals/g/contributions/k`;
+      await seed(path, { amountCents: 100, date: '2026-01-01' });
+
+      await assertFails(updateDoc(doc(ownerDb(alice), path), { amountCents: 999 }));
+    });
+  });
+
+  describe('erasing a user', () => {
+    const paths = [
+      `users/${alice}`,
+      `users/${alice}/accounts/a1`,
+      `users/${alice}/categories/c1`,
+      `users/${alice}/transactions/t1`,
+      `users/${alice}/recurrences/r1`,
+      `users/${alice}/budgets/c1`,
+      `users/${alice}/goals/g1`,
+      `users/${alice}/goals/g1/contributions/k1`,
+    ];
+    const bobAccount = `users/${bob}/accounts/a1`;
+
+    beforeEach(async () => {
+      await Promise.all([...paths, bobAccount].map((path) => seed(path, { any: 'thing' })));
+    });
+
+    it('removes every document of the owner, including contributions, and nothing of anyone else', async () => {
+      await eraseUserTree(ownerDb(alice), alice);
+
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const snapshots = await Promise.all(
+          paths.map((path) => getDoc(doc(context.firestore(), path))),
+        );
+        expect(snapshots.filter((snapshot) => snapshot.exists())).toEqual([]);
+        expect((await getDoc(doc(context.firestore(), bobAccount))).exists()).toBe(true);
+      });
+    });
+
+    it('handles more documents than fit in one batch', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const db = context.firestore();
+        for (let start = 0; start < 520; start += 260) {
+          await Promise.all(
+            Array.from({ length: 260 }, (_, index) =>
+              setDoc(doc(db, `users/${alice}/transactions/bulk-${start + index}`), {
+                any: 'thing',
+              }),
+            ),
+          );
+        }
+      });
+
+      await eraseUserTree(ownerDb(alice), alice);
+
+      const remaining = await getDocs(collection(ownerDb(alice), `users/${alice}/transactions`));
+      expect(remaining.size).toBe(0);
     });
   });
 });

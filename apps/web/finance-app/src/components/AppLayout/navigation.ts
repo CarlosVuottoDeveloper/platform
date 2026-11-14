@@ -1,6 +1,6 @@
 import type { IconName } from '@industry/web';
 
-export interface NavEntry {
+interface NavEntry {
   path: string;
   label: string;
   icon: IconName;
@@ -19,7 +19,7 @@ export const MORE_ENTRIES: NavEntry[] = [
   { path: '/configuracoes', label: 'Configurações', icon: 'settings' },
 ];
 
-export const MORE_PATH = '/mais';
+const MORE_PATH = '/mais';
 
 export const SIDEBAR_ENTRIES: NavEntry[] = [...PRIMARY_ENTRIES, ...MORE_ENTRIES];
 

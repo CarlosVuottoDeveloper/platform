@@ -83,4 +83,13 @@ describe('TagsField', () => {
 
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it('keeps a tag that was typed but not confirmed when the field loses focus', async () => {
+    render(<Harness />);
+
+    await userEvent.type(screen.getByLabelText('Tags'), 'viagem');
+    await userEvent.tab();
+
+    expect(screen.getByTestId('tags')).toHaveTextContent('viagem');
+  });
 });
