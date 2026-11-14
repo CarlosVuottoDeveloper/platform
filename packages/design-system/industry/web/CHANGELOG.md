@@ -1,5 +1,31 @@
 # @industry/web
 
+## 0.3.0
+
+### Minor Changes
+
+- de723d1: `Card`: nova prop `action`, renderizada na linha do título e alinhada à direita. O título passa a usar `--color-accent-300`.
+- de723d1: `IconBubble`: o círculo com ícone usado em cartões de resumo e listas. O `StatTile` passa a usá-lo, com o ícone em `--color-accent-300`, e quebra valores longos dentro do cartão.
+- de723d1: `SegmentedControl`: prop `block`, que ocupa a largura do contêiner com segmentos iguais.
+- de723d1: `Sheet`:
+  - Botão "Fechar" ao lado do título, e `Escape` fecha.
+  - O título nomeia o diálogo.
+  - O foco entra no primeiro campo do conteúdo. Num grupo de rádio, entra na opção marcada.
+  - `Tab` circula dentro da folha, mesmo depois de um clique no corpo dela.
+  - Ao fechar, o foco volta para quem abriu.
+  - Com uma folha aberta dentro de outra, só a de dentro responde ao teclado.
+
+- de723d1: `StatTile`: prop `tone` (`default` | `onPrimary`). Em `onPrimary`, o rótulo e o ícone usam `--color-text` sobre um círculo translúcido, legíveis no `GradientSurface variant="primary"`. O rótulo cinza padrão fica abaixo de 4,5:1 sobre esse gradiente.
+- de723d1: `TextField`: prop `size` (`md` | `lg`). `lg` aumenta a fonte para `--text-h3` e a altura do campo; campos de várias linhas ignoram o tamanho.
+
+### Patch Changes
+
+- de723d1: `Icon`: a prop `color` passa a pintar o ícone via CSS `color`, com `stroke="currentColor"`. O atributo `stroke` do SVG não resolve variáveis CSS, então cores como `var(--viz-1)` eram ignoradas e o ícone ficava na cor do texto.
+
+  O que muda para quem usa:
+  - `color` aceita só cores CSS. Pinturas exclusivas de SVG (`url(#gradiente)`, `none`, `context-stroke`) deixam de ter efeito.
+  - Um `style.color` passado junto prevalece sobre a prop `color`.
+
 ## 0.2.0
 
 ### Minor Changes
