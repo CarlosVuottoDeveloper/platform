@@ -97,3 +97,6 @@ export type {
 } from './PieChart';
 export { BarChart } from './BarChart';
 export type { BarChartProps, BarChartSeries, BarChartGroup } from './BarChart';
+
+export { DotGrid, dotLevel } from './DotGrid';
+export type { DotGridProps, DotLevel } from './DotGrid';
