@@ -305,4 +305,33 @@ describe('Transactions', () => {
 
     expect(await screen.findByText('Não foi possível excluir.')).toBeInTheDocument();
   });
+
+  it('keeps the date groups together inside one card', () => {
+    mockTransactions([
+      tx({ id: 'g1', date: firstOfMonth, accountId: 'a1', description: 'Primeiro' }),
+      tx({ id: 'g2', date: `${thisMonth}-02`, accountId: 'a1', description: 'Segundo' }),
+    ]);
+
+    renderSignedIn(<Transactions />);
+
+    const card = screen.getByTestId('transactions-card');
+    expect(card).toContainElement(screen.getByTestId('transaction-g1'));
+    expect(card).toContainElement(screen.getByTestId('transaction-g2'));
+    expect(card.style.background).toContain('var(--gradient-surface)');
+  });
+
+  it('shows the empty state without an empty card', () => {
+    renderSignedIn(<Transactions />);
+
+    expect(screen.queryByTestId('transactions-card')).not.toBeInTheDocument();
+    expect(screen.getByText('Nenhuma movimentação neste mês')).toBeInTheDocument();
+  });
+
+  it('puts the month on the left and the search on the right', () => {
+    renderSignedIn(<Transactions />);
+
+    const toolbar = screen.getByText(/ 20\d\d$/).parentElement?.parentElement as HTMLElement;
+    expect(toolbar).toContainElement(screen.getByPlaceholderText('Buscar por descrição ou tag'));
+    expect(toolbar.style.justifyContent).toBe('space-between');
+  });
 });
