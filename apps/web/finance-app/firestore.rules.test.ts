@@ -224,6 +224,9 @@ describe('Firestore security rules — finance-app', () => {
       ['a fractional amount', { amountCents: 10.5 }],
       ['an amount beyond the limit', { amountCents: 100000000000 }],
       ['a malformed date', { date: '05/03/2026' }],
+      ['an impossible month', { date: '2026-13-01' }],
+      ['an impossible day', { date: '2026-03-45' }],
+      ['day zero', { date: '2026-03-00' }],
       ['no account', { accountId: '' }],
       ['an expense without a category', { categoryId: null }],
       ['an expense with a destination account', { toAccountId: 'a2' }],
@@ -380,6 +383,8 @@ describe('Firestore security rules — finance-app', () => {
       ['day 32', { dayOfMonth: 32 }],
       ['a fractional day', { dayOfMonth: 5.5 }],
       ['a malformed start month', { startMonth: '2026-1' }],
+      ['an impossible start month', { startMonth: '2026-13' }],
+      ['month zero', { startMonth: '2026-00' }],
       ['a malformed end month', { endMonth: 'dezembro' }],
       ['no category', { categoryId: null }],
     ])('denies a rule with %s', async (_label, override) => {

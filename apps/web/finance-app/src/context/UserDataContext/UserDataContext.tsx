@@ -2,7 +2,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import type { Account } from '../../domain/account';
 import type { Budget } from '../../domain/budget';
-import { toCalendarDate } from '../../domain/calendarDate';
 import type { Category } from '../../domain/category';
 import type { Goal } from '../../domain/goal';
 import type { Recurrence } from '../../domain/recurrence';
@@ -16,6 +15,7 @@ import {
   subscribeToRecurrences,
 } from '../../services/recurrencesService';
 import { subscribeToTransactions } from '../../services/transactionsService';
+import { useToday } from '../../hooks/useToday';
 import { useAuth } from '../AuthContext/AuthContext';
 import { useToast } from '../ToastContext/ToastContext';
 
@@ -65,10 +65,12 @@ function useRecurrenceMaterialization(recurrences: Recurrence[] | null) {
   const { user } = useAuth();
   const uid = user?.uid;
 
+  const today = useToday();
+
   useEffect(() => {
     if (!uid || !recurrences) return;
-    void materializeDueRecurrences(uid, recurrences, toCalendarDate(new Date()));
-  }, [uid, recurrences]);
+    void materializeDueRecurrences(uid, recurrences, today);
+  }, [uid, recurrences, today]);
 }
 
 export function UserDataProvider({ children }: { children: ReactNode }) {

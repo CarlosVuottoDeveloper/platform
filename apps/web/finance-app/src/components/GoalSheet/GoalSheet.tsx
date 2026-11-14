@@ -1,11 +1,11 @@
 import { Controller, useForm } from 'react-hook-form';
 import { TextField } from '@industry/web';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
 import { isCalendarDate } from '../../domain/calendarDate';
 import type { Goal } from '../../domain/goal';
 import type { Cents } from '../../domain/money';
 import { createGoal, updateGoal } from '../../services/goalsService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 
@@ -22,7 +22,7 @@ interface GoalSheetProps {
 
 export function GoalSheet({ goal, onClose }: GoalSheetProps) {
   const user = useSignedInUser();
-  const { showToast } = useToast();
+  const submit = useSubmitWrite(onClose);
   const {
     control,
     handleSubmit,
@@ -42,16 +42,13 @@ export function GoalSheet({ goal, onClose }: GoalSheetProps) {
       targetCents: values.targetCents,
       deadline: values.deadline === '' ? null : values.deadline,
     };
-    try {
+    await submit(async () => {
       if (goal) {
         await updateGoal(user.uid, goal.id, input);
       } else {
         await createGoal(user.uid, input);
       }
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (

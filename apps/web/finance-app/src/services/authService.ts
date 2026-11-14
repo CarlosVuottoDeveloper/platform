@@ -7,8 +7,10 @@ import {
   signOut,
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
+import { reloadPage } from './browser';
 import { errorCode } from './errorCode';
 import { auth } from './firebase';
+import { clearLocalCache } from './localCache';
 
 export interface AuthUser {
   uid: string;
@@ -46,8 +48,24 @@ export async function loginWithGoogle(): Promise<AuthUser | null> {
   }
 }
 
-export function logout(): Promise<void> {
-  return signOut(auth);
+async function leaveNoDataBehind(): Promise<void> {
+  await clearLocalCache();
+  reloadPage();
+}
+
+export async function logout(): Promise<void> {
+  await signOut(auth);
+  await leaveNoDataBehind();
+}
+
+const RECENT_LOGIN_WINDOW_MS = 4 * 60 * 1000;
+
+export async function confirmRecentLogin(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) return;
+  const lastSignIn = Date.parse(user.metadata.lastSignInTime ?? '');
+  if (Date.now() - lastSignIn < RECENT_LOGIN_WINDOW_MS) return;
+  await reauthenticateWithPopup(user, new GoogleAuthProvider());
 }
 
 export async function deleteCurrentUser(): Promise<void> {
@@ -60,4 +78,5 @@ export async function deleteCurrentUser(): Promise<void> {
     await reauthenticateWithPopup(user, new GoogleAuthProvider());
     await deleteUser(user);
   }
+  await leaveNoDataBehind();
 }

@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { deleteCurrentUser } from '../../services/authService';
+import { confirmRecentLogin, deleteCurrentUser } from '../../services/authService';
 import { deleteAllUserData, downloadAllData } from '../../services/userDataService';
 import { mockSignedInAs, renderForUser, testUser } from '../../test-utils';
 import { DataSection } from './DataSection';
@@ -12,6 +12,7 @@ describe('DataSection', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignedInAs(testUser);
+    jest.mocked(confirmRecentLogin).mockResolvedValue();
   });
 
   it('exports all of the user data', async () => {
@@ -34,6 +35,9 @@ describe('DataSection', () => {
 
   it('only deletes after the user types EXCLUIR, erasing the data before the account', async () => {
     const calls: string[] = [];
+    jest.mocked(confirmRecentLogin).mockImplementation(async () => {
+      calls.push('identity');
+    });
     jest.mocked(deleteAllUserData).mockImplementation(async () => {
       calls.push('data');
     });
@@ -51,7 +55,7 @@ describe('DataSection', () => {
     await userEvent.type(dialog.getByLabelText('Digite EXCLUIR para confirmar'), 'EXCLUIR');
     await userEvent.click(dialog.getByRole('button', { name: 'Excluir tudo' }));
 
-    await waitFor(() => expect(calls).toEqual(['data', 'account']));
+    await waitFor(() => expect(calls).toEqual(['identity', 'data', 'account']));
     expect(deleteAllUserData).toHaveBeenCalledWith(testUser.uid);
   });
 
@@ -93,5 +97,20 @@ describe('DataSection', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(deleteAllUserData).not.toHaveBeenCalled();
+  });
+
+  it('deletes nothing when the user does not confirm their identity', async () => {
+    jest.mocked(confirmRecentLogin).mockRejectedValue({ code: 'auth/popup-closed-by-user' });
+    renderForUser(<DataSection />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir minha conta' }));
+    await userEvent.type(screen.getByLabelText('Digite EXCLUIR para confirmar'), 'EXCLUIR');
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir tudo' }));
+
+    expect(
+      await screen.findByText('Não foi possível confirmar sua identidade. Nada foi excluído.'),
+    ).toBeInTheDocument();
+    expect(deleteAllUserData).not.toHaveBeenCalled();
+    expect(deleteCurrentUser).not.toHaveBeenCalled();
   });
 });

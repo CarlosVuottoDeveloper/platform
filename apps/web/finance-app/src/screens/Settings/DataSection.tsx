@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Sheet, TextField } from '@industry/web';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
-import { deleteCurrentUser } from '../../services/authService';
+import { confirmRecentLogin, deleteCurrentUser } from '../../services/authService';
 import { deleteAllUserData, downloadAllData } from '../../services/userDataService';
 
 const CONFIRMATION_WORD = 'EXCLUIR';
@@ -29,6 +29,13 @@ export function DataSection() {
 
   async function deleteEverything() {
     setDeleting(true);
+    try {
+      await confirmRecentLogin();
+    } catch {
+      showToast('danger', 'Não foi possível confirmar sua identidade. Nada foi excluído.');
+      setDeleting(false);
+      return;
+    }
     try {
       await deleteAllUserData(user.uid);
     } catch {

@@ -1,13 +1,13 @@
 import { Controller, useForm } from 'react-hook-form';
 import { SegmentedControl, Select, TextField } from '@industry/web';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { dateInMonth, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
 import type { CategoryKind } from '../../domain/category';
 import type { Cents } from '../../domain/money';
 import type { Recurrence, RecurrenceInput } from '../../domain/recurrence';
 import { createRecurrence, updateRecurrence } from '../../services/recurrencesService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 
@@ -54,7 +54,7 @@ function isValidDay(text: string): boolean {
 
 export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
   const user = useSignedInUser();
-  const { showToast } = useToast();
+  const submit = useSubmitWrite(onClose);
   const { accounts, categories } = useUserData();
   const {
     control,
@@ -101,16 +101,13 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
       startMonth: values.startMonth,
       endMonth: values.endMonth === '' ? null : values.endMonth,
     };
-    try {
+    await submit(async () => {
       if (recurrence) {
         await updateRecurrence(user.uid, recurrence.id, input);
       } else {
         await createRecurrence(user.uid, input);
       }
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (

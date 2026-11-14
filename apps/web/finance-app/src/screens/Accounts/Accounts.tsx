@@ -6,6 +6,7 @@ import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { TransferSheet } from '../../components/TransferSheet/TransferSheet';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { ACCOUNT_TYPE_LABELS, groupAccounts, isLiability } from '../../domain/account';
 import type { Account } from '../../domain/account';
@@ -16,7 +17,6 @@ import {
   consolidatedBalanceOn,
   pendingTotalAfter,
 } from '../../domain/balance';
-import { toCalendarDate } from '../../domain/calendarDate';
 import { formatCents } from '../../domain/money';
 import type { Transaction } from '../../domain/transaction';
 import { deleteAccount, setAccountArchived } from '../../services/accountsService';
@@ -137,7 +137,7 @@ export function Accounts() {
   const { showToast } = useToast();
   const { accounts, transactions } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
-  const today = toCalendarDate(new Date());
+  const today = useToday();
   const groups = groupAccounts(accounts);
   const activeAccounts = [...groups.assets, ...groups.liabilities];
   const closeSheet = () => setSheet({ mode: 'closed' });

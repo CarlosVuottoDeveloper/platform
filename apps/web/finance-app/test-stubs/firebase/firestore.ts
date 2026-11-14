@@ -14,3 +14,5 @@ export const getDoc = jest.fn();
 export const writeBatch = jest.fn();
 export const runTransaction = jest.fn();
 export const serverTimestamp = jest.fn(() => 'SERVER_TIMESTAMP');
+export const terminate = jest.fn();
+export const clearIndexedDbPersistence = jest.fn();

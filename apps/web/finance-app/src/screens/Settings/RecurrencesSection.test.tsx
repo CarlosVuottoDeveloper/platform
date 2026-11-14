@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Account } from '../../domain/account';
 import { toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
@@ -300,5 +300,18 @@ describe('RecurrencesSection', () => {
 
     expect(screen.getByLabelText('Início')).toHaveAttribute('placeholder', 'AAAA-MM');
     expect(screen.getByLabelText('Fim (opcional)')).toHaveAttribute('placeholder', 'AAAA-MM');
+  });
+
+  it('checks for due occurrences again when the day changes with the app open', () => {
+    jest.useFakeTimers().setSystemTime(new Date(2026, 10, 30, 23, 59, 30));
+    renderSignedIn(<RecurrencesSection />);
+    expect(materializeDueRecurrences).toHaveBeenLastCalledWith(testUser.uid, [rent], '2026-11-30');
+
+    act(() => {
+      jest.advanceTimersByTime(31_000);
+    });
+
+    expect(materializeDueRecurrences).toHaveBeenLastCalledWith(testUser.uid, [rent], '2026-12-01');
+    jest.useRealTimers();
   });
 });

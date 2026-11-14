@@ -3,10 +3,11 @@ import { Button, EmptyState, Progress } from '@industry/web';
 import { BudgetSheet } from '../../components/BudgetSheet/BudgetSheet';
 import { BudgetStatusBadge } from '../../components/BudgetStatusBadge/BudgetStatusBadge';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { budgetProgress, expensesOfMonth } from '../../domain/budget';
 import type { Budget } from '../../domain/budget';
-import { lastDayOfMonth, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
+import { lastDayOfMonth, yearMonthOf } from '../../domain/calendarDate';
 import { categoriesOfKind } from '../../domain/category';
 import type { Category } from '../../domain/category';
 import { formatCents } from '../../domain/money';
@@ -65,7 +66,7 @@ function BudgetRow({ category, budget, monthExpenses, onEdit }: BudgetRowProps) 
 
 export function Budgets() {
   const { budgets, categories, recurrences, transactions } = useUserData();
-  const today = toCalendarDate(new Date());
+  const today = useToday();
   const [month, setMonth] = useState(yearMonthOf(today));
   const [editing, setEditing] = useState<Category | null>(null);
   const expenseCategories = categoriesOfKind(categories, 'expense');

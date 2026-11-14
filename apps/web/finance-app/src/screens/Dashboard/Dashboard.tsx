@@ -4,14 +4,10 @@ import { Card, EmptyState, Icon, StatTile } from '@industry/web';
 import type { IconName } from '@industry/web';
 import { BudgetStatusBadge } from '../../components/BudgetStatusBadge/BudgetStatusBadge';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { budgetProgress, expensesOfMonth } from '../../domain/budget';
-import {
-  formatDateBR,
-  lastDayOfMonth,
-  toCalendarDate,
-  yearMonthOf,
-} from '../../domain/calendarDate';
+import { formatDateBR, lastDayOfMonth, yearMonthOf } from '../../domain/calendarDate';
 import { formatCents } from '../../domain/money';
 import { summarizeMonth } from '../../domain/monthSummary';
 import { projectedOccurrences } from '../../domain/recurrence';
@@ -49,7 +45,7 @@ function latestRealised(transactions: Transaction[], today: string): Transaction
 
 export function Dashboard() {
   const { accounts, budgets, categories, recurrences, transactions } = useUserData();
-  const today = toCalendarDate(new Date());
+  const today = useToday();
   const [month, setMonth] = useState(yearMonthOf(today));
 
   if (accounts.length === 0) {

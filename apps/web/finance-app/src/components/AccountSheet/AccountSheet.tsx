@@ -7,9 +7,9 @@ import { earliestTransactionDate } from '../../domain/balance';
 import { formatDateBR, isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Cents } from '../../domain/money';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { createAccount, updateAccount } from '../../services/accountsService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 
@@ -59,7 +59,7 @@ function toAccountInput(values: AccountFormValues): AccountInput {
 
 export function AccountSheet({ account, onClose }: AccountSheetProps) {
   const user = useSignedInUser();
-  const { showToast } = useToast();
+  const submit = useSubmitWrite(onClose);
   const { transactions } = useUserData();
   const {
     control,
@@ -82,16 +82,13 @@ export function AccountSheet({ account, onClose }: AccountSheetProps) {
   }
 
   async function save(values: AccountFormValues) {
-    try {
+    await submit(async () => {
       if (account) {
         await updateAccount(user.uid, account.id, toAccountInput(values));
       } else {
         await createAccount(user.uid, toAccountInput(values));
       }
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (

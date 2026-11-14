@@ -1,10 +1,10 @@
 import { Controller, useForm } from 'react-hook-form';
 import { Select, TextField } from '@industry/web';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
 import { COLOR_OPTIONS, ICON_OPTIONS } from '../../domain/appearance';
 import type { Category, CategoryInput } from '../../domain/category';
 import { createCategory, updateCategory } from '../../services/categoriesService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 
 interface CategorySheetProps {
@@ -19,7 +19,7 @@ const KIND_OPTIONS = [
 
 export function CategorySheet({ category, onClose }: CategorySheetProps) {
   const user = useSignedInUser();
-  const { showToast } = useToast();
+  const submit = useSubmitWrite(onClose);
   const {
     control,
     handleSubmit,
@@ -35,16 +35,13 @@ export function CategorySheet({ category, onClose }: CategorySheetProps) {
 
   async function save(values: CategoryInput) {
     const input = { ...values, name: values.name.trim() };
-    try {
+    await submit(async () => {
       if (category) {
         await updateCategory(user.uid, category.id, input);
       } else {
         await createCategory(user.uid, input);
       }
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (

@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SegmentedControl, Select, TextField } from '@industry/web';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Category, CategoryKind } from '../../domain/category';
@@ -16,6 +15,7 @@ import {
   updateTransaction,
   updateTransactions,
 } from '../../services/transactionsService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 import { TagsField } from '../TagsField/TagsField';
@@ -84,7 +84,7 @@ function initialValues(transaction: Transaction | undefined): TransactionFormVal
 
 export function TransactionSheet({ transaction, onClose }: TransactionSheetProps) {
   const user = useSignedInUser();
-  const { showToast } = useToast();
+  const submit = useSubmitWrite(onClose);
   const { accounts, categories, transactions } = useUserData();
   const activeAccounts = accounts.filter((account) => !account.archived);
   const {
@@ -155,12 +155,9 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
       recurrenceId: transaction?.recurrenceId ?? null,
       installment: transaction?.installment ?? null,
     };
-    try {
+    await submit(async () => {
       await persist(user.uid, input, values);
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (
