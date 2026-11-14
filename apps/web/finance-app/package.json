@@ -1,0 +1,45 @@
+{
+  "name": "@app/finance",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "test": "jest",
+    "test:rules": "firebase emulators:exec --only firestore \"jest --config jest.rules.config.cjs\""
+  },
+  "dependencies": {
+    "@industry/tokens": "*",
+    "@industry/web": "*",
+    "firebase": "^11.0.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "react-router": "^7.9.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.0",
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@testing-library/dom": "^10.0.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
+    "babel-jest": "^30.3.0",
+    "eslint": "^9",
+    "globals": "^16.0.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "ts-jest": "^29.4.9",
+    "typescript": "5.9.2",
+    "vite": "^6.4.2"
+  }
+}
