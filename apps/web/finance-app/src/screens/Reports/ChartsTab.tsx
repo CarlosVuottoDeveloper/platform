@@ -11,7 +11,12 @@ import {
   monthsBetween,
   yearMonthOf,
 } from '../../domain/calendarDate';
-import { dailyConsolidatedBalance, expensesByCategory, monthlyCashFlow } from '../../domain/charts';
+import {
+  dailyConsolidatedBalance,
+  expensesByCategory,
+  monthlyCashFlow,
+  totalSpent,
+} from '../../domain/charts';
 import { formatCents } from '../../domain/money';
 
 const CASH_FLOW_MONTHS = 6;
@@ -62,9 +67,7 @@ export function ChartsTab({ month }: ChartsTabProps) {
             <PieChart
               testID="spending-pie"
               legendPlacement={isWide ? 'right' : 'bottom'}
-              centerLabel={
-                <PieTotal cents={spending.reduce((sum, entry) => sum + entry.totalCents, 0)} />
-              }
+              centerLabel={<PieTotal cents={totalSpent(spending)} />}
               slices={spending.map((entry) => ({
                 label: entry.label,
                 value: entry.totalCents,

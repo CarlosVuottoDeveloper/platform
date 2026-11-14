@@ -1,6 +1,11 @@
 import type { Account } from './account';
 import type { Category } from './category';
-import { dailyConsolidatedBalance, expensesByCategory, monthlyCashFlow } from './charts';
+import {
+  dailyConsolidatedBalance,
+  expensesByCategory,
+  monthlyCashFlow,
+  totalSpent,
+} from './charts';
 import { tx } from './transaction.test-helpers';
 
 const categories = [
@@ -98,5 +103,21 @@ describe('dailyConsolidatedBalance', () => {
 
   it('is empty for a future month', () => {
     expect(dailyConsolidatedBalance([account], transactions, '2026-04', '2026-03-15')).toEqual([]);
+  });
+});
+
+describe('totalSpent', () => {
+  it('adds up the spending of every category', () => {
+    const entry = { categoryId: 'c', label: 'x', color: 'var(--viz-1)' };
+    expect(
+      totalSpent([
+        { ...entry, totalCents: 100 },
+        { ...entry, totalCents: 250 },
+      ]),
+    ).toBe(350);
+  });
+
+  it('is zero without spending', () => {
+    expect(totalSpent([])).toBe(0);
   });
 });

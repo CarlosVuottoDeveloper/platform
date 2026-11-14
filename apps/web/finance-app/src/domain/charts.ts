@@ -83,3 +83,7 @@ export function dailyConsolidatedBalance(
     return { date, balanceCents: consolidatedBalanceOn(accounts, transactions, date) };
   });
 }
+
+export function totalSpent(expenses: CategoryExpense[]): Cents {
+  return expenses.reduce((sum, entry) => sum + entry.totalCents, 0);
+}

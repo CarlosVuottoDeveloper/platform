@@ -12,7 +12,7 @@ import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { budgetProgress, expensesOfMonth } from '../../domain/budget';
 import { lastDayOfMonth, yearMonthOf } from '../../domain/calendarDate';
-import { expensesByCategory } from '../../domain/charts';
+import { expensesByCategory, totalSpent } from '../../domain/charts';
 import { formatCents } from '../../domain/money';
 import { summarizeMonth } from '../../domain/monthSummary';
 import { projectedOccurrences } from '../../domain/recurrence';
@@ -126,7 +126,6 @@ export function Dashboard() {
     `${month}-01`,
     monthEnd < today ? monthEnd : today,
   );
-  const spendingTotal = spending.reduce((sum, entry) => sum + entry.totalCents, 0);
 
   return (
     <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
@@ -253,10 +252,9 @@ export function Dashboard() {
               <EmptyState title="Sem despesas neste mês" />
             ) : (
               <PieChart
-                size={180}
                 legendValue="percent"
                 valueFormatter={formatCents}
-                centerLabel={<PieTotal cents={spendingTotal} />}
+                centerLabel={<PieTotal cents={totalSpent(spending)} />}
                 slices={spending.map((entry) => ({
                   label: entry.label,
                   value: entry.totalCents,
