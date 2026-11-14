@@ -99,7 +99,7 @@ export function Transactions() {
                 {formatDateBR(group.date)}
               </h2>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {group.items.map((transaction) => (
+                {group.items.map((transaction, index) => (
                   <MovementRow
                     key={transaction.id}
                     transaction={transaction}
@@ -108,6 +108,7 @@ export function Transactions() {
                     pending={isPending(transaction, today)}
                     forecast={forecastIds.has(transaction.id)}
                     showDate={false}
+                    divided={index > 0}
                     actions={{
                       onEdit: () => setSheet({ mode: 'edit', transaction }),
                       onDelete: () => setSheet({ mode: 'delete', transaction }),

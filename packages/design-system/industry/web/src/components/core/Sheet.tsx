@@ -17,6 +17,7 @@ export interface SheetProps {
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const CLOSE_MARKER = 'data-sheet-close';
+const BACKDROP_MARKER = 'data-sheet-backdrop';
 
 function isUncheckedRadioOfCheckedGroup(element: HTMLElement, container: HTMLElement): boolean {
   if (!(element instanceof HTMLInputElement) || element.type !== 'radio' || element.checked) {
@@ -49,6 +50,7 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
     (firstOfContent ?? tabbables[0])?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (backdropRef.current?.querySelector(`[${BACKDROP_MARKER}]`)) return;
       if (e.key === 'Escape') {
         dismissRef.current?.();
         return;
@@ -83,6 +85,7 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
   return (
     <div
       ref={backdropRef}
+      data-sheet-backdrop=""
       onClick={onDismiss}
       style={{
         position: 'absolute',

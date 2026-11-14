@@ -287,7 +287,7 @@ describe('Dashboard', () => {
     });
 
     it.each([
-      [true, 'repeat(4, 1fr)', '2fr 1fr'],
+      [true, 'repeat(4, 1fr)', '3fr 2fr'],
       [false, '1fr', '1fr'],
     ])('lays out tiles and columns for the screen width (wide: %s)', (isWide, tiles, columns) => {
       mockWideScreen(isWide);
@@ -323,6 +323,47 @@ describe('Dashboard', () => {
         'Despesas por categoria',
       ]) {
         expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
+      }
+    });
+
+    it('separates latest movements and budget alerts with dividers only between rows', () => {
+      jest
+        .mocked(subscribeToCategories)
+        .mockImplementation(
+          publish([
+            ...categories,
+            { id: 'c3', name: 'Lazer', kind: 'expense', archived: false } as Category,
+          ]),
+        );
+      mockData(
+        [account],
+        [
+          ...marchTransactions,
+          tx({
+            id: 'l1',
+            kind: 'expense',
+            amountCents: 5000,
+            date: '2026-03-11',
+            accountId: 'a',
+            categoryId: 'c3',
+          }),
+        ],
+        [rent],
+      );
+      jest.mocked(subscribeToBudgets).mockImplementation(
+        publish([
+          { id: 'c1', categoryId: 'c1', limitCents: 100000 },
+          { id: 'c3', categoryId: 'c3', limitCents: 1000 },
+        ]),
+      );
+
+      renderSignedIn(<Dashboard />);
+
+      for (const region of ['Últimas movimentações', 'Orçamentos em alerta']) {
+        const items = within(screen.getByRole('region', { name: region })).getAllByRole('listitem');
+        expect(items.map((item) => item.style.borderBottom)).toEqual(items.map(() => ''));
+        expect(items[0]?.style.borderTop).toBe('');
+        expect(items[1]?.style.borderTop).toBe('1px solid var(--color-divider)');
       }
     });
 
