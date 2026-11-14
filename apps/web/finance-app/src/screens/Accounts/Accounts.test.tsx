@@ -529,6 +529,33 @@ describe('Accounts', () => {
       expect(nameColumn.style.width).toBe('0px');
     });
 
+    it('separates the accounts of a group with dividers only between them', () => {
+      mockAccounts([
+        account({ id: 'a1', name: 'Nubank' }),
+        account({ id: 'a4', name: 'Carteira' }),
+      ]);
+
+      renderSignedIn(<Accounts />);
+
+      const items = within(sectionOf('Ativos')).getAllByRole('listitem');
+      expect(items.map((item) => item.style.borderTop)).toEqual([
+        '',
+        '1px solid var(--color-divider)',
+      ]);
+      expect(items.map((item) => item.style.borderBottom)).toEqual(['', '']);
+    });
+
+    it('cuts a long account name with an ellipsis', () => {
+      mockAccounts([account({ id: 'a5', name: 'ContaComNomeMuitoLongoSemEspaco'.repeat(3) })]);
+
+      renderSignedIn(<Accounts />);
+
+      const name = within(screen.getByTestId('account-a5')).getByText(/ContaComNome/);
+      expect(name.style.textOverflow).toBe('ellipsis');
+      expect(name.style.overflow).toBe('hidden');
+      expect(name.style.whiteSpace).toBe('nowrap');
+    });
+
     it('draws each account icon in a bubble with the colour the user chose', async () => {
       mockAccounts(accounts);
 

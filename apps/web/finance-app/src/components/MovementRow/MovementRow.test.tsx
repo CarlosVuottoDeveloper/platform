@@ -4,7 +4,7 @@ import type { Account } from '../../domain/account';
 import type { Category } from '../../domain/category';
 import type { Transaction } from '../../domain/transaction';
 import { tx } from '../../domain/transaction.test-helpers';
-import { money } from '../../test-utils';
+import { mockWideScreen, money } from '../../test-utils';
 import { MovementRow } from './MovementRow';
 
 const accounts = [
@@ -21,11 +21,18 @@ interface RowOptions {
   forecast?: boolean;
   showDate?: boolean;
   withActions?: boolean;
+  divided?: boolean;
 }
 
 function renderRow(
   transaction: Transaction,
-  { pending = false, forecast = false, showDate = false, withActions = true }: RowOptions = {},
+  {
+    pending = false,
+    forecast = false,
+    showDate = false,
+    withActions = true,
+    divided = false,
+  }: RowOptions = {},
 ) {
   const actions = withActions ? { onEdit: jest.fn(), onDelete: jest.fn() } : null;
   render(
@@ -38,6 +45,7 @@ function renderRow(
         forecast={forecast}
         showDate={showDate}
         actions={actions}
+        divided={divided}
       />
     </ul>,
   );
@@ -45,6 +53,8 @@ function renderRow(
 }
 
 describe('MovementRow', () => {
+  beforeEach(() => mockWideScreen(false));
+
   it('names the movement by its description, with category and account below', () => {
     const { row } = renderRow(
       tx({ id: 'e1', description: 'Mercado', accountId: 'a1', categoryId: 'c1' }),
@@ -149,7 +159,7 @@ describe('MovementRow', () => {
     const title = within(row).getByText(/Uma descrição muito longa/);
     expect(title.style.textOverflow).toBe('ellipsis');
     expect(title.style.whiteSpace).toBe('nowrap');
-    expect(title.parentElement?.style.minWidth).toBe('45%');
+    expect(title.parentElement?.style.minWidth).toBe('0');
   });
 
   it('keeps a long title from widening the page around it', () => {
@@ -160,5 +170,58 @@ describe('MovementRow', () => {
     const textColumn = within(row).getByText(/Uma descrição muito longa/).parentElement;
     expect(textColumn?.style.width).toBe('0px');
     expect(textColumn?.style.flexGrow).toBe('1');
+  });
+
+  it('keeps title and amount together on the first line of a narrow screen', () => {
+    const { row } = renderRow(
+      tx({
+        id: 'n2',
+        description: 'Notebook',
+        amountCents: 42000,
+        accountId: 'a1',
+        installment: { groupId: 'g', index: 3, count: 10 },
+      }),
+      { pending: true },
+    );
+
+    const [firstLine, secondLine] = [...row.children] as HTMLElement[];
+    expect(firstLine).toContainElement(within(row).getByText('Notebook'));
+    expect(firstLine).toContainElement(within(row).getByText(money('-R$ 420,00')));
+    expect(secondLine).toContainElement(within(row).getByText('3 de 10'));
+    expect(secondLine).toContainElement(within(row).getByText('Prevista'));
+    expect(secondLine).toContainElement(
+      within(row).getByRole('button', { name: 'Editar Notebook' }),
+    );
+  });
+
+  it('has no second line on a narrow screen when there is nothing to put there', () => {
+    const { row } = renderRow(tx({ id: 'n3', description: 'Café', accountId: 'a1' }), {
+      withActions: false,
+    });
+
+    expect(row.children).toHaveLength(1);
+  });
+
+  it('lays everything on one line on a wide screen', () => {
+    mockWideScreen(true);
+    const { row } = renderRow(tx({ id: 'w1', description: 'Café', accountId: 'a1' }));
+
+    expect(row.style.display).toBe('flex');
+    expect(row).toContainElement(within(row).getByRole('button', { name: 'Editar Café' }));
+    expect(within(row).getByText('Café').parentElement?.parentElement).toBe(row);
+  });
+
+  it('draws a divider above it only when asked, never below', () => {
+    const { row } = renderRow(tx({ id: 'd2', accountId: 'a1' }), { divided: true });
+
+    expect(row.style.borderTop).toBe('1px solid var(--color-divider)');
+    expect(row.style.borderBottom).toBe('');
+  });
+
+  it('draws no divider for the first row', () => {
+    const { row } = renderRow(tx({ id: 'd3', accountId: 'a1' }));
+
+    expect(row.style.borderTop).toBe('');
+    expect(row.style.borderBottom).toBe('');
   });
 });

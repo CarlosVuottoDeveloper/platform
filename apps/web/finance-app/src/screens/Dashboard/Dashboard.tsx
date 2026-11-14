@@ -199,7 +199,7 @@ export function Dashboard() {
             </p>
           ) : (
             <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-              {latest.map((transaction) => (
+              {latest.map((transaction, index) => (
                 <MovementRow
                   key={transaction.id}
                   transaction={transaction}
@@ -209,6 +209,7 @@ export function Dashboard() {
                   forecast={false}
                   showDate
                   actions={null}
+                  divided={index > 0}
                 />
               ))}
             </ul>
@@ -224,7 +225,7 @@ export function Dashboard() {
               action={<CardLink to="/orcamentos">Ver orçamentos</CardLink>}
             >
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {budgetAlerts.map(({ budget, category, status }) => (
+                {budgetAlerts.map(({ budget, category, status }, index) => (
                   <li
                     key={budget.id}
                     style={{
@@ -232,7 +233,7 @@ export function Dashboard() {
                       alignItems: 'center',
                       gap: 'var(--space-3)',
                       padding: 'var(--space-2) 0',
-                      borderBottom: '1px solid var(--color-divider)',
+                      borderTop: index > 0 ? '1px solid var(--color-divider)' : undefined,
                     }}
                   >
                     <span style={{ flex: 1, minWidth: 0 }}>{category?.name}</span>

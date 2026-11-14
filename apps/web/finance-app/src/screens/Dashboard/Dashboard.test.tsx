@@ -326,6 +326,47 @@ describe('Dashboard', () => {
       }
     });
 
+    it('separates latest movements and budget alerts with dividers only between rows', () => {
+      jest
+        .mocked(subscribeToCategories)
+        .mockImplementation(
+          publish([
+            ...categories,
+            { id: 'c3', name: 'Lazer', kind: 'expense', archived: false } as Category,
+          ]),
+        );
+      mockData(
+        [account],
+        [
+          ...marchTransactions,
+          tx({
+            id: 'l1',
+            kind: 'expense',
+            amountCents: 5000,
+            date: '2026-03-11',
+            accountId: 'a',
+            categoryId: 'c3',
+          }),
+        ],
+        [rent],
+      );
+      jest.mocked(subscribeToBudgets).mockImplementation(
+        publish([
+          { id: 'c1', categoryId: 'c1', limitCents: 100000 },
+          { id: 'c3', categoryId: 'c3', limitCents: 1000 },
+        ]),
+      );
+
+      renderSignedIn(<Dashboard />);
+
+      for (const region of ['Últimas movimentações', 'Orçamentos em alerta']) {
+        const items = within(screen.getByRole('region', { name: region })).getAllByRole('listitem');
+        expect(items.map((item) => item.style.borderBottom)).toEqual(items.map(() => ''));
+        expect(items[0]?.style.borderTop).toBe('');
+        expect(items[1]?.style.borderTop).toBe('1px solid var(--color-divider)');
+      }
+    });
+
     it('keeps the card links on one line without underline', () => {
       renderSignedIn(<Dashboard />);
 

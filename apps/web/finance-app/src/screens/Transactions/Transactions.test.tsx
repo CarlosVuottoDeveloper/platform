@@ -334,4 +334,18 @@ describe('Transactions', () => {
     expect(toolbar).toContainElement(screen.getByPlaceholderText('Buscar por descrição ou tag'));
     expect(toolbar.style.justifyContent).toBe('space-between');
   });
+
+  it('separates the rows of a day with dividers only between them', () => {
+    mockTransactions([
+      tx({ id: 's1', date: firstOfMonth, accountId: 'a1', description: 'Primeiro' }),
+      tx({ id: 's2', date: firstOfMonth, accountId: 'a1', description: 'Segundo' }),
+    ]);
+
+    renderSignedIn(<Transactions />);
+
+    const borders = within(screen.getByTestId('transactions-card'))
+      .getAllByRole('listitem')
+      .map((item) => item.style.borderTop);
+    expect(borders).toEqual(['', '1px solid var(--color-divider)']);
+  });
 });

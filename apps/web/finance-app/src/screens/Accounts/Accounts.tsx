@@ -49,6 +49,7 @@ interface AccountRowProps extends AccountActions {
   transactions: Transaction[];
   inUse: boolean;
   today: string;
+  divided: boolean;
 }
 
 function AccountRow({
@@ -56,6 +57,7 @@ function AccountRow({
   transactions,
   inUse,
   today,
+  divided,
   onEdit,
   onToggleArchived,
   onDelete,
@@ -72,14 +74,16 @@ function AccountRow({
         alignItems: 'center',
         gap: 'var(--space-3)',
         padding: 'var(--space-3) 0',
-        borderBottom: '1px solid var(--color-divider)',
+        borderTop: divided ? '1px solid var(--color-divider)' : undefined,
       }}
     >
       <IconBubble size="sm">
         <Icon name={account.icon as IconName} color={colorVariable(account.color)} />
       </IconBubble>
       <div style={{ flex: 1, width: 0, minWidth: '45%' }}>
-        <div>{account.name}</div>
+        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {account.name}
+        </div>
         <div style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
           {ACCOUNT_TYPE_LABELS[account.type]}
         </div>
@@ -143,8 +147,14 @@ function AccountSection({ title, accounts, isInUse, ...rowProps }: AccountSectio
       elevation="sm"
     >
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {accounts.map((account) => (
-          <AccountRow key={account.id} account={account} inUse={isInUse(account)} {...rowProps} />
+        {accounts.map((account, index) => (
+          <AccountRow
+            key={account.id}
+            account={account}
+            inUse={isInUse(account)}
+            divided={index > 0}
+            {...rowProps}
+          />
         ))}
       </ul>
     </Card>
