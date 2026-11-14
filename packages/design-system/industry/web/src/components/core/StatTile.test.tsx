@@ -44,4 +44,22 @@ describe('StatTile', () => {
     expect(screen.getByText('Uso').style.fontSize).toBe('var(--text-h6)');
     expect(screen.getByText('Uso').style.color).toBe('var(--color-neutral-400)');
   });
+
+  it('keeps the label readable on a primary surface', () => {
+    render(
+      <StatTile
+        icon={<span>i</span>}
+        value="R$ 1"
+        label="Saldo geral"
+        tone="onPrimary"
+        testID="t"
+      />,
+    );
+
+    expect(screen.getByText('Saldo geral').style.color).toBe('var(--color-text)');
+    expect(screen.getByTestId('t-icon').style.background).toBe(
+      'color-mix(in srgb, var(--color-text) 16%, transparent)',
+    );
+    expect(screen.getByTestId('t-icon').style.color).toBe('var(--color-text)');
+  });
 });

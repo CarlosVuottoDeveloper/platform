@@ -89,7 +89,7 @@ export { IconBubble } from './IconBubble';
 export type { IconBubbleProps, IconBubbleSize } from './IconBubble';
 
 export { StatTile } from './StatTile';
-export type { StatTileProps } from './StatTile';
+export type { StatTileProps, StatTileTone } from './StatTile';
 
 export { PieChart } from './PieChart';
 export type {
