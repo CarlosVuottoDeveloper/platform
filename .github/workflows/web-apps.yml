@@ -1,0 +1,42 @@
+name: Web Apps — Lint, Types & Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/web/**'
+      - 'packages/design-system/industry/web/**'
+      - 'packages/design-system/industry/tokens/**'
+      - 'packages/eslint-config/**'
+      - 'packages/typescript-config/**'
+
+jobs:
+  finance-app:
+    name: finance-app — lint, check-types, test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npx yarn install
+
+      - name: Build @industry/tokens and @industry/web
+        run: yarn workspace @industry/tokens build && yarn workspace @industry/web build
+
+      - name: Lint
+        run: yarn workspace @app/finance lint
+
+      - name: Check types
+        run: yarn workspace @app/finance check-types
+
+      - name: Test
+        run: yarn workspace @app/finance test --runInBand

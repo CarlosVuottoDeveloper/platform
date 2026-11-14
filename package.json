@@ -45,6 +45,7 @@
     "packages": [
       "apps/*",
       "apps/mobile/*",
+      "apps/web/*",
       "packages/*",
       "packages/design-system/industry/*"
     ],
