@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import { AreaChart, BarChart, Card, EmptyState, PieChart } from '@industry/web';
-import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
+import { PieTotal } from '../../components/PieTotal/PieTotal';
+import { useIsWideScreen } from '../../hooks/useIsWideScreen';
 import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
+import type { YearMonth } from '../../domain/calendarDate';
 import {
   addMonths,
   formatMonthShortBR,
@@ -19,11 +20,15 @@ const CASH_FLOW_SERIES = [
   { label: 'Despesas', color: 'var(--viz-5)' },
 ];
 
-export function ChartsTab() {
+interface ChartsTabProps {
+  month: YearMonth;
+}
+
+export function ChartsTab({ month }: ChartsTabProps) {
   const { accounts, categories, transactions } = useUserData();
   const today = useToday();
   const currentMonth = yearMonthOf(today);
-  const [month, setMonth] = useState(currentMonth);
+  const isWide = useIsWideScreen();
 
   const monthEnd = lastDayOfMonth(month);
   const spending = expensesByCategory(
@@ -43,7 +48,6 @@ export function ChartsTab() {
 
   return (
     <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
-      <MonthSwitcher month={month} onChange={setMonth} />
       <div
         style={{
           display: 'grid',
@@ -51,11 +55,16 @@ export function ChartsTab() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
         }}
       >
-        <Card elevation="sm" title="Despesas por categoria">
+        <Card data-testid="spending-card" elevation="sm" title="Despesas por categoria">
           {spending.length === 0 ? (
             <EmptyState title="Sem despesas neste mês" />
           ) : (
             <PieChart
+              testID="spending-pie"
+              legendPlacement={isWide ? 'right' : 'bottom'}
+              centerLabel={
+                <PieTotal cents={spending.reduce((sum, entry) => sum + entry.totalCents, 0)} />
+              }
               slices={spending.map((entry) => ({
                 label: entry.label,
                 value: entry.totalCents,

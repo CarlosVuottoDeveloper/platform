@@ -4,6 +4,7 @@ import { Card, EmptyState, GradientSurface, Icon, PieChart, StatTile } from '@in
 import type { IconName } from '@industry/web';
 import { CardHeading } from '../../components/CardHeading/CardHeading';
 import { BudgetStatusBadge } from '../../components/BudgetStatusBadge/BudgetStatusBadge';
+import { PieTotal } from '../../components/PieTotal/PieTotal';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
 import { MovementRow } from '../../components/MovementRow/MovementRow';
 import { useIsWideScreen } from '../../hooks/useIsWideScreen';
@@ -255,16 +256,7 @@ export function Dashboard() {
                 size={180}
                 legendValue="percent"
                 valueFormatter={formatCents}
-                centerLabel={
-                  <div style={{ display: 'grid', justifyItems: 'center' }}>
-                    <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
-                      Total
-                    </span>
-                    <span style={{ fontWeight: 'var(--font-heading-weight)' }}>
-                      {formatCents(spendingTotal)}
-                    </span>
-                  </div>
-                }
+                centerLabel={<PieTotal cents={spendingTotal} />}
                 slices={spending.map((entry) => ({
                   label: entry.label,
                   value: entry.totalCents,

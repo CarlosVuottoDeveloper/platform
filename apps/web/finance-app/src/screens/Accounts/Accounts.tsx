@@ -1,11 +1,21 @@
 import { useState } from 'react';
-import { Button, EmptyState, Icon, StatTile } from '@industry/web';
+import {
+  Button,
+  Card,
+  EmptyState,
+  GradientSurface,
+  Icon,
+  IconBubble,
+  StatTile,
+} from '@industry/web';
 import type { IconName } from '@industry/web';
+import { CardHeading } from '../../components/CardHeading/CardHeading';
 import { AccountSheet } from '../../components/AccountSheet/AccountSheet';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { TransferSheet } from '../../components/TransferSheet/TransferSheet';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
+import { useIsWideScreen } from '../../hooks/useIsWideScreen';
 import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { ACCOUNT_TYPE_LABELS, groupAccounts, isLiability } from '../../domain/account';
@@ -65,8 +75,10 @@ function AccountRow({
         borderBottom: '1px solid var(--color-divider)',
       }}
     >
-      <Icon name={account.icon as IconName} color={colorVariable(account.color)} />
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <IconBubble size="sm">
+        <Icon name={account.icon as IconName} color={colorVariable(account.color)} />
+      </IconBubble>
+      <div style={{ flex: 1, width: 0, minWidth: '45%' }}>
         <div>{account.name}</div>
         <div style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
           {ACCOUNT_TYPE_LABELS[account.type]}
@@ -124,14 +136,18 @@ function AccountSection({ title, accounts, isInUse, ...rowProps }: AccountSectio
   if (accounts.length === 0) return null;
 
   return (
-    <section aria-label={title}>
-      <h2 style={{ fontSize: 'var(--text-h4)' }}>{title}</h2>
+    <Card
+      role="region"
+      aria-label={title}
+      title={<CardHeading>{title}</CardHeading>}
+      elevation="sm"
+    >
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {accounts.map((account) => (
           <AccountRow key={account.id} account={account} inUse={isInUse(account)} {...rowProps} />
         ))}
       </ul>
-    </section>
+    </Card>
   );
 }
 
@@ -141,6 +157,7 @@ export function Accounts() {
   const { accounts, recurrences, transactions } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
   const today = useToday();
+  const isWide = useIsWideScreen();
   const groups = groupAccounts(accounts);
   const activeAccounts = [...groups.assets, ...groups.liabilities];
   const closeSheet = () => setSheet({ mode: 'closed' });
@@ -202,16 +219,43 @@ export function Accounts() {
           body="Cadastre seu banco, carteira ou cartão para começar a registrar movimentações."
         />
       ) : (
-        <StatTile
-          testID="consolidated-balance"
-          icon={<Icon name="wallet" />}
-          label="Saldo consolidado"
-          value={formatCents(consolidatedBalanceOn(accounts, transactions, today))}
-        />
+        <GradientSurface
+          data-testid="consolidated-balance-card"
+          variant="primary"
+          style={{
+            justifySelf: isWide ? 'start' : 'stretch',
+            minWidth: isWide ? 320 : 0,
+            padding: 'var(--space-4)',
+            border: '1px solid var(--color-divider)',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+        >
+          <StatTile
+            testID="consolidated-balance"
+            tone="onPrimary"
+            icon={<Icon name="wallet" />}
+            label="Saldo consolidado"
+            value={formatCents(consolidatedBalanceOn(accounts, transactions, today))}
+          />
+        </GradientSurface>
       )}
-      <AccountSection title="Ativos" accounts={groups.assets} {...sectionProps} />
-      <AccountSection title="Passivos" accounts={groups.liabilities} {...sectionProps} />
-      <AccountSection title="Arquivadas" accounts={groups.archived} {...sectionProps} />
+      <div
+        data-testid="account-columns"
+        style={{
+          display: 'grid',
+          gap: 'var(--space-4)',
+          gridTemplateColumns: isWide ? '1fr 1fr' : '1fr',
+          alignItems: 'start',
+        }}
+      >
+        <div style={{ display: 'grid', minWidth: 0 }}>
+          <AccountSection title="Ativos" accounts={groups.assets} {...sectionProps} />
+        </div>
+        <div style={{ display: 'grid', gap: 'var(--space-4)', minWidth: 0 }}>
+          <AccountSection title="Passivos" accounts={groups.liabilities} {...sectionProps} />
+          <AccountSection title="Arquivadas" accounts={groups.archived} {...sectionProps} />
+        </div>
+      </div>
       {sheet.mode === 'create' ? <AccountSheet onClose={closeSheet} /> : null}
       {sheet.mode === 'edit' ? <AccountSheet account={sheet.account} onClose={closeSheet} /> : null}
       {sheet.mode === 'transfer' ? (

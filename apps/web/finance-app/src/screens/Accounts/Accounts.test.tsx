@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Account } from '../../domain/account';
 import { toCalendarDate } from '../../domain/calendarDate';
@@ -13,7 +13,7 @@ import { tx } from '../../domain/transaction.test-helpers';
 import type { Transaction } from '../../domain/transaction';
 import { subscribeToRecurrences } from '../../services/recurrencesService';
 import { createTransaction, subscribeToTransactions } from '../../services/transactionsService';
-import { mockSignedInAs, money, renderSignedIn, testUser } from '../../test-utils';
+import { mockSignedInAs, mockWideScreen, money, renderSignedIn, testUser } from '../../test-utils';
 import { Accounts } from './Accounts';
 
 jest.mock('../../services/authService');
@@ -53,6 +53,7 @@ describe('Accounts', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignedInAs(testUser);
+    mockWideScreen(false);
     mockAccounts([]);
     mockTransactions([]);
   });
@@ -450,5 +451,95 @@ describe('Accounts', () => {
     renderSignedIn(<Accounts />);
 
     expect(screen.queryByRole('button', { name: 'Excluir Nubank' })).not.toBeInTheDocument();
+  });
+
+  describe('wireframe layout', () => {
+    const accounts = [
+      account({ id: 'a1', name: 'Nubank', color: 'viz-1' }),
+      account({
+        id: 'a2',
+        name: 'Cartão Inter',
+        type: 'credit_card',
+        color: 'viz-5',
+        icon: 'credit-card',
+      }),
+      account({ id: 'a3', name: 'Conta antiga', archived: true }),
+    ];
+
+    it('highlights the consolidated balance on the primary surface', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      const card = screen.getByTestId('consolidated-balance-card');
+      expect(card.style.background).toContain('var(--gradient-primary)');
+      expect(within(card).getByText('Saldo consolidado').style.color).toBe('var(--color-text)');
+    });
+
+    it('gives each group a section heading for screen readers', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      for (const name of ['Ativos', 'Passivos', 'Arquivadas']) {
+        expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
+      }
+    });
+
+    it('puts each group in its own card', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      for (const group of ['Ativos', 'Passivos', 'Arquivadas']) {
+        expect(sectionOf(group).style.background).toContain('var(--gradient-surface)');
+      }
+    });
+
+    it('shows assets beside liabilities and archived accounts on a wide screen', () => {
+      mockWideScreen(true);
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      const columns = screen.getByTestId('account-columns');
+      expect(columns.style.gridTemplateColumns).toBe('1fr 1fr');
+      const [left, right] = [...columns.children] as HTMLElement[];
+      expect(left).toContainElement(sectionOf('Ativos'));
+      expect(right).toContainElement(sectionOf('Passivos'));
+      expect(right).toContainElement(sectionOf('Arquivadas'));
+    });
+
+    it('stacks the groups on a narrow screen', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      expect(screen.getByTestId('account-columns').style.gridTemplateColumns).toBe('1fr');
+    });
+
+    it('keeps the account name from running into the balance on a narrow screen', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      const nameColumn = within(screen.getByTestId('account-a1')).getByText('Nubank')
+        .parentElement as HTMLElement;
+      expect(nameColumn.style.minWidth).toBe('45%');
+      expect(nameColumn.style.width).toBe('0px');
+    });
+
+    it('draws each account icon in a bubble with the colour the user chose', async () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      const row = screen.getByTestId('account-a2');
+      await waitFor(() => expect(row.querySelector('svg')).not.toBeNull());
+      expect(row.querySelector('svg')?.style.color).toBe('var(--viz-5)');
+      expect((row.querySelector('svg')?.parentElement as HTMLElement).style.borderRadius).toBe(
+        'var(--radius-pill)',
+      );
+    });
   });
 });

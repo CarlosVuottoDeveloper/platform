@@ -3,7 +3,14 @@ import userEvent from '@testing-library/user-event';
 import type { Account } from '../../domain/account';
 import type { Category } from '../../domain/category';
 import { tx } from '../../domain/transaction.test-helpers';
-import { mockSignedInAs, mockUserData, money, renderSignedIn, testUser } from '../../test-utils';
+import {
+  mockSignedInAs,
+  mockUserData,
+  mockWideScreen,
+  money,
+  renderSignedIn,
+  testUser,
+} from '../../test-utils';
 import { Reports } from './Reports';
 
 jest.mock('../../services/authService');
@@ -227,5 +234,63 @@ describe('Reports — tabs and edge months', () => {
     await user.click(screen.getByRole('button', { name: 'Próximo mês' }));
 
     expect(screen.getByText('Este mês ainda não começou')).toBeInTheDocument();
+  });
+});
+
+describe('Reports — wireframe layout', () => {
+  const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers().setSystemTime(new Date(2026, 2, 15, 12));
+    mockSignedInAs(testUser);
+    mockWideScreen(false);
+    mockUserData({ accounts, categories, transactions });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('puts the month beside the tabs, only on the charts tab', async () => {
+    renderSignedIn(<Reports />);
+
+    const tabsRow = screen.getByRole('tablist').parentElement as HTMLElement;
+    expect(within(tabsRow).getByText('Março 2026')).toBeInTheDocument();
+    expect(tabsRow.style.justifyContent).toBe('space-between');
+
+    await user.click(screen.getByRole('tab', { name: 'Patrimônio' }));
+
+    expect(screen.queryByRole('button', { name: 'Mês anterior' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the chosen month when coming back to the charts tab', async () => {
+    renderSignedIn(<Reports />);
+
+    await user.click(screen.getByRole('button', { name: 'Mês anterior' }));
+    await user.click(screen.getByRole('tab', { name: 'Patrimônio' }));
+    await user.click(screen.getByRole('tab', { name: 'Gráficos' }));
+
+    expect(screen.getByText('Fevereiro 2026')).toBeInTheDocument();
+  });
+
+  it('shows the spending total in the middle of the pie', () => {
+    renderSignedIn(<Reports />);
+
+    const pieCard = screen.getByTestId('spending-card');
+    expect(within(pieCard).getByText('Total')).toBeInTheDocument();
+    expect(within(pieCard).getByText(money('R$ 2.000,00'))).toBeInTheDocument();
+  });
+
+  it.each([
+    [true, 'row'],
+    [false, 'column'],
+  ])('places the pie legend for the screen width (wide: %s)', (isWide, direction) => {
+    mockWideScreen(isWide);
+
+    renderSignedIn(<Reports />);
+
+    const pie = screen.getByTestId('spending-pie');
+    expect(pie.style.flexDirection).toBe(direction);
   });
 });
