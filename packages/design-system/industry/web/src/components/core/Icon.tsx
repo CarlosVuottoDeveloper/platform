@@ -31,10 +31,10 @@ export function Icon({
     <DynamicIcon
       name={name}
       size={px}
-      color={color}
+      color="currentColor"
       strokeWidth={strokeWidth}
       className={className}
-      style={style}
+      style={color === 'currentColor' ? style : { color, ...style }}
       aria-hidden={ariaLabel ? undefined : true}
       aria-label={ariaLabel}
     />
