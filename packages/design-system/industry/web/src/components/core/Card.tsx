@@ -78,7 +78,7 @@ export function Card({
           }}
         >
           {titleElement}
-          {action}
+          <div style={{ marginLeft: 'auto' }}>{action}</div>
         </div>
       ) : (
         titleElement

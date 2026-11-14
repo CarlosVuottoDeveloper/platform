@@ -78,6 +78,14 @@ describe('Card', () => {
     expect(screen.getByRole('button', { name: 'Ação' })).toBeInTheDocument();
   });
 
+  it('pushes a lone action to the end of the row', () => {
+    render(<Card action={<button type="button">Ação</button>} />);
+
+    expect(screen.getByRole('button', { name: 'Ação' }).parentElement?.style.marginLeft).toBe(
+      'auto',
+    );
+  });
+
   it('keeps the title as a direct child of the card without an action', () => {
     render(<Card title="Título" data-testid="card" />);
 
