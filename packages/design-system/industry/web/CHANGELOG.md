@@ -1,5 +1,12 @@
 # @industry/web
 
+## 0.2.0
+
+### Minor Changes
+
+- 9e39d4d: Adiciona `DotGrid`: grade de bolinhas sombreadas por intensidade, no estilo de mapa de calor, com legenda opcional e nome acessível.
+- daca8f1: Adiciona `PieChart` (rosca com legenda, mesma API do `@industry/mobile`) e `BarChart` (barras agrupadas por série).
+
 ## 0.1.0
 
 ### Minor Changes
