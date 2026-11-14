@@ -1,9 +1,8 @@
 import { Badge, Button } from '@industry/web';
 import type { Account } from '../../domain/account';
 import type { Category } from '../../domain/category';
-import { formatCents } from '../../domain/money';
 import type { Transaction } from '../../domain/transaction';
-import { accountName, categoryName } from '../../domain/transactionList';
+import { accountName, categoryName, signedAmount } from '../../domain/transactionList';
 
 interface TransactionRowProps {
   transaction: Transaction;
@@ -13,13 +12,6 @@ interface TransactionRowProps {
   forecast: boolean;
   onEdit: () => void;
   onDelete: () => void;
-}
-
-function signedAmount(transaction: Transaction): string {
-  const amount = formatCents(transaction.amountCents);
-  if (transaction.kind === 'income') return `+${amount}`;
-  if (transaction.kind === 'expense') return `-${amount}`;
-  return amount;
 }
 
 export function TransactionRow({
