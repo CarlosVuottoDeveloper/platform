@@ -422,6 +422,12 @@ describe('TransactionSheet', () => {
       expect(pairOf('Conta').style.gridTemplateColumns).toBe('1fr');
     });
 
+    it('spreads the expense and income choice across the whole width', () => {
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      expect(screen.getByRole('radiogroup').style.width).toBe('100%');
+    });
+
     it('shows the amount large and suggests a description', () => {
       renderSignedIn(<TransactionSheet onClose={onClose} />);
 

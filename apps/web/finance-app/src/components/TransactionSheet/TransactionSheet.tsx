@@ -191,6 +191,7 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
         name="kind"
         render={({ field }) => (
           <SegmentedControl
+            block
             name="kind"
             options={KIND_OPTIONS}
             value={field.value}
