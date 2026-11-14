@@ -508,6 +508,17 @@ describe('Accounts', () => {
       expect(screen.getByTestId('account-columns').style.gridTemplateColumns).toBe('1fr');
     });
 
+    it('keeps the account name from running into the balance on a narrow screen', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      const nameColumn = within(screen.getByTestId('account-a1')).getByText('Nubank')
+        .parentElement as HTMLElement;
+      expect(nameColumn.style.minWidth).toBe('45%');
+      expect(nameColumn.style.width).toBe('0px');
+    });
+
     it('draws each account icon in a bubble with the colour the user chose', async () => {
       mockAccounts(accounts);
 

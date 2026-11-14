@@ -77,7 +77,7 @@ function AccountRow({
       <IconBubble size="sm">
         <Icon name={account.icon as IconName} color={colorVariable(account.color)} />
       </IconBubble>
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, width: 0, minWidth: '45%' }}>
         <div>{account.name}</div>
         <div style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
           {ACCOUNT_TYPE_LABELS[account.type]}
