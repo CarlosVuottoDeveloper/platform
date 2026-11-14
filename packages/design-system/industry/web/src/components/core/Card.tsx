@@ -6,6 +6,7 @@ export type CardElevation = 'sm' | 'md' | 'lg';
 export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'style' | 'title'> {
   kicker?: ReactNode;
   title?: ReactNode;
+  action?: ReactNode;
   body?: ReactNode;
   meta?: ReactNode;
   elevation?: CardElevation;
@@ -22,6 +23,7 @@ const SHADOW: Record<CardElevation, string> = {
 export function Card({
   kicker,
   title,
+  action,
   body,
   meta,
   elevation,
@@ -29,6 +31,20 @@ export function Card({
   style,
   ...rest
 }: CardProps) {
+  const titleElement = title ? (
+    <div
+      style={{
+        fontFamily: 'var(--font-heading)',
+        fontWeight: 'var(--font-heading-weight)',
+        fontSize: 19,
+        lineHeight: 1.2,
+        color: 'var(--color-accent-300)',
+      }}
+    >
+      {title}
+    </div>
+  ) : null;
+
   return (
     <GradientSurface
       style={{
@@ -52,18 +68,21 @@ export function Card({
           {kicker}
         </div>
       ) : null}
-      {title ? (
+      {action ? (
         <div
           style={{
-            fontFamily: 'var(--font-heading)',
-            fontWeight: 'var(--font-heading-weight)',
-            fontSize: 19,
-            lineHeight: 1.2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 'var(--space-3)',
           }}
         >
-          {title}
+          {titleElement}
+          {action}
         </div>
-      ) : null}
+      ) : (
+        titleElement
+      )}
       {body ? <p style={{ margin: 0, fontSize: 14, opacity: 0.8, flex: 1 }}>{body}</p> : null}
       {children}
       {meta ? (
