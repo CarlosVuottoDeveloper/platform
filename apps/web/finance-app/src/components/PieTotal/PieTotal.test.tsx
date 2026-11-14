@@ -19,4 +19,10 @@ describe('PieTotal', () => {
     expect(box.style.textAlign).toBe('center');
     expect(value.style.overflowWrap).toBe('anywhere');
   });
+
+  it('breaks a long total between the currency and the number, not inside the number', () => {
+    render(<PieTotal cents={15148674} />);
+
+    expect(screen.getByText(money('R$ 151.486,74')).textContent).toBe('R$ 151.486,74');
+  });
 });
