@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 import { Button } from './Button';
 import { GradientSurface } from './GradientSurface';
 import { Icon } from './Icon';
@@ -15,25 +15,63 @@ export interface SheetProps {
 }
 
 const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 const CLOSE_MARKER = 'data-sheet-close';
 
-function focusablesIn(container: HTMLElement | null): HTMLElement[] {
-  return container ? Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)) : [];
+function isUncheckedRadioOfCheckedGroup(element: HTMLElement, container: HTMLElement): boolean {
+  if (!(element instanceof HTMLInputElement) || element.type !== 'radio' || element.checked) {
+    return false;
+  }
+  return Array.from(container.querySelectorAll<HTMLInputElement>('input[type="radio"]')).some(
+    (radio) => radio.name === element.name && radio.checked,
+  );
+}
+
+function tabbablesIn(container: HTMLElement | null): HTMLElement[] {
+  if (!container) return [];
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+    (element) => !isUncheckedRadioOfCheckedGroup(element, container),
+  );
 }
 
 /** Bottom sheet — positions against its nearest positioned ancestor. */
 export function Sheet({ open = true, title, onDismiss, actions, children, style }: SheetProps) {
   const titleId = useId();
   const backdropRef = useRef<HTMLDivElement>(null);
+  const dismissRef = useRef(onDismiss);
+  dismissRef.current = onDismiss;
 
   useEffect(() => {
     if (!open) return undefined;
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const focusables = focusablesIn(backdropRef.current);
-    const firstOfContent = focusables.find((element) => !element.hasAttribute(CLOSE_MARKER));
-    (firstOfContent ?? focusables[0])?.focus();
+    const tabbables = tabbablesIn(backdropRef.current);
+    const firstOfContent = tabbables.find((element) => !element.hasAttribute(CLOSE_MARKER));
+    (firstOfContent ?? tabbables[0])?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        dismissRef.current?.();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const current = tabbablesIn(backdropRef.current);
+      const first = current[0];
+      const last = current[current.length - 1];
+      const index = current.indexOf(document.activeElement as HTMLElement);
+      const wrapsBack = e.shiftKey && index <= 0;
+      const wrapsForward = !e.shiftKey && (index === -1 || index === current.length - 1);
+      if (wrapsBack) {
+        e.preventDefault();
+        last?.focus();
+      } else if (wrapsForward) {
+        e.preventDefault();
+        first?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+
     return () => {
+      document.removeEventListener('keydown', handleKeyDown);
       if (opener?.isConnected) opener.focus();
     };
   }, [open]);
@@ -42,29 +80,10 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
 
   const stopPropagation = (e: MouseEvent<HTMLDivElement>) => e.stopPropagation();
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Escape') {
-      onDismiss?.();
-      return;
-    }
-    if (e.key !== 'Tab') return;
-    const focusables = focusablesIn(backdropRef.current);
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last?.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first?.focus();
-    }
-  };
-
   return (
     <div
       ref={backdropRef}
       onClick={onDismiss}
-      onKeyDown={handleKeyDown}
       style={{
         position: 'absolute',
         inset: 0,
@@ -78,6 +97,7 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
+        tabIndex={-1}
         onClick={stopPropagation}
         radius="var(--radius-lg) var(--radius-lg) 0 0"
         style={{
@@ -87,6 +107,7 @@ export function Sheet({ open = true, title, onDismiss, actions, children, style 
           padding: 'var(--space-3) var(--space-4) calc(var(--space-6) + var(--safe-b))',
           border: '1px solid var(--color-divider)',
           boxShadow: 'var(--shadow-lg)',
+          outline: 'none',
           ...style,
         }}
       >
