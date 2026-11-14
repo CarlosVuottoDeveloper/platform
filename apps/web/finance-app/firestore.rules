@@ -74,6 +74,14 @@ service cloud.firestore {
         && isTagOrAbsent(tags, 9);
     }
 
+    function ownsAccount(uid, accountId) {
+      return exists(/databases/$(database)/documents/users/$(uid)/accounts/$(accountId));
+    }
+
+    function ownsCategory(uid, categoryId) {
+      return exists(/databases/$(database)/documents/users/$(uid)/categories/$(categoryId));
+    }
+
     function hasValidTransactionParties(data) {
       return data.kind == 'transfer'
         ? isId(data.toAccountId) && data.toAccountId != data.accountId && data.categoryId == null
@@ -96,6 +104,13 @@ service cloud.firestore {
         && data.updatedAt == request.time;
     }
 
+    function pointsToOwnRecords(uid, data) {
+      return ownsAccount(uid, data.accountId)
+        && (data.kind == 'transfer'
+          ? ownsAccount(uid, data.toAccountId)
+          : ownsCategory(uid, data.categoryId));
+    }
+
     match /users/{uid}/{document=**} {
       allow read, delete: if isOwner(uid);
     }
@@ -106,8 +121,8 @@ service cloud.firestore {
     }
 
     match /users/{uid}/transactions/{transactionId} {
-      allow create: if isOwner(uid) && isValidTransaction(request.resource.data) && isStampedNow();
-      allow update: if isOwner(uid) && isValidTransaction(request.resource.data) && keepsCreationTime();
+      allow create: if isOwner(uid) && isValidTransaction(request.resource.data) && pointsToOwnRecords(uid, request.resource.data) && isStampedNow();
+      allow update: if isOwner(uid) && isValidTransaction(request.resource.data) && pointsToOwnRecords(uid, request.resource.data) && keepsCreationTime();
     }
 
     function isValidCategory(data) {
@@ -152,7 +167,7 @@ service cloud.firestore {
     }
 
     match /users/{uid}/recurrences/{recurrenceId} {
-      allow create, update: if isOwner(uid) && isValidRecurrence(request.resource.data);
+      allow create, update: if isOwner(uid) && isValidRecurrence(request.resource.data) && ownsAccount(uid, request.resource.data.accountId) && ownsCategory(uid, request.resource.data.categoryId);
     }
 
     function isValidBudget(data, categoryId) {
@@ -164,7 +179,7 @@ service cloud.firestore {
     }
 
     match /users/{uid}/budgets/{categoryId} {
-      allow create, update: if isOwner(uid) && isValidBudget(request.resource.data, categoryId);
+      allow create, update: if isOwner(uid) && isValidBudget(request.resource.data, categoryId) && ownsCategory(uid, categoryId);
     }
 
     function isValidGoal(data) {

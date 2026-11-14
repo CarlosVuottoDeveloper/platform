@@ -11,7 +11,7 @@ export interface Budget {
 
 export type BudgetStatus = 'ok' | 'warning' | 'exceeded';
 
-export interface BudgetProgress {
+interface BudgetProgress {
   spentCents: Cents;
   ratio: number;
   status: BudgetStatus;

@@ -11,6 +11,7 @@ import {
 } from '../../services/accountsService';
 import { tx } from '../../domain/transaction.test-helpers';
 import type { Transaction } from '../../domain/transaction';
+import { subscribeToRecurrences } from '../../services/recurrencesService';
 import { createTransaction, subscribeToTransactions } from '../../services/transactionsService';
 import { mockSignedInAs, money, renderSignedIn, testUser } from '../../test-utils';
 import { Accounts } from './Accounts';
@@ -18,6 +19,7 @@ import { Accounts } from './Accounts';
 jest.mock('../../services/authService');
 jest.mock('../../services/accountsService');
 jest.mock('../../services/transactionsService');
+jest.mock('../../services/recurrencesService');
 
 const account = (overrides: Partial<Account>): Account => ({
   id: 'a1',
@@ -422,5 +424,31 @@ describe('Accounts', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
     expect(await screen.findByText('Informe a data de abertura')).toBeInTheDocument();
     expect(createAccount).not.toHaveBeenCalled();
+  });
+
+  it('does not offer to delete an account that a recurring rule still uses', () => {
+    mockAccounts([account({ id: 'a1', name: 'Nubank' })]);
+    jest.mocked(subscribeToRecurrences).mockImplementation((_uid, onChange) => {
+      onChange([
+        {
+          id: 'r1',
+          kind: 'expense',
+          amountCents: 100,
+          dayOfMonth: 5,
+          accountId: 'a1',
+          categoryId: 'c1',
+          description: 'Aluguel',
+          tags: [],
+          startMonth: '2026-01',
+          endMonth: null,
+          materializedThrough: null,
+        },
+      ]);
+      return jest.fn();
+    });
+
+    renderSignedIn(<Accounts />);
+
+    expect(screen.queryByRole('button', { name: 'Excluir Nubank' })).not.toBeInTheDocument();
   });
 });

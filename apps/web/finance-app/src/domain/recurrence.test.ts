@@ -1,4 +1,4 @@
-import { dueOccurrences, occurrenceId, projectedOccurrences } from './recurrence';
+import { dueOccurrences, projectedOccurrences } from './recurrence';
 import type { Recurrence } from './recurrence';
 
 const recurrence = (overrides: Partial<Recurrence>): Recurrence => ({
@@ -19,10 +19,6 @@ const recurrence = (overrides: Partial<Recurrence>): Recurrence => ({
 const rent = recurrence({ dayOfMonth: 31 });
 
 describe('recurrence', () => {
-  it('derives a stable id per recurrence and month', () => {
-    expect(occurrenceId('r1', '2026-03')).toBe('r1_2026-03');
-  });
-
   it('lists every occurrence due up to today, clamping the day in short months', () => {
     expect(dueOccurrences(rent, '2026-03-15').map((occurrence) => occurrence.input.date)).toEqual([
       '2026-01-31',

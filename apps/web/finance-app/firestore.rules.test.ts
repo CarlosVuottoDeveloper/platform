@@ -35,6 +35,13 @@ describe('Firestore security rules — finance-app', () => {
     });
   }
 
+  async function seedReferences() {
+    await seed(`users/${alice}/accounts/a1`, { name: 'Nubank' });
+    await seed(`users/${alice}/accounts/a2`, { name: 'Poupança' });
+    await seed(`users/${alice}/categories/c1`, { name: 'Alimentação' });
+    await seed(`users/${bob}/accounts/bob-account`, { name: 'Conta do Bob' });
+  }
+
   beforeAll(async () => {
     testEnv = await initializeTestEnvironment({
       projectId: 'finance-app-emulator',
@@ -171,6 +178,10 @@ describe('Firestore security rules — finance-app', () => {
 
   describe('transactions', () => {
     const transactionPath = `users/${alice}/transactions/t1`;
+
+    beforeEach(async () => {
+      await seedReferences();
+    });
     const validExpense = () => ({
       kind: 'expense',
       amountCents: 1999,
@@ -199,6 +210,22 @@ describe('Firestore security rules — finance-app', () => {
         setDoc(doc(db, `users/${alice}/transactions/t2`), { ...validExpense(), kind: 'income' }),
       );
       await assertSucceeds(setDoc(doc(db, `users/${alice}/transactions/t3`), validTransfer()));
+    });
+
+    it.each([
+      ['an account that does not exist', { accountId: 'gone' }],
+      ['a category that does not exist', { categoryId: 'gone' }],
+      ['an account of another user', { accountId: 'bob-account' }],
+    ])('denies a movement pointing to %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), transactionPath), { ...validExpense(), ...override }),
+      );
+    });
+
+    it('denies a transfer to an account that does not exist', async () => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), transactionPath), { ...validTransfer(), toAccountId: 'gone' }),
+      );
     });
 
     it('accepts an instalment and a recurrence link', async () => {
@@ -354,6 +381,10 @@ describe('Firestore security rules — finance-app', () => {
 
   describe('recurrences', () => {
     const recurrencePath = `users/${alice}/recurrences/r1`;
+
+    beforeEach(async () => {
+      await seedReferences();
+    });
     const validRecurrence = () => ({
       kind: 'expense',
       amountCents: 150000,
@@ -387,6 +418,8 @@ describe('Firestore security rules — finance-app', () => {
       ['month zero', { startMonth: '2026-00' }],
       ['a malformed end month', { endMonth: 'dezembro' }],
       ['no category', { categoryId: null }],
+      ['an account that does not exist', { accountId: 'gone' }],
+      ['a category that does not exist', { categoryId: 'gone' }],
     ])('denies a rule with %s', async (_label, override) => {
       await assertFails(
         setDoc(doc(ownerDb(alice), recurrencePath), { ...validRecurrence(), ...override }),
@@ -433,6 +466,19 @@ describe('Firestore security rules — finance-app', () => {
 
   describe('budgets', () => {
     const budgetPath = `users/${alice}/budgets/c1`;
+
+    beforeEach(async () => {
+      await seedReferences();
+    });
+
+    it('denies a budget for a category that does not exist', async () => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), `users/${alice}/budgets/gone`), {
+          categoryId: 'gone',
+          limitCents: 100,
+        }),
+      );
+    });
 
     it('lets the owner set and change the limit of a category', async () => {
       const db = ownerDb(alice);

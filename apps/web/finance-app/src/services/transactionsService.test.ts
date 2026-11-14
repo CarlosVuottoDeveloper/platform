@@ -2,7 +2,6 @@ import { addDoc, collection, doc, onSnapshot, updateDoc, writeBatch } from 'fire
 import {
   createInstallments,
   createTransaction,
-  createTransactions,
   deleteTransactions,
   subscribeToTransactions,
   updateTransaction,
@@ -82,19 +81,6 @@ describe('transactionsService', () => {
       createdAt: 'SERVER_TIMESTAMP',
       updatedAt: 'SERVER_TIMESTAMP',
     });
-  });
-
-  it('creates several transactions atomically', async () => {
-    await createTransactions('u1', [input, { ...input, date: '2026-04-05' }]);
-
-    expect(batch.set).toHaveBeenCalledTimes(2);
-    expect(batch.set).toHaveBeenLastCalledWith('generated-ref', {
-      ...input,
-      date: '2026-04-05',
-      createdAt: 'SERVER_TIMESTAMP',
-      updatedAt: 'SERVER_TIMESTAMP',
-    });
-    expect(batch.commit).toHaveBeenCalledTimes(1);
   });
 
   it('updates a transaction and refreshes its update time', async () => {

@@ -4,7 +4,7 @@ import type { Installment, Transaction, TransactionInput } from './transaction';
 
 export const MAX_INSTALLMENTS = 48;
 
-export function splitInstallments(totalCents: Cents, count: number): Cents[] {
+function splitInstallments(totalCents: Cents, count: number): Cents[] {
   const base = Math.floor(totalCents / count);
   const remainder = totalCents - base * count;
   return Array.from({ length: count }, (_, index) => (index === 0 ? base + remainder : base));

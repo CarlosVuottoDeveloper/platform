@@ -13,8 +13,8 @@ import type { Account } from '../../domain/account';
 import { colorVariable } from '../../domain/appearance';
 import {
   accountBalanceOn,
-  accountHasTransactions,
   consolidatedBalanceOn,
+  isAccountInUse,
   pendingTotalAfter,
 } from '../../domain/balance';
 import { formatCents } from '../../domain/money';
@@ -37,12 +37,14 @@ interface AccountActions {
 interface AccountRowProps extends AccountActions {
   account: Account;
   transactions: Transaction[];
+  inUse: boolean;
   today: string;
 }
 
 function AccountRow({
   account,
   transactions,
+  inUse,
   today,
   onEdit,
   onToggleArchived,
@@ -96,7 +98,7 @@ function AccountRow({
       >
         {archiveLabel}
       </Button>
-      {accountHasTransactions(account.id, transactions) ? null : (
+      {inUse ? null : (
         <Button
           size="sm"
           variant="ghost"
@@ -114,10 +116,11 @@ interface AccountSectionProps extends AccountActions {
   title: string;
   accounts: Account[];
   transactions: Transaction[];
+  isInUse: (account: Account) => boolean;
   today: string;
 }
 
-function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
+function AccountSection({ title, accounts, isInUse, ...rowProps }: AccountSectionProps) {
   if (accounts.length === 0) return null;
 
   return (
@@ -125,7 +128,7 @@ function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
       <h2 style={{ fontSize: 'var(--text-h4)' }}>{title}</h2>
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {accounts.map((account) => (
-          <AccountRow key={account.id} account={account} {...rowProps} />
+          <AccountRow key={account.id} account={account} inUse={isInUse(account)} {...rowProps} />
         ))}
       </ul>
     </section>
@@ -135,7 +138,7 @@ function AccountSection({ title, accounts, ...rowProps }: AccountSectionProps) {
 export function Accounts() {
   const user = useSignedInUser();
   const { showToast } = useToast();
-  const { accounts, transactions } = useUserData();
+  const { accounts, recurrences, transactions } = useUserData();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
   const today = useToday();
   const groups = groupAccounts(accounts);
@@ -161,6 +164,7 @@ export function Accounts() {
 
   const sectionProps = {
     transactions,
+    isInUse: (account: Account) => isAccountInUse(account.id, transactions, recurrences),
     today,
     onEdit: (account: Account) => setSheet({ mode: 'edit', account }),
     onToggleArchived: toggleArchived,

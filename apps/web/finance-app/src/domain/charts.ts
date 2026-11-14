@@ -10,7 +10,7 @@ import { categoryName } from './transactionList';
 
 const UNKNOWN_CATEGORY_COLOR = 'viz-6';
 
-export interface CategoryExpense {
+interface CategoryExpense {
   categoryId: string | null;
   label: string;
   color: string;

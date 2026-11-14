@@ -44,7 +44,7 @@ export async function createTransaction(uid: string, input: TransactionInput): P
   return created.id;
 }
 
-export async function createTransactions(uid: string, inputs: TransactionInput[]): Promise<void> {
+async function createTransactions(uid: string, inputs: TransactionInput[]): Promise<void> {
   const batch = writeBatch(db);
   inputs.forEach((input) => batch.set(doc(transactionsOf(uid)), stamped(input)));
   await batch.commit();
