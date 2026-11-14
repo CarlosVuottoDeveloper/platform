@@ -44,4 +44,24 @@ describe('Icon', () => {
       expect(svg).toHaveAttribute('width', '32');
     });
   });
+
+  it('paints a CSS variable colour through style, which SVG attributes cannot resolve', async () => {
+    render(<Icon name="check" color="var(--viz-1)" />);
+
+    await waitFor(() => {
+      const svg = document.querySelector('svg');
+      expect(svg).toHaveAttribute('stroke', 'currentColor');
+      expect(svg?.style.color).toBe('var(--viz-1)');
+    });
+  });
+
+  it('inherits the surrounding colour by default', async () => {
+    render(<Icon name="check" />);
+
+    await waitFor(() => {
+      const svg = document.querySelector('svg');
+      expect(svg).toHaveAttribute('stroke', 'currentColor');
+      expect(svg?.style.color).toBe('');
+    });
+  });
 });
