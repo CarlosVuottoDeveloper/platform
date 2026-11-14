@@ -49,7 +49,7 @@ function SummaryTile({
       <StatTile
         testID={testID}
         tone={highlighted ? 'onPrimary' : 'default'}
-        icon={<Icon name={icon} color={iconColor} />}
+        icon={<Icon name={icon} style={iconColor ? { color: iconColor } : undefined} />}
         label={label}
         value={formatCents(cents)}
       />
@@ -59,7 +59,15 @@ function SummaryTile({
 
 function CardLink({ to, children }: { to: string; children: string }) {
   return (
-    <Link to={to} style={{ color: 'var(--color-accent-300)', fontSize: 'var(--text-h6)' }}>
+    <Link
+      to={to}
+      style={{
+        color: 'var(--color-accent-300)',
+        fontSize: 'var(--text-h6)',
+        textDecoration: 'none',
+        whiteSpace: 'nowrap',
+      }}
+    >
       {children}
     </Link>
   );

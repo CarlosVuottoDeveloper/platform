@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Account } from '../../domain/account';
 import type { Category } from '../../domain/category';
@@ -308,6 +308,25 @@ describe('Dashboard', () => {
         '/transacoes',
       );
       expect(latest.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('keeps the card links on one line without underline', () => {
+      renderSignedIn(<Dashboard />);
+
+      const link = screen.getByRole('link', { name: 'Ver todas' });
+      expect(link.style.whiteSpace).toBe('nowrap');
+      expect(link.style.textDecoration).toBe('none');
+    });
+
+    it('tints the income icon green and the expense icon red', async () => {
+      renderSignedIn(<Dashboard />);
+
+      const incomeIcon = screen.getByTestId('summary-income-icon');
+      const expenseIcon = screen.getByTestId('summary-expense-icon');
+      await waitFor(() => expect(incomeIcon.querySelector('svg')).not.toBeNull());
+      await waitFor(() => expect(expenseIcon.querySelector('svg')).not.toBeNull());
+      expect(incomeIcon.querySelector('svg')?.style.color).toBe('var(--color-success-300)');
+      expect(expenseIcon.querySelector('svg')?.style.color).toBe('var(--color-danger-300)');
     });
 
     it('links the budget alerts to the budgets screen', () => {

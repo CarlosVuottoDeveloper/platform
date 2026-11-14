@@ -149,6 +149,16 @@ describe('MovementRow', () => {
     const title = within(row).getByText(/Uma descrição muito longa/);
     expect(title.style.textOverflow).toBe('ellipsis');
     expect(title.style.whiteSpace).toBe('nowrap');
-    expect(title.parentElement?.style.minWidth).toBe('0');
+    expect(title.parentElement?.style.minWidth).toBe('45%');
+  });
+
+  it('keeps a long title from widening the page around it', () => {
+    const { row } = renderRow(
+      tx({ id: 'l2', description: 'Uma descrição muito longa'.repeat(5), accountId: 'a1' }),
+    );
+
+    const textColumn = within(row).getByText(/Uma descrição muito longa/).parentElement;
+    expect(textColumn?.style.width).toBe('0px');
+    expect(textColumn?.style.flexGrow).toBe('1');
   });
 });
