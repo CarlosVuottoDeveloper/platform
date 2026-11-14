@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { AppShell, Button, Icon, Sidebar, TabBar } from '@industry/web';
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { useIsWideScreen } from '../../hooks/useIsWideScreen';
+import { TransactionSheet } from '../TransactionSheet/TransactionSheet';
 import { SIDEBAR_ENTRIES, TAB_BAR_ENTRIES, currentTab } from './navigation';
 
 export function AppLayout() {
@@ -9,11 +11,21 @@ export function AppLayout() {
   const isWide = useIsWideScreen();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [addingTransaction, setAddingTransaction] = useState(false);
+  const transactionSheet = addingTransaction ? (
+    <TransactionSheet onClose={() => setAddingTransaction(false)} />
+  ) : null;
+  const newTransactionButton = (
+    <Button variant="primary" onClick={() => setAddingTransaction(true)}>
+      Nova movimentação
+    </Button>
+  );
 
   if (isWide) {
     return (
       <AppShell
         style={{ minHeight: '100vh' }}
+        header={<div style={{ marginLeft: 'auto' }}>{newTransactionButton}</div>}
         sidebar={
           <Sidebar
             brand="Finanças"
@@ -36,6 +48,7 @@ export function AppLayout() {
         <main>
           <Outlet />
         </main>
+        {transactionSheet}
       </AppShell>
     );
   }
@@ -44,7 +57,11 @@ export function AppLayout() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <main style={{ flex: 1, padding: 'var(--space-4)' }}>
         <Outlet />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 'var(--space-6)' }}>
+          {newTransactionButton}
+        </div>
       </main>
+      {transactionSheet}
       <TabBar
         style={{ position: 'sticky', bottom: 0 }}
         current={currentTab(pathname)}
