@@ -13,7 +13,7 @@ import {
   subscribeToRecurrences,
 } from '../../services/recurrencesService';
 import { subscribeToTransactions } from '../../services/transactionsService';
-import { mockSignedInAs, money, renderSignedIn, testUser } from '../../test-utils';
+import { mockSignedInAs, mockWideScreen, money, renderSignedIn, testUser } from '../../test-utils';
 import { Dashboard } from './Dashboard';
 
 jest.mock('../../services/authService');
@@ -111,6 +111,7 @@ describe('Dashboard', () => {
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(new Date(2026, 2, 15, 12));
     mockSignedInAs(testUser);
+    mockWideScreen(false);
     jest.mocked(seedDefaultCategories).mockResolvedValue();
     jest.mocked(materializeDueRecurrences).mockResolvedValue();
     jest.mocked(subscribeToCategories).mockImplementation(publish(categories));
@@ -268,5 +269,77 @@ describe('Dashboard', () => {
     renderSignedIn(<Dashboard />);
 
     expect(screen.queryByRole('region', { name: 'Orçamentos em alerta' })).not.toBeInTheDocument();
+  });
+
+  describe('wireframe layout', () => {
+    it('highlights the overall balance on the primary surface', () => {
+      renderSignedIn(<Dashboard />);
+
+      const card = screen.getByTestId('summary-balance-card');
+      expect(card.style.background).toContain('var(--gradient-primary)');
+      expect(card).toContainElement(screen.getByTestId('summary-balance'));
+      expect(tile('summary-balance').getByText('Saldo geral').style.color).toBe(
+        'var(--color-text)',
+      );
+      expect(screen.getByTestId('summary-income-card').style.background).toContain(
+        'var(--gradient-surface)',
+      );
+    });
+
+    it.each([
+      [true, 'repeat(4, 1fr)', '2fr 1fr'],
+      [false, '1fr', '1fr'],
+    ])('lays out tiles and columns for the screen width (wide: %s)', (isWide, tiles, columns) => {
+      mockWideScreen(isWide);
+
+      renderSignedIn(<Dashboard />);
+
+      expect(screen.getByTestId('summary-tiles').style.gridTemplateColumns).toBe(tiles);
+      expect(screen.getByTestId('dashboard-columns').style.gridTemplateColumns).toBe(columns);
+    });
+
+    it('dates each latest movement and links to the full list', () => {
+      renderSignedIn(<Dashboard />);
+
+      const latest = within(screen.getByRole('region', { name: 'Últimas movimentações' }));
+      expect(latest.getByText('12/03/2026 · Moradia · Nubank')).toBeInTheDocument();
+      expect(latest.getByRole('link', { name: 'Ver todas' })).toHaveAttribute(
+        'href',
+        '/transacoes',
+      );
+      expect(latest.queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('links the budget alerts to the budgets screen', () => {
+      jest
+        .mocked(subscribeToBudgets)
+        .mockImplementation(publish([{ id: 'c1', categoryId: 'c1', limitCents: 100000 }]));
+
+      renderSignedIn(<Dashboard />);
+
+      const alerts = within(screen.getByRole('region', { name: 'Orçamentos em alerta' }));
+      expect(alerts.getByRole('link', { name: 'Ver orçamentos' })).toHaveAttribute(
+        'href',
+        '/orcamentos',
+      );
+    });
+
+    it('breaks down the month expenses by category up to today', () => {
+      renderSignedIn(<Dashboard />);
+
+      const spending = within(screen.getByRole('region', { name: 'Despesas por categoria' }));
+      expect(spending.getByText('Total')).toBeInTheDocument();
+      expect(spending.getByText(money('R$ 150,00'))).toBeInTheDocument();
+      expect(spending.getByRole('button', { name: /Moradia/ })).toBeInTheDocument();
+    });
+
+    it('shows no breakdown for a month with only upcoming expenses', async () => {
+      renderSignedIn(<Dashboard />);
+
+      await user.click(screen.getByRole('button', { name: 'Próximo mês' }));
+
+      const spending = within(screen.getByRole('region', { name: 'Despesas por categoria' }));
+      expect(spending.getByText('Sem despesas neste mês')).toBeInTheDocument();
+    });
   });
 });
