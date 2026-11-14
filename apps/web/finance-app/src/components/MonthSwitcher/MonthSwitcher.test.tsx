@@ -3,10 +3,18 @@ import userEvent from '@testing-library/user-event';
 import { MonthSwitcher } from './MonthSwitcher';
 
 describe('MonthSwitcher', () => {
-  it('shows the month in sentence case', () => {
+  it('shows the month name and year without "de"', () => {
     render(<MonthSwitcher month="2026-03" onChange={jest.fn()} />);
 
-    expect(screen.getByText('Março de 2026')).toBeInTheDocument();
+    expect(screen.getByText('Março 2026')).toBeInTheDocument();
+  });
+
+  it('sits in a surface pill', () => {
+    render(<MonthSwitcher month="2026-03" onChange={jest.fn()} />);
+
+    const pill = screen.getByText('Março 2026').parentElement;
+    expect(pill?.style.background).toBe('var(--color-surface)');
+    expect(pill?.style.borderRadius).toBe('var(--radius-pill)');
   });
 
   it('moves one month back and forward across the year boundary', async () => {

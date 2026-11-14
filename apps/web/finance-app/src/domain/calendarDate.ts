@@ -50,10 +50,11 @@ export function formatDateBR(date: CalendarDate): string {
   return `${date.slice(8, 10)}/${date.slice(5, 7)}/${date.slice(0, 4)}`;
 }
 
-export function formatMonthBR(month: YearMonth): string {
-  return new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
+export function formatMonthTitleBR(month: YearMonth): string {
+  const name = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(
     new Date(yearOf(month), monthNumberOf(month) - 1, 1),
   );
+  return `${name.charAt(0).toUpperCase()}${name.slice(1)} ${yearOf(month)}`;
 }
 
 export function formatMonthShortBR(month: YearMonth): string {
