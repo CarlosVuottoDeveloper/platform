@@ -3,7 +3,14 @@ import userEvent from '@testing-library/user-event';
 import type { Category } from '../../domain/category';
 import { tx } from '../../domain/transaction.test-helpers';
 import { deleteBudget, setBudget } from '../../services/budgetsService';
-import { mockSignedInAs, mockUserData, money, renderSignedIn, testUser } from '../../test-utils';
+import {
+  mockSignedInAs,
+  mockUserData,
+  mockWideScreen,
+  money,
+  renderSignedIn,
+  testUser,
+} from '../../test-utils';
 import { Budgets } from './Budgets';
 
 jest.mock('../../services/authService');
@@ -54,6 +61,7 @@ describe('Budgets', () => {
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(new Date(2026, 2, 15, 12));
     mockSignedInAs(testUser);
+    mockWideScreen(false);
     mockUserData({ categories, budgets, transactions, recurrences: [rent] });
   });
 
@@ -144,5 +152,23 @@ describe('Budgets', () => {
     renderSignedIn(<Budgets />);
 
     expect(screen.getByText('Nenhuma categoria de despesa')).toBeInTheDocument();
+  });
+
+  it('shows each category as a card', () => {
+    renderSignedIn(<Budgets />);
+
+    expect(screen.getByTestId('budget-c1').style.background).toContain('var(--gradient-surface)');
+  });
+
+  it.each([
+    [true, 'repeat(2, 1fr)'],
+    [false, '1fr'],
+  ])('lays the cards in a grid for the screen width (wide: %s)', (isWide, columns) => {
+    mockWideScreen(isWide);
+
+    renderSignedIn(<Budgets />);
+
+    expect(screen.getByTestId('budget-grid').style.gridTemplateColumns).toBe(columns);
+    expect(screen.getByTestId('budget-grid')).toContainElement(screen.getByTestId('budget-c1'));
   });
 });

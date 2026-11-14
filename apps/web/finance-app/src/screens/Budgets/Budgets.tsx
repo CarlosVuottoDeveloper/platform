@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Button, EmptyState, Progress } from '@industry/web';
+import { Button, Card, EmptyState, Progress } from '@industry/web';
 import { BudgetSheet } from '../../components/BudgetSheet/BudgetSheet';
 import { BudgetStatusBadge } from '../../components/BudgetStatusBadge/BudgetStatusBadge';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
+import { useIsWideScreen } from '../../hooks/useIsWideScreen';
 import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { budgetProgress, expensesOfMonth } from '../../domain/budget';
@@ -25,41 +26,37 @@ function BudgetRow({ category, budget, monthExpenses, onEdit }: BudgetRowProps) 
   const progress = budget ? budgetProgress(budget, monthExpenses) : null;
 
   return (
-    <li
-      data-testid={`budget-${category.id}`}
-      style={{
-        display: 'grid',
-        gap: 'var(--space-2)',
-        padding: 'var(--space-3) 0',
-        borderBottom: '1px solid var(--color-divider)',
-      }}
-    >
-      <div
-        style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)' }}
-      >
-        <span style={{ flex: 1, minWidth: 0 }}>{category.name}</span>
-        {progress ? <BudgetStatusBadge status={progress.status} /> : null}
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={`${budget ? 'Alterar' : 'Definir'} teto de ${category.name}`}
-          onClick={onEdit}
+    <li style={{ display: 'grid', minWidth: 0 }}>
+      <Card data-testid={`budget-${category.id}`} elevation="sm" style={{ gap: 'var(--space-3)' }}>
+        <div
+          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--space-3)' }}
         >
-          {budget ? 'Alterar teto' : 'Definir teto'}
-        </Button>
-      </div>
-      {budget && progress ? (
-        <>
-          <Progress value={progress.spentCents} max={budget.limitCents} showValue={false} />
-          <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
-            {`${formatCents(progress.spentCents)} de ${formatCents(budget.limitCents)}`}
+          <span style={{ flex: 1, minWidth: 0, fontWeight: 'var(--font-medium-weight)' }}>
+            {category.name}
           </span>
-        </>
-      ) : (
-        <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
-          Sem teto definido
-        </span>
-      )}
+          {progress ? <BudgetStatusBadge status={progress.status} /> : null}
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={`${budget ? 'Alterar' : 'Definir'} teto de ${category.name}`}
+            onClick={onEdit}
+          >
+            {budget ? 'Alterar teto' : 'Definir teto'}
+          </Button>
+        </div>
+        {budget && progress ? (
+          <>
+            <Progress value={progress.spentCents} max={budget.limitCents} showValue={false} />
+            <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
+              {`${formatCents(progress.spentCents)} de ${formatCents(budget.limitCents)}`}
+            </span>
+          </>
+        ) : (
+          <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
+            Sem teto definido
+          </span>
+        )}
+      </Card>
     </li>
   );
 }
@@ -67,6 +64,7 @@ function BudgetRow({ category, budget, monthExpenses, onEdit }: BudgetRowProps) 
 export function Budgets() {
   const { budgets, categories, recurrences, transactions } = useUserData();
   const today = useToday();
+  const isWide = useIsWideScreen();
   const [month, setMonth] = useState(yearMonthOf(today));
   const [editing, setEditing] = useState<Category | null>(null);
   const expenseCategories = categoriesOfKind(categories, 'expense');
@@ -98,7 +96,17 @@ export function Budgets() {
           body="Crie categorias em Configurações para definir tetos de gastos."
         />
       ) : (
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        <ul
+          data-testid="budget-grid"
+          style={{
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+            display: 'grid',
+            gap: 'var(--space-4)',
+            gridTemplateColumns: isWide ? 'repeat(2, 1fr)' : '1fr',
+          }}
+        >
           {expenseCategories.map((category) => (
             <BudgetRow
               key={category.id}

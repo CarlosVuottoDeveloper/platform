@@ -6,6 +6,7 @@ import { GoalSheet } from '../../components/GoalSheet/GoalSheet';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
+import { useIsWideScreen } from '../../hooks/useIsWideScreen';
 import type { Goal } from '../../domain/goal';
 import { deleteGoal } from '../../services/goalsService';
 import { GoalCard } from './GoalCard';
@@ -19,6 +20,7 @@ export function Goals() {
   const user = useSignedInUser();
   const { showToast } = useToast();
   const { goals } = useUserData();
+  const isWide = useIsWideScreen();
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
   const closeSheet = () => setSheet({ mode: 'closed' });
   const sorted = [...goals].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
@@ -47,10 +49,12 @@ export function Goals() {
         />
       ) : (
         <div
+          data-testid="goal-grid"
           style={{
             display: 'grid',
             gap: 'var(--space-4)',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: isWide ? 'repeat(3, 1fr)' : '1fr',
+            alignItems: 'start',
           }}
         >
           {sorted.map((goal) => (

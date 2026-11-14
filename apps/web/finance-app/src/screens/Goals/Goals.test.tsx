@@ -10,7 +10,14 @@ import {
   updateGoal,
 } from '../../services/goalsService';
 import { createTransaction } from '../../services/transactionsService';
-import { mockSignedInAs, mockUserData, money, renderSignedIn, testUser } from '../../test-utils';
+import {
+  mockSignedInAs,
+  mockUserData,
+  mockWideScreen,
+  money,
+  renderSignedIn,
+  testUser,
+} from '../../test-utils';
 import { Goals } from './Goals';
 
 jest.mock('../../services/authService');
@@ -36,6 +43,7 @@ describe('Goals', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSignedInAs(testUser);
+    mockWideScreen(false);
     mockUserData({ goals: [trip, reserve], contributions });
   });
 
@@ -201,5 +209,17 @@ describe('Goals', () => {
       expect.objectContaining({ deadline: '2027-06-30' }),
     );
     expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
+  });
+
+  it.each([
+    [true, 'repeat(3, 1fr)'],
+    [false, '1fr'],
+  ])('lays the goals in a grid for the screen width (wide: %s)', (isWide, columns) => {
+    mockWideScreen(isWide);
+
+    renderSignedIn(<Goals />);
+
+    expect(screen.getByTestId('goal-grid').style.gridTemplateColumns).toBe(columns);
+    expect(screen.getByTestId('goal-grid')).toContainElement(screen.getByTestId('goal-g1'));
   });
 });
