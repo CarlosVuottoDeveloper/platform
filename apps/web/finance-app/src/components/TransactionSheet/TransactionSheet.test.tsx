@@ -13,7 +13,7 @@ import {
   updateTransaction,
   updateTransactions,
 } from '../../services/transactionsService';
-import { mockSignedInAs, renderSignedIn, testUser } from '../../test-utils';
+import { mockSignedInAs, mockWideScreen, renderSignedIn, testUser } from '../../test-utils';
 import { TransactionSheet } from './TransactionSheet';
 
 jest.mock('../../services/authService');
@@ -398,5 +398,47 @@ describe('TransactionSheet', () => {
       await screen.findByText('Valor pequeno demais para esse número de parcelas'),
     ).toBeInTheDocument();
     expect(createInstallments).not.toHaveBeenCalled();
+  });
+
+  describe('layout', () => {
+    const pairOf = (label: string) =>
+      screen.getByLabelText(label).closest('[data-field-pair]') as HTMLElement;
+
+    it('puts date beside instalments and account beside category on a wide screen', () => {
+      mockWideScreen(true);
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      expect(pairOf('Data')).toContainElement(screen.getByLabelText('Parcelar em'));
+      expect(pairOf('Data').style.gridTemplateColumns).toBe('1fr 1fr');
+      expect(pairOf('Conta')).toContainElement(screen.getByLabelText('Categoria'));
+      expect(pairOf('Conta').style.gridTemplateColumns).toBe('1fr 1fr');
+    });
+
+    it('stacks one field per row on a narrow screen', () => {
+      mockWideScreen(false);
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      expect(pairOf('Data').style.gridTemplateColumns).toBe('1fr');
+      expect(pairOf('Conta').style.gridTemplateColumns).toBe('1fr');
+    });
+
+    it('shows the amount large and suggests a description', () => {
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      expect(screen.getByLabelText('Valor').style.fontSize).toBe('var(--text-h3)');
+      expect(screen.getByLabelText('Descrição (opcional)')).toHaveAttribute(
+        'placeholder',
+        'Ex.: Mercado da semana',
+      );
+    });
+
+    it('closes from the close button and with Escape', async () => {
+      renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+      await userEvent.keyboard('{Escape}');
+
+      expect(onClose).toHaveBeenCalledTimes(2);
+    });
   });
 });
