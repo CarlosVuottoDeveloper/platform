@@ -1,6 +1,6 @@
 import { addMonths, dateInMonth, yearMonthOf } from './calendarDate';
 import type { Cents } from './money';
-import type { Transaction, TransactionInput } from './transaction';
+import type { Installment, Transaction, TransactionInput } from './transaction';
 
 export const MAX_INSTALLMENTS = 48;
 
@@ -25,15 +25,21 @@ export function buildInstallments(
   }));
 }
 
+type InstallmentTransaction = Transaction & { installment: Installment };
+
+const isInstallment = (transaction: Transaction): transaction is InstallmentTransaction =>
+  transaction.installment !== null;
+
 export function installmentsFrom(
   transactions: Transaction[],
   groupId: string,
   fromIndex: number,
 ): Transaction[] {
   return transactions
+    .filter(isInstallment)
     .filter(
       (transaction) =>
-        transaction.installment?.groupId === groupId && transaction.installment.index >= fromIndex,
+        transaction.installment.groupId === groupId && transaction.installment.index >= fromIndex,
     )
-    .sort((a, b) => (a.installment?.index ?? 0) - (b.installment?.index ?? 0));
+    .sort((a, b) => a.installment.index - b.installment.index);
 }
