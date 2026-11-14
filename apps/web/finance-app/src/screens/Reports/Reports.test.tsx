@@ -90,6 +90,27 @@ describe('Reports — charts', () => {
     expect(balance).not.toContain('16 ');
   });
 
+  it('counts in the pie only what was already spent, like the bars and the dashboard', () => {
+    mockUserData({
+      accounts,
+      categories,
+      transactions: [
+        ...transactions,
+        tx({
+          kind: 'expense',
+          amountCents: 800000,
+          date: '2026-03-28',
+          accountId: 'a',
+          categoryId: 'c1',
+        }),
+      ],
+    });
+
+    renderSignedIn(<Reports />);
+
+    expect(chartLabels()).toContain('Moradia 75%, Alimentação 25%');
+  });
+
   it('follows the selected month', async () => {
     renderSignedIn(<Reports />);
 

@@ -25,11 +25,12 @@ export function ChartsTab() {
   const currentMonth = yearMonthOf(today);
   const [month, setMonth] = useState(currentMonth);
 
+  const monthEnd = lastDayOfMonth(month);
   const spending = expensesByCategory(
     transactions,
     categories,
     `${month}-01`,
-    lastDayOfMonth(month),
+    monthEnd < today ? monthEnd : today,
   );
   const cashFlow = monthlyCashFlow(
     transactions,

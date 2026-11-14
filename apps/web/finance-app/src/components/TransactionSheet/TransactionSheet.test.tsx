@@ -368,4 +368,35 @@ describe('TransactionSheet', () => {
       expect(screen.queryByLabelText('Aplicar a')).not.toBeInTheDocument();
     });
   });
+
+  it('includes a tag left unconfirmed in the tag field when saving', async () => {
+    jest.mocked(createTransaction).mockResolvedValue('t-new');
+    renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '10');
+    await userEvent.selectOptions(screen.getByLabelText('Conta'), 'Nubank');
+    await userEvent.selectOptions(screen.getByLabelText('Categoria'), 'Alimentação');
+    await userEvent.type(screen.getByLabelText('Tags'), 'viagem');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(createTransaction).toHaveBeenCalledWith(
+      testUser.uid,
+      expect.objectContaining({ tags: ['viagem'] }),
+    );
+  });
+
+  it('refuses to split an amount into more instalments than it has cents', async () => {
+    renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '0,05');
+    await userEvent.selectOptions(screen.getByLabelText('Conta'), 'Nubank');
+    await userEvent.selectOptions(screen.getByLabelText('Categoria'), 'Alimentação');
+    await userEvent.selectOptions(screen.getByLabelText('Parcelar em'), '10x');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(
+      await screen.findByText('Valor pequeno demais para esse número de parcelas'),
+    ).toBeInTheDocument();
+    expect(createInstallments).not.toHaveBeenCalled();
+  });
 });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@industry/web';
+import { Badge, Button } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { RecurrenceSheet } from '../../components/RecurrenceSheet/RecurrenceSheet';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
@@ -69,6 +69,9 @@ export function RecurrencesSection() {
                     {`Todo dia ${recurrence.dayOfMonth} · ${category} · ${accountName(accounts, recurrence.accountId)}`}
                   </div>
                 </div>
+                {accounts.find((account) => account.id === recurrence.accountId)?.archived ? (
+                  <Badge tone="warning">Conta arquivada</Badge>
+                ) : null}
                 <span style={{ fontWeight: 'var(--font-medium-weight)' }}>
                   {recurrence.kind === 'income' ? `+${amount}` : `-${amount}`}
                 </span>

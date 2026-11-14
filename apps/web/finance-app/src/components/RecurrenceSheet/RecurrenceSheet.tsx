@@ -208,7 +208,13 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
         name="startMonth"
         rules={{ validate: validateStartMonth }}
         render={({ field, fieldState }) => (
-          <TextField label="Início" type="month" error={fieldState.error?.message} {...field} />
+          <TextField
+            label="Início"
+            type="month"
+            placeholder="AAAA-MM"
+            error={fieldState.error?.message}
+            {...field}
+          />
         )}
       />
       <Controller
@@ -224,6 +230,7 @@ export function RecurrenceSheet({ recurrence, onClose }: RecurrenceSheetProps) {
           <TextField
             label="Fim (opcional)"
             type="month"
+            placeholder="AAAA-MM"
             error={fieldState.error?.message}
             {...field}
           />

@@ -278,4 +278,27 @@ describe('RecurrencesSection', () => {
 
     expect(await screen.findByText('Informe o mês de início')).toBeInTheDocument();
   });
+
+  it('flags a rule whose account was archived', () => {
+    jest
+      .mocked(subscribeToAccounts)
+      .mockImplementation(
+        publish([{ ...accounts[0], archived: true } as Account, accounts[1] as Account]),
+      );
+
+    renderSignedIn(<RecurrencesSection />);
+
+    expect(
+      within(screen.getByTestId('recurrence-r1')).getByText('Conta arquivada'),
+    ).toBeInTheDocument();
+  });
+
+  it('tells the expected month format for browsers without a month picker', async () => {
+    renderSignedIn(<RecurrencesSection />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nova recorrente' }));
+
+    expect(screen.getByLabelText('Início')).toHaveAttribute('placeholder', 'AAAA-MM');
+    expect(screen.getByLabelText('Fim (opcional)')).toHaveAttribute('placeholder', 'AAAA-MM');
+  });
 });

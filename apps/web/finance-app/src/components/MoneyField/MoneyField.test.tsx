@@ -68,4 +68,31 @@ describe('MoneyField', () => {
 
     expect(screen.getByLabelText('Valor')).toHaveAttribute('inputmode', 'decimal');
   });
+
+  it('shows how the typed amount was understood while typing', async () => {
+    render(<Harness />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '1.500');
+
+    expect(
+      screen.getByText((text) => text.replace(/\s/g, ' ') === 'R$ 1.500,00'),
+    ).toBeInTheDocument();
+  });
+
+  it('refuses an amount above the supported limit with its own message', async () => {
+    render(<Harness error="Informe o valor" />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '1.000.000.000,00');
+
+    expect(screen.getByText('Valor acima do limite')).toBeInTheDocument();
+    expect(screen.getByTestId('cents')).toHaveTextContent('null');
+  });
+
+  it('accepts the largest supported amount', async () => {
+    render(<Harness />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '999.999.999,99');
+
+    expect(screen.getByTestId('cents')).toHaveTextContent('99999999999');
+  });
 });

@@ -112,4 +112,23 @@ describe('PieChart', () => {
     expect(screen.getByTestId('pie')).toHaveStyle({ flexDirection: 'row' });
     expect(screen.getByText('Total')).toBeInTheDocument();
   });
+
+  it('draws slices that share a label without confusing them', () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    render(
+      <PieChart
+        slices={[
+          { label: 'Outros', value: 100, color: 'var(--viz-1)' },
+          { label: 'Outros', value: 300, color: 'var(--viz-2)' },
+        ]}
+        testID="pie"
+      />,
+    );
+
+    expect(screen.getByTestId('pie').querySelectorAll('circle[data-slice]')).toHaveLength(2);
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
 });

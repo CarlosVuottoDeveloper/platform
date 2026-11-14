@@ -1,6 +1,6 @@
 import type { Transaction } from './transaction';
 
-export const TAG_MAX_LENGTH = 30;
+const TAG_MAX_LENGTH = 30;
 export const TAGS_MAX_COUNT = 10;
 
 export function normalizeTag(input: string): string | null {

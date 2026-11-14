@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { Button, DataTable, EmptyState, Select, TextField } from '@industry/web';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import { formatDateBR, toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
+import {
+  formatDateBR,
+  isCalendarDate,
+  toCalendarDate,
+  yearMonthOf,
+} from '../../domain/calendarDate';
 import { formatCents } from '../../domain/money';
 import { filterTransactions, reportEntries, reportRows, reportTotals } from '../../domain/report';
 import type { ReportFilter } from '../../domain/report';
@@ -55,7 +60,8 @@ export function ReportTab() {
     kinds: selected<TransactionKind>(kind),
     tags: selected(tag),
   };
-  const matching = filterTransactions(transactions, filter);
+  const hasPeriod = isCalendarDate(from) && isCalendarDate(to);
+  const matching = hasPeriod ? filterTransactions(transactions, filter) : [];
   const entries = reportEntries(matching, accounts, categories);
   const totals = reportTotals(matching);
   const totalLines = [
@@ -185,7 +191,11 @@ export function ReportTab() {
         </div>
       </div>
       {isEmpty ? (
-        <EmptyState title="Nenhuma movimentação com esses filtros" />
+        <EmptyState
+          title={
+            hasPeriod ? 'Nenhuma movimentação com esses filtros' : 'Informe o período do relatório'
+          }
+        />
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <DataTable

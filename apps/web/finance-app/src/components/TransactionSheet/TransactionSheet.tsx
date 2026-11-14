@@ -236,8 +236,18 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
         <Controller
           control={control}
           name="installmentCount"
-          render={({ field }) => (
-            <Select label="Parcelar em" options={INSTALLMENT_OPTIONS} {...field} />
+          rules={{
+            validate: (count) =>
+              (getValues('amountCents') ?? 0) >= Number(count) ||
+              'Valor pequeno demais para esse número de parcelas',
+          }}
+          render={({ field, fieldState }) => (
+            <Select
+              label="Parcelar em"
+              options={INSTALLMENT_OPTIONS}
+              error={fieldState.error?.message}
+              {...field}
+            />
           )}
         />
       ) : null}
