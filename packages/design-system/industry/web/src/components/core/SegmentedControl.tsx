@@ -13,6 +13,7 @@ export interface SegmentedControlProps {
   options?: (string | SegmentOption)[];
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  block?: boolean;
   style?: CSSProperties;
 }
 
@@ -25,13 +26,15 @@ export function SegmentedControl({
   options = [],
   value,
   onChange,
+  block = false,
   style,
 }: SegmentedControlProps) {
   return (
     <div
       role="radiogroup"
       style={{
-        display: 'inline-flex',
+        display: block ? 'flex' : 'inline-flex',
+        width: block ? '100%' : undefined,
         background: 'var(--color-surface)',
         borderRadius: 'var(--radius-pill)',
         ...style,
@@ -45,6 +48,7 @@ export function SegmentedControl({
             name={name}
             option={opt}
             checked={value === opt.value}
+            grow={block}
             onChange={onChange}
           />
         );
@@ -57,11 +61,13 @@ function SegmentItem({
   name,
   option,
   checked,
+  grow,
   onChange,
 }: {
   name: string;
   option: SegmentOption;
   checked: boolean;
+  grow: boolean;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
   const [focused, setFocused] = useState(false);
@@ -71,6 +77,7 @@ function SegmentItem({
       as="label"
       active={checked}
       focused={focused}
+      grow={grow}
       icon={option.icon}
       label={option.label}
     >
