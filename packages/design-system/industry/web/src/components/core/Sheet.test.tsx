@@ -236,4 +236,74 @@ describe('Sheet', () => {
     expect(() => rerender(<Sheet open={false}>Conteúdo</Sheet>)).not.toThrow();
     expect(document.body).toHaveFocus();
   });
+
+  it('brings Tab back into the sheet after a click left focus outside its controls', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+      </Sheet>,
+    );
+    act(() => (document.activeElement as HTMLElement).blur());
+
+    fireEvent.keyDown(document.body, { key: 'Tab' });
+
+    expect(screen.getByRole('button', { name: 'Fechar' })).toHaveFocus();
+  });
+
+  it('wraps Shift+Tab to the last control when focus sits on the sheet itself', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+        <button type="button">Salvar</button>
+      </Sheet>,
+    );
+    act(() => screen.getByRole('dialog').focus());
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Tab', shiftKey: true });
+
+    expect(screen.getByRole('button', { name: 'Salvar' })).toHaveFocus();
+  });
+
+  it('still dismisses on Escape after a click left focus outside its controls', async () => {
+    const onDismiss = jest.fn();
+    await renderSheet(
+      <Sheet title="Título" onDismiss={onDismiss}>
+        <input aria-label="Valor" />
+      </Sheet>,
+    );
+    act(() => (document.activeElement as HTMLElement).blur());
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('can hold focus itself so a click on its body keeps focus inside', () => {
+    render(<Sheet title="Título">Conteúdo</Sheet>);
+
+    expect(screen.getByRole('dialog')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('starts on the chosen option of a radio group', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input type="radio" name="kind" value="expense" aria-label="Despesa" readOnly />
+        <input type="radio" name="kind" value="income" aria-label="Receita" checked readOnly />
+        <input aria-label="Valor" />
+      </Sheet>,
+    );
+
+    expect(screen.getByRole('radio', { name: 'Receita' })).toHaveFocus();
+  });
+
+  it('ignores hidden inputs when choosing the first focus', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input type="hidden" name="id" value="x" />
+        <input aria-label="Valor" />
+      </Sheet>,
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Valor' })).toHaveFocus();
+  });
 });
