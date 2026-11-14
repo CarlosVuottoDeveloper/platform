@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { EmptyState, SearchField } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
+import { MovementRow } from '../../components/MovementRow/MovementRow';
 import { TransactionSheet } from '../../components/TransactionSheet/TransactionSheet';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
@@ -18,7 +19,6 @@ import {
   transactionsOfMonth,
 } from '../../domain/transactionList';
 import { deleteTransactions } from '../../services/transactionsService';
-import { TransactionRow } from './TransactionRow';
 
 type SheetState =
   | { mode: 'closed' }
@@ -92,15 +92,18 @@ export function Transactions() {
           </h2>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {group.items.map((transaction) => (
-              <TransactionRow
+              <MovementRow
                 key={transaction.id}
                 transaction={transaction}
                 accounts={accounts}
                 categories={categories}
                 pending={isPending(transaction, today)}
                 forecast={forecastIds.has(transaction.id)}
-                onEdit={() => setSheet({ mode: 'edit', transaction })}
-                onDelete={() => setSheet({ mode: 'delete', transaction })}
+                showDate={false}
+                actions={{
+                  onEdit: () => setSheet({ mode: 'edit', transaction }),
+                  onDelete: () => setSheet({ mode: 'delete', transaction }),
+                }}
               />
             ))}
           </ul>
