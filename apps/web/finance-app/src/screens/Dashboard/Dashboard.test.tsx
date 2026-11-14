@@ -287,7 +287,7 @@ describe('Dashboard', () => {
     });
 
     it.each([
-      [true, 'repeat(4, 1fr)', '2fr 1fr'],
+      [true, 'repeat(4, 1fr)', '3fr 2fr'],
       [false, '1fr', '1fr'],
     ])('lays out tiles and columns for the screen width (wide: %s)', (isWide, tiles, columns) => {
       mockWideScreen(isWide);

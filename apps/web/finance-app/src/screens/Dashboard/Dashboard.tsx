@@ -51,7 +51,7 @@ function SummaryTile({
       <StatTile
         testID={testID}
         tone={highlighted ? 'onPrimary' : 'default'}
-        icon={<Icon name={icon} style={iconColor ? { color: iconColor } : undefined} />}
+        icon={<Icon name={icon} color={iconColor} />}
         label={label}
         value={formatCents(cents)}
       />
@@ -182,7 +182,7 @@ export function Dashboard() {
         style={{
           display: 'grid',
           gap: 'var(--space-4)',
-          gridTemplateColumns: isWide ? '2fr 1fr' : '1fr',
+          gridTemplateColumns: isWide ? '3fr 2fr' : '1fr',
           alignItems: 'start',
         }}
       >

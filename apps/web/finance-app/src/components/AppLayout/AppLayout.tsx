@@ -42,11 +42,7 @@ export function AppLayout() {
               <Button
                 variant="ghost"
                 onClick={logout}
-                style={{
-                  marginTop: 'auto',
-                  alignSelf: 'flex-start',
-                  color: 'var(--color-accent-300)',
-                }}
+                style={{ marginTop: 'auto', alignSelf: 'flex-start' }}
               >
                 <Icon name="log-out" size="sm" />
                 Sair
