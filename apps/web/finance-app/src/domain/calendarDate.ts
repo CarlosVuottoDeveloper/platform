@@ -56,6 +56,13 @@ export function formatMonthBR(month: YearMonth): string {
   );
 }
 
+export function formatMonthShortBR(month: YearMonth): string {
+  const name = new Intl.DateTimeFormat('pt-BR', { month: 'short' })
+    .format(new Date(yearOf(month), monthNumberOf(month) - 1, 1))
+    .replace('.', '');
+  return `${name}/${month.slice(2, 4)}`;
+}
+
 export function isCalendarDate(text: string): boolean {
   if (!CALENDAR_DATE.test(text)) return false;
   const monthNumber = monthNumberOf(text);

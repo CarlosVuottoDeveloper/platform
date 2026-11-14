@@ -19,7 +19,7 @@ export function isPending(transaction: Transaction, today: CalendarDate): boolea
   return transaction.date > today;
 }
 
-export function accountName(accounts: Account[], id: string): string {
+export function accountName(accounts: Account[], id: string | null): string {
   return accounts.find((account) => account.id === id)?.name ?? 'Conta removida';
 }
 

@@ -3,6 +3,7 @@ import {
   dateInMonth,
   formatDateBR,
   formatMonthBR,
+  formatMonthShortBR,
   isCalendarDate,
   lastDayOfMonth,
   monthsBetween,
@@ -48,6 +49,8 @@ describe('calendarDate', () => {
   it('formats dates and months for display', () => {
     expect(formatDateBR('2026-03-05')).toBe('05/03/2026');
     expect(formatMonthBR('2026-03')).toBe('março de 2026');
+    expect(formatMonthShortBR('2026-03')).toBe('mar/26');
+    expect(formatMonthShortBR('2027-12')).toBe('dez/27');
   });
 
   it('recognises real calendar dates only', () => {
