@@ -6,7 +6,7 @@ import {
   assertFails,
 } from '@firebase/rules-unit-testing';
 import type { RulesTestEnvironment } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 
 describe('Firestore security rules — finance-app', () => {
   let testEnv: RulesTestEnvironment;
@@ -74,6 +74,212 @@ describe('Firestore security rules — finance-app', () => {
 
     it('denies reading outside the users tree', async () => {
       await assertFails(getDoc(doc(ownerDb(alice), 'outra/x')));
+    });
+  });
+
+  describe('accounts', () => {
+    const accountPath = `users/${alice}/accounts/a1`;
+    const validAccount = () => ({
+      name: 'Nubank',
+      type: 'bank',
+      color: 'viz-1',
+      icon: 'landmark',
+      initialBalanceCents: 100000,
+      openingDate: '2026-01-01',
+      archived: false,
+      createdAt: serverTimestamp(),
+    });
+
+    it('lets the owner create a valid account', async () => {
+      await assertSucceeds(setDoc(doc(ownerDb(alice), accountPath), validAccount()));
+    });
+
+    it('accepts a negative opening balance for what is owed', async () => {
+      await assertSucceeds(
+        setDoc(doc(ownerDb(alice), accountPath), {
+          ...validAccount(),
+          type: 'credit_card',
+          initialBalanceCents: -50000,
+        }),
+      );
+    });
+
+    it('denies another user and anonymous creating in the owner tree', async () => {
+      await assertFails(setDoc(doc(strangerDb(), accountPath), validAccount()));
+      await assertFails(setDoc(doc(anonymousDb(), accountPath), validAccount()));
+    });
+
+    it.each([
+      ['an undeclared field', { extra: 'x' }],
+      ['an unknown type', { type: 'x' }],
+      ['a fractional balance', { initialBalanceCents: 1.5 }],
+      ['a balance beyond the limit', { initialBalanceCents: 100000000000 }],
+      ['an empty name', { name: '' }],
+      ['a name over 60 characters', { name: 'n'.repeat(61) }],
+      ['a malformed opening date', { openingDate: '01/01/2026' }],
+      ['a non-boolean archived flag', { archived: 'no' }],
+      ['a client-chosen creation time', { createdAt: new Date(2020, 0, 1) }],
+    ])('denies creating with %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), accountPath), { ...validAccount(), ...override }),
+      );
+    });
+
+    it('denies creating without a required field', async () => {
+      const { openingDate: _omitted, ...incomplete } = validAccount();
+
+      await assertFails(setDoc(doc(ownerDb(alice), accountPath), incomplete));
+    });
+
+    describe('updating', () => {
+      beforeEach(async () => {
+        await setDoc(doc(ownerDb(alice), accountPath), validAccount());
+      });
+
+      it('lets the owner rename and archive', async () => {
+        await assertSucceeds(
+          updateDoc(doc(ownerDb(alice), accountPath), { name: 'Nu Conta', archived: true }),
+        );
+      });
+
+      it('denies changing the creation time', async () => {
+        await assertFails(
+          updateDoc(doc(ownerDb(alice), accountPath), { createdAt: serverTimestamp() }),
+        );
+      });
+
+      it('denies adding an undeclared field', async () => {
+        await assertFails(updateDoc(doc(ownerDb(alice), accountPath), { extra: 'x' }));
+      });
+
+      it('denies another user updating', async () => {
+        await assertFails(updateDoc(doc(strangerDb(), accountPath), { name: 'Hack' }));
+      });
+    });
+  });
+
+  describe('transactions', () => {
+    const transactionPath = `users/${alice}/transactions/t1`;
+    const validExpense = () => ({
+      kind: 'expense',
+      amountCents: 1999,
+      date: '2026-03-05',
+      accountId: 'a1',
+      toAccountId: null,
+      categoryId: 'c1',
+      description: 'Mercado',
+      tags: ['casa'],
+      recurrenceId: null,
+      installment: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    const validTransfer = () => ({
+      ...validExpense(),
+      kind: 'transfer',
+      toAccountId: 'a2',
+      categoryId: null,
+    });
+
+    it('lets the owner create an expense, an income and a transfer', async () => {
+      const db = ownerDb(alice);
+      await assertSucceeds(setDoc(doc(db, transactionPath), validExpense()));
+      await assertSucceeds(
+        setDoc(doc(db, `users/${alice}/transactions/t2`), { ...validExpense(), kind: 'income' }),
+      );
+      await assertSucceeds(setDoc(doc(db, `users/${alice}/transactions/t3`), validTransfer()));
+    });
+
+    it('accepts an instalment and a recurrence link', async () => {
+      await assertSucceeds(
+        setDoc(doc(ownerDb(alice), transactionPath), {
+          ...validExpense(),
+          recurrenceId: 'r1',
+          installment: { groupId: 'g1', index: 2, count: 3 },
+        }),
+      );
+    });
+
+    it('denies another user and anonymous creating', async () => {
+      await assertFails(setDoc(doc(strangerDb(), transactionPath), validExpense()));
+      await assertFails(setDoc(doc(anonymousDb(), transactionPath), validExpense()));
+    });
+
+    it.each([
+      ['an undeclared field', { extra: 'x' }],
+      ['an unknown kind', { kind: 'gift' }],
+      ['a zero amount', { amountCents: 0 }],
+      ['a negative amount', { amountCents: -1 }],
+      ['a fractional amount', { amountCents: 10.5 }],
+      ['an amount beyond the limit', { amountCents: 100000000000 }],
+      ['a malformed date', { date: '05/03/2026' }],
+      ['no account', { accountId: '' }],
+      ['an expense without a category', { categoryId: null }],
+      ['an expense with a destination account', { toAccountId: 'a2' }],
+      ['a description over 140 characters', { description: 'd'.repeat(141) }],
+      ['more than 10 tags', { tags: Array.from({ length: 11 }, (_, i) => `t${i}`) }],
+      ['a non-text tag', { tags: [1] }],
+      ['a tag over 30 characters', { tags: ['t'.repeat(31)] }],
+      ['an empty tag', { tags: [''] }],
+      ['tags that are not a list', { tags: 'casa' }],
+      [
+        'an instalment index above its count',
+        { installment: { groupId: 'g', index: 4, count: 3 } },
+      ],
+      ['an instalment count above 48', { installment: { groupId: 'g', index: 1, count: 49 } }],
+      [
+        'an instalment with an extra field',
+        { installment: { groupId: 'g', index: 1, count: 2, x: 1 } },
+      ],
+      ['a client-chosen creation time', { createdAt: new Date(2020, 0, 1) }],
+    ])('denies creating with %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), transactionPath), { ...validExpense(), ...override }),
+      );
+    });
+
+    it.each([
+      ['no destination', { toAccountId: null }],
+      ['the same account on both sides', { toAccountId: 'a1' }],
+      ['a category', { categoryId: 'c1' }],
+    ])('denies a transfer with %s', async (_label, override) => {
+      await assertFails(
+        setDoc(doc(ownerDb(alice), transactionPath), { ...validTransfer(), ...override }),
+      );
+    });
+
+    describe('updating', () => {
+      beforeEach(async () => {
+        await setDoc(doc(ownerDb(alice), transactionPath), validExpense());
+      });
+
+      it('lets the owner edit and requires a fresh update time', async () => {
+        await assertSucceeds(
+          updateDoc(doc(ownerDb(alice), transactionPath), {
+            amountCents: 2500,
+            updatedAt: serverTimestamp(),
+          }),
+        );
+        await assertFails(updateDoc(doc(ownerDb(alice), transactionPath), { amountCents: 2600 }));
+      });
+
+      it('denies changing the creation time', async () => {
+        await assertFails(
+          updateDoc(doc(ownerDb(alice), transactionPath), {
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          }),
+        );
+      });
+
+      it('denies another user updating', async () => {
+        await assertFails(
+          updateDoc(doc(strangerDb(), transactionPath), {
+            amountCents: 1,
+            updatedAt: serverTimestamp(),
+          }),
+        );
+      });
     });
   });
 });
