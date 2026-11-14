@@ -10,13 +10,13 @@ const PRIMARY_ENTRIES: NavEntry[] = [
   { path: '/', label: 'Painel', icon: 'layout-dashboard' },
   { path: '/transacoes', label: 'Transações', icon: 'arrow-left-right' },
   { path: '/contas', label: 'Contas', icon: 'wallet' },
-  { path: '/orcamentos', label: 'Orçamentos', icon: 'piggy-bank' },
+  { path: '/orcamentos', label: 'Orçamentos', icon: 'chart-pie' },
 ];
 
 export const MORE_ENTRIES: NavEntry[] = [
   { path: '/metas', label: 'Metas', icon: 'target' },
-  { path: '/relatorios', label: 'Relatórios', icon: 'chart-pie' },
-  { path: '/configuracoes', label: 'Configurações', icon: 'settings' },
+  { path: '/relatorios', label: 'Relatórios', icon: 'trending-up' },
+  { path: '/configuracoes', label: 'Configurações', icon: 'sliders-horizontal' },
 ];
 
 const MORE_PATH = '/mais';

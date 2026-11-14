@@ -2,7 +2,7 @@ import {
   addMonths,
   dateInMonth,
   formatDateBR,
-  formatMonthBR,
+  formatMonthTitleBR,
   formatMonthShortBR,
   isCalendarDate,
   lastDayOfMonth,
@@ -48,7 +48,8 @@ describe('calendarDate', () => {
 
   it('formats dates and months for display', () => {
     expect(formatDateBR('2026-03-05')).toBe('05/03/2026');
-    expect(formatMonthBR('2026-03')).toBe('março de 2026');
+    expect(formatMonthTitleBR('2026-03')).toBe('Março 2026');
+    expect(formatMonthTitleBR('2026-11')).toBe('Novembro 2026');
     expect(formatMonthShortBR('2026-03')).toBe('mar/26');
     expect(formatMonthShortBR('2027-12')).toBe('dez/27');
   });

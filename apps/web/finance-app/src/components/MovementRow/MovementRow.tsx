@@ -1,35 +1,44 @@
-import { Badge, Button } from '@industry/web';
+import { Badge, Button, Icon, IconBubble } from '@industry/web';
 import type { Account } from '../../domain/account';
+import { formatDateBR } from '../../domain/calendarDate';
 import type { Category } from '../../domain/category';
 import type { Transaction } from '../../domain/transaction';
 import { accountName, categoryName, signedAmount } from '../../domain/transactionList';
+import { movementIconName } from './movementIcon';
 
-interface TransactionRowProps {
+interface MovementActions {
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+interface MovementRowProps {
   transaction: Transaction;
   accounts: Account[];
   categories: Category[];
   pending: boolean;
   forecast: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  showDate: boolean;
+  actions: MovementActions | null;
 }
 
-export function TransactionRow({
+export function MovementRow({
   transaction,
   accounts,
   categories,
   pending,
   forecast,
-  onEdit,
-  onDelete,
-}: TransactionRowProps) {
+  showDate,
+  actions,
+}: MovementRowProps) {
   const isTransfer = transaction.kind === 'transfer';
   const category = isTransfer ? 'Transferência' : categoryName(categories, transaction.categoryId);
   const title = transaction.description || category;
   const account = accountName(accounts, transaction.accountId);
-  const detail = isTransfer
+  const where = isTransfer
     ? `${account} → ${accountName(accounts, transaction.toAccountId)}`
     : `${category} · ${account}`;
+  const detail = showDate ? `${formatDateBR(transaction.date)} · ${where}` : where;
+  const rowActions = forecast ? null : actions;
 
   return (
     <li
@@ -43,9 +52,22 @@ export function TransactionRow({
         borderBottom: '1px solid var(--color-divider)',
       }}
     >
+      <IconBubble size="sm">
+        <Icon name={movementIconName(transaction, { pending })} size="sm" />
+      </IconBubble>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div>{title}</div>
-        <div style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
+        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {title}
+        </div>
+        <div
+          style={{
+            fontSize: 'var(--text-h6)',
+            color: 'var(--color-neutral-400)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {detail}
         </div>
       </div>
@@ -61,16 +83,26 @@ export function TransactionRow({
       >
         {signedAmount(transaction)}
       </span>
-      {isTransfer || forecast ? null : (
-        <Button size="sm" variant="ghost" aria-label={`Editar ${title}`} onClick={onEdit}>
+      {rowActions && !isTransfer ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={`Editar ${title}`}
+          onClick={rowActions.onEdit}
+        >
           Editar
         </Button>
-      )}
-      {forecast ? null : (
-        <Button size="sm" variant="ghost" aria-label={`Excluir ${title}`} onClick={onDelete}>
+      ) : null}
+      {rowActions ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={`Excluir ${title}`}
+          onClick={rowActions.onDelete}
+        >
           Excluir
         </Button>
-      )}
+      ) : null}
     </li>
   );
 }

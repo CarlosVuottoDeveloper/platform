@@ -95,4 +95,10 @@ describe('MoneyField', () => {
 
     expect(screen.getByTestId('cents')).toHaveTextContent('99999999999');
   });
+
+  it('can show the amount in a large field', () => {
+    render(<MoneyField label="Valor" value={null} onChange={jest.fn()} size="lg" />);
+
+    expect(screen.getByLabelText('Valor').style.fontSize).toBe('var(--text-h3)');
+  });
 });

@@ -17,6 +17,7 @@ export function AppLayout() {
   ) : null;
   const newTransactionButton = (
     <Button variant="primary" onClick={() => setAddingTransaction(true)}>
+      <Icon name="plus" size="sm" />
       Nova movimentação
     </Button>
   );
@@ -38,7 +39,16 @@ export function AppLayout() {
               icon: <Icon name={entry.icon} size="sm" />,
             }))}
             footer={
-              <Button variant="ghost" onClick={logout} style={{ marginTop: 'auto' }}>
+              <Button
+                variant="ghost"
+                onClick={logout}
+                style={{
+                  marginTop: 'auto',
+                  alignSelf: 'flex-start',
+                  color: 'var(--color-accent-300)',
+                }}
+              >
+                <Icon name="log-out" size="sm" />
                 Sair
               </Button>
             }

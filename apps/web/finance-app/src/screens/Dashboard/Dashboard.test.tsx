@@ -125,7 +125,7 @@ describe('Dashboard', () => {
   it('summarises the current month: balance, income, expenses and expected balance', () => {
     renderSignedIn(<Dashboard />);
 
-    expect(screen.getByText('Março de 2026')).toBeInTheDocument();
+    expect(screen.getByText('Março 2026')).toBeInTheDocument();
     expect(tile('summary-balance').getByText(money('R$ 1.800,00'))).toBeInTheDocument();
     expect(tile('summary-income').getByText(money('R$ 1.150,00'))).toBeInTheDocument();
     expect(tile('summary-expense').getByText(money('R$ 150,00'))).toBeInTheDocument();
@@ -169,7 +169,7 @@ describe('Dashboard', () => {
 
     await user.click(screen.getByRole('button', { name: 'Mês anterior' }));
 
-    expect(screen.getByText('Fevereiro de 2026')).toBeInTheDocument();
+    expect(screen.getByText('Fevereiro 2026')).toBeInTheDocument();
     expect(tile('summary-income').getByText(money('R$ 800,00'))).toBeInTheDocument();
     expect(tile('summary-expense').getByText(money('R$ 0,00'))).toBeInTheDocument();
     expect(tile('summary-balance').getByText(money('R$ 800,00'))).toBeInTheDocument();

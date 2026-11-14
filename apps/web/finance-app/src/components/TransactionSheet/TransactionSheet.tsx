@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SegmentedControl, Select, TextField } from '@industry/web';
 import { useSignedInUser } from '../../context/AuthContext/AuthContext';
@@ -15,6 +16,7 @@ import {
   updateTransaction,
   updateTransactions,
 } from '../../services/transactionsService';
+import { useIsWideScreen } from '../../hooks/useIsWideScreen';
 import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
@@ -68,6 +70,22 @@ function selectable<T extends { id: string; name: string; archived: boolean }>(
   ];
 }
 
+function FieldPair({ isWide, children }: { isWide: boolean; children: ReactNode }) {
+  return (
+    <div
+      data-field-pair=""
+      style={{
+        display: 'grid',
+        gap: 'var(--space-4)',
+        gridTemplateColumns: isWide ? '1fr 1fr' : '1fr',
+        alignItems: 'start',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function initialValues(transaction: Transaction | undefined): TransactionFormValues {
   return {
     kind: transaction?.kind === 'income' ? 'income' : 'expense',
@@ -84,6 +102,7 @@ function initialValues(transaction: Transaction | undefined): TransactionFormVal
 
 export function TransactionSheet({ transaction, onClose }: TransactionSheetProps) {
   const user = useSignedInUser();
+  const isWide = useIsWideScreen();
   const submit = useSubmitWrite(onClose);
   const { accounts, categories, transactions } = useUserData();
   const activeAccounts = accounts.filter((account) => !account.archived);
@@ -172,6 +191,7 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
         name="kind"
         render={({ field }) => (
           <SegmentedControl
+            block
             name="kind"
             options={KIND_OPTIONS}
             value={field.value}
@@ -188,6 +208,7 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
         rules={{ validate: (value) => (value !== null && value > 0) || 'Informe o valor' }}
         render={({ field, fieldState }) => (
           <MoneyField
+            size="lg"
             label="Valor"
             value={field.value}
             error={fieldState.error?.message}
@@ -195,59 +216,63 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
           />
         )}
       />
-      <Controller
-        control={control}
-        name="date"
-        rules={{ validate: validateDate }}
-        render={({ field, fieldState }) => (
-          <TextField label="Data" type="date" error={fieldState.error?.message} {...field} />
-        )}
-      />
-      <Controller
-        control={control}
-        name="accountId"
-        rules={{ required: 'Escolha a conta' }}
-        render={({ field, fieldState }) => (
-          <Select
-            label="Conta"
-            options={selectable(accounts, transaction?.accountId)}
-            error={fieldState.error?.message}
-            {...field}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="categoryId"
-        rules={{ required: 'Escolha a categoria' }}
-        render={({ field, fieldState }) => (
-          <Select
-            label="Categoria"
-            options={selectable(categoriesOfKind, transaction?.categoryId)}
-            error={fieldState.error?.message}
-            {...field}
-          />
-        )}
-      />
-      {!transaction && kind === 'expense' ? (
+      <FieldPair isWide={isWide}>
         <Controller
           control={control}
-          name="installmentCount"
-          rules={{
-            validate: (count) =>
-              (getValues('amountCents') ?? 0) >= Number(count) ||
-              'Valor pequeno demais para esse número de parcelas',
-          }}
+          name="date"
+          rules={{ validate: validateDate }}
+          render={({ field, fieldState }) => (
+            <TextField label="Data" type="date" error={fieldState.error?.message} {...field} />
+          )}
+        />
+        {!transaction && kind === 'expense' ? (
+          <Controller
+            control={control}
+            name="installmentCount"
+            rules={{
+              validate: (count) =>
+                (getValues('amountCents') ?? 0) >= Number(count) ||
+                'Valor pequeno demais para esse número de parcelas',
+            }}
+            render={({ field, fieldState }) => (
+              <Select
+                label="Parcelar em"
+                options={INSTALLMENT_OPTIONS}
+                error={fieldState.error?.message}
+                {...field}
+              />
+            )}
+          />
+        ) : null}
+      </FieldPair>
+      <FieldPair isWide={isWide}>
+        <Controller
+          control={control}
+          name="accountId"
+          rules={{ required: 'Escolha a conta' }}
           render={({ field, fieldState }) => (
             <Select
-              label="Parcelar em"
-              options={INSTALLMENT_OPTIONS}
+              label="Conta"
+              options={selectable(accounts, transaction?.accountId)}
               error={fieldState.error?.message}
               {...field}
             />
           )}
         />
-      ) : null}
+        <Controller
+          control={control}
+          name="categoryId"
+          rules={{ required: 'Escolha a categoria' }}
+          render={({ field, fieldState }) => (
+            <Select
+              label="Categoria"
+              options={selectable(categoriesOfKind, transaction?.categoryId)}
+              error={fieldState.error?.message}
+              {...field}
+            />
+          )}
+        />
+      </FieldPair>
       {followingInstallments.length > 0 ? (
         <Controller
           control={control}
@@ -261,7 +286,12 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
         control={control}
         name="description"
         render={({ field }) => (
-          <TextField label="Descrição (opcional)" maxLength={140} {...field} />
+          <TextField
+            label="Descrição (opcional)"
+            placeholder="Ex.: Mercado da semana"
+            maxLength={140}
+            {...field}
+          />
         )}
       />
       <Controller

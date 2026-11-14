@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TextField } from '@industry/web';
+import type { TextFieldSize } from '@industry/web';
 import {
   MAX_AMOUNT_CENTS,
   formatCents,
@@ -13,9 +14,10 @@ interface MoneyFieldProps {
   value: Cents | null;
   onChange: (value: Cents | null, text: string) => void;
   error?: string;
+  size?: TextFieldSize;
 }
 
-export function MoneyField({ label, value, onChange, error }: MoneyFieldProps) {
+export function MoneyField({ label, value, onChange, error, size }: MoneyFieldProps) {
   const [text, setText] = useState(value === null ? '' : formatCentsPlain(value));
   const [unreadable, setUnreadable] = useState(false);
   const cents = parseBRLToCents(text);
@@ -46,6 +48,7 @@ export function MoneyField({ label, value, onChange, error }: MoneyFieldProps) {
     <TextField
       label={label}
       value={text}
+      size={size}
       inputMode="decimal"
       placeholder="0,00"
       hint={cents !== null && !overLimit ? formatCents(cents) : undefined}

@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { logout, subscribeToAuthChanges } from './services/authService';
 import { AppRoutes } from './routes';
@@ -99,6 +99,17 @@ describe('AppRoutes', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sair' }));
 
     expect(logout).toHaveBeenCalledTimes(1);
+  });
+
+  it('marks sign out and the new movement button with their icons on a wide screen', async () => {
+    mockSignedInAs(testUser);
+    renderWithProviders(<AppRoutes />);
+
+    const signOut = screen.getByRole('button', { name: 'Sair' });
+    const newMovement = screen.getByRole('button', { name: 'Nova movimentação' });
+    await waitFor(() => expect(signOut.querySelector('svg')).not.toBeNull());
+    await waitFor(() => expect(newMovement.querySelector('svg')).not.toBeNull());
+    expect(signOut.style.color).toBe('var(--color-accent-300)');
   });
 
   it('uses a five-entry bottom tab bar on a narrow screen', async () => {
