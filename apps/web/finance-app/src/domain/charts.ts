@@ -10,8 +10,8 @@ import { categoryName } from './transactionList';
 
 const UNKNOWN_CATEGORY_COLOR = 'viz-6';
 
-export interface CategoryExpense {
-  categoryId: string;
+interface CategoryExpense {
+  categoryId: string | null;
   label: string;
   color: string;
   totalCents: Cents;
@@ -23,15 +23,15 @@ export function expensesByCategory(
   from: CalendarDate,
   to: CalendarDate,
 ): CategoryExpense[] {
-  const totals = new Map<string, Cents>();
+  const totals = new Map<string | null, Cents>();
   transactions
     .filter(
       (transaction) =>
         transaction.kind === 'expense' && transaction.date >= from && transaction.date <= to,
     )
     .forEach((transaction) => {
-      const categoryId = transaction.categoryId ?? '';
-      totals.set(categoryId, (totals.get(categoryId) ?? 0) + transaction.amountCents);
+      const previous = totals.get(transaction.categoryId) ?? 0;
+      totals.set(transaction.categoryId, previous + transaction.amountCents);
     });
 
   return [...totals.entries()]

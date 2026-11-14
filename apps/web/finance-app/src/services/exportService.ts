@@ -51,12 +51,16 @@ export async function downloadPdf(
     import('jspdf'),
     import('jspdf-autotable'),
   ]);
-  const [head = [], ...body] = rows;
   const pdf = new jsPDF({ orientation: 'landscape' });
   pdf.setFontSize(14);
   pdf.text(title, 14, 16);
   pdf.setFontSize(10);
   pdf.text(totals.join('   '), 14, 24);
-  autoTable(pdf, { head: [head], body, startY: 30, styles: { fontSize: 8 } });
+  autoTable(pdf, {
+    head: rows.slice(0, 1),
+    body: rows.slice(1),
+    startY: 30,
+    styles: { fontSize: 8 },
+  });
   pdf.save(filename);
 }

@@ -28,7 +28,7 @@ export function TransactionRow({
   const title = transaction.description || category;
   const account = accountName(accounts, transaction.accountId);
   const detail = isTransfer
-    ? `${account} → ${accountName(accounts, transaction.toAccountId ?? '')}`
+    ? `${account} → ${accountName(accounts, transaction.toAccountId)}`
     : `${category} · ${account}`;
 
   return (

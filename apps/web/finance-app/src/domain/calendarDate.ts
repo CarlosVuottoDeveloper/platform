@@ -57,11 +57,10 @@ export function formatMonthBR(month: YearMonth): string {
 }
 
 export function formatMonthShortBR(month: YearMonth): string {
-  const [year = '0', monthNumber = '1'] = month.split('-');
   const name = new Intl.DateTimeFormat('pt-BR', { month: 'short' })
-    .format(new Date(Number(year), Number(monthNumber) - 1, 1))
+    .format(new Date(yearOf(month), monthNumberOf(month) - 1, 1))
     .replace('.', '');
-  return `${name}/${year.slice(2)}`;
+  return `${name}/${month.slice(2, 4)}`;
 }
 
 export function isCalendarDate(text: string): boolean {

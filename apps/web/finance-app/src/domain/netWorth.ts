@@ -8,7 +8,7 @@ import type { Transaction } from './transaction';
 
 const MAX_MONTHS = 12;
 
-export interface NetWorthEntry {
+interface NetWorthEntry {
   month: YearMonth;
   assetsCents: Cents;
   liabilitiesCents: Cents;
@@ -25,8 +25,9 @@ export function netWorthByMonth(
   if (accounts.length === 0) return [];
 
   const currentMonth = yearMonthOf(today);
-  const oldestMonth =
-    accounts.map((account) => yearMonthOf(account.openingDate)).sort()[0] ?? currentMonth;
+  const oldestMonth = accounts
+    .map((account) => yearMonthOf(account.openingDate))
+    .reduce((oldest, month) => (month < oldest ? month : oldest));
   const windowStart = addMonths(currentMonth, 1 - MAX_MONTHS);
   const firstMonth = oldestMonth > windowStart ? oldestMonth : windowStart;
 

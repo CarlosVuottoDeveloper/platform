@@ -37,7 +37,7 @@ export const REPORT_HEADER = [
   'Tags',
 ];
 
-export const KIND_LABELS: Record<TransactionKind, string> = {
+const KIND_LABELS: Record<TransactionKind, string> = {
   income: 'Receita',
   expense: 'Despesa',
   transfer: 'Transferência',
@@ -91,7 +91,7 @@ export function reportEntries(
       description: transaction.description,
       category: isTransfer ? '' : categoryName(categories, transaction.categoryId),
       account: accountName(accounts, transaction.accountId),
-      toAccount: isTransfer ? accountName(accounts, transaction.toAccountId ?? '') : '',
+      toAccount: isTransfer ? accountName(accounts, transaction.toAccountId) : '',
       amountCents: transaction.amountCents,
       tags: transaction.tags.join(', '),
     };
