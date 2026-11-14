@@ -306,4 +306,24 @@ describe('Sheet', () => {
 
     expect(screen.getByRole('textbox', { name: 'Valor' })).toHaveFocus();
   });
+
+  it('lets only the innermost of two nested sheets react to Escape', async () => {
+    const outer = jest.fn();
+    const inner = jest.fn();
+    render(
+      <Sheet title="Fora" onDismiss={outer}>
+        <Sheet title="Dentro" onDismiss={inner}>
+          <input aria-label="Valor" />
+        </Sheet>
+      </Sheet>,
+    );
+    const [outerClose, innerClose] = screen.getAllByRole('button', { name: 'Fechar' });
+    await waitFor(() => expect(outerClose?.querySelector('svg')).not.toBeNull());
+    await waitFor(() => expect(innerClose?.querySelector('svg')).not.toBeNull());
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Valor' }), { key: 'Escape' });
+
+    expect(inner).toHaveBeenCalledTimes(1);
+    expect(outer).not.toHaveBeenCalled();
+  });
 });
