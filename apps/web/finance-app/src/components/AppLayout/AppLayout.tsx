@@ -1,24 +1,8 @@
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { AppShell, Button, Icon, Sidebar, TabBar } from '@industry/web';
-import type { IconName } from '@industry/web';
 import { useAuth } from '../../context/AuthContext/AuthContext';
 import { useIsWideScreen } from '../../hooks/useIsWideScreen';
-
-interface NavEntry {
-  path: string;
-  label: string;
-  icon: IconName;
-}
-
-export const NAV_ENTRIES: NavEntry[] = [
-  { path: '/', label: 'Painel', icon: 'layout-dashboard' },
-  { path: '/transacoes', label: 'Transações', icon: 'arrow-left-right' },
-  { path: '/contas', label: 'Contas', icon: 'wallet' },
-  { path: '/orcamentos', label: 'Orçamentos', icon: 'piggy-bank' },
-  { path: '/metas', label: 'Metas', icon: 'target' },
-  { path: '/relatorios', label: 'Relatórios', icon: 'chart-pie' },
-  { path: '/configuracoes', label: 'Configurações', icon: 'settings' },
-];
+import { SIDEBAR_ENTRIES, TAB_BAR_ENTRIES, currentTab } from './navigation';
 
 export function AppLayout() {
   const { logout } = useAuth();
@@ -35,7 +19,7 @@ export function AppLayout() {
             brand="Finanças"
             current={pathname}
             onSelect={navigate}
-            items={NAV_ENTRIES.map((entry) => ({
+            items={SIDEBAR_ENTRIES.map((entry) => ({
               id: entry.path,
               href: entry.path,
               label: entry.label,
@@ -62,10 +46,10 @@ export function AppLayout() {
         <Outlet />
       </main>
       <TabBar
-        style={{ position: 'sticky', bottom: 0, overflowX: 'auto' }}
-        current={pathname}
+        style={{ position: 'sticky', bottom: 0 }}
+        current={currentTab(pathname)}
         onSelect={navigate}
-        items={NAV_ENTRIES.map((entry) => ({
+        items={TAB_BAR_ENTRIES.map((entry) => ({
           id: entry.path,
           label: entry.label,
           icon: <Icon name={entry.icon} size="sm" />,
