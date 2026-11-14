@@ -3,4 +3,13 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          return id.includes('/lucide-react/dist/esm/icons/') ? 'icons' : undefined;
+        },
+      },
+    },
+  },
 });

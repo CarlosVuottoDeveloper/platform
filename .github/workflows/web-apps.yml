@@ -39,6 +39,16 @@ jobs:
       - name: Test
         run: yarn workspace @app/finance test --runInBand
 
+      - name: Build stays under the Vercel upload limit
+        run: |
+          yarn workspace @app/finance build
+          count=$(find apps/web/finance-app/dist -type f | wc -l)
+          echo "finance-app build: $count files"
+          if [ "$count" -gt 200 ]; then
+            echo "::error::The build has $count files; the Vercel free plan accepts 5000 uploads a day, so keep it under 200."
+            exit 1
+          fi
+
   finance-app-rules:
     name: finance-app — Firestore rules (emulator)
     runs-on: ubuntu-latest
