@@ -88,7 +88,7 @@ jobs:
         id: deploy
         working-directory: apps/web/finance-app
         run: |
-          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          URL=$(vercel deploy --prebuilt --prod --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> $GITHUB_OUTPUT
 
       - name: Add URL to job summary
