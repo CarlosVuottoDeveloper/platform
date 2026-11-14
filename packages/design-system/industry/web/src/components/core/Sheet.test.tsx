@@ -1,5 +1,13 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { ReactElement } from 'react';
 import { Sheet } from './Sheet';
+
+async function renderSheet(ui: ReactElement) {
+  const result = render(ui);
+  const close = screen.getByRole('button', { name: 'Fechar' });
+  await waitFor(() => expect(close.querySelector('svg')).not.toBeNull());
+  return result;
+}
 
 describe('Sheet', () => {
   it('renders nothing when closed', () => {
@@ -26,9 +34,9 @@ describe('Sheet', () => {
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
   });
 
-  it('calls onDismiss when the backdrop is clicked', () => {
+  it('calls onDismiss when the backdrop is clicked', async () => {
     const onDismiss = jest.fn();
-    render(
+    await renderSheet(
       <Sheet title="Título" onDismiss={onDismiss}>
         Conteúdo
       </Sheet>,
@@ -39,9 +47,9 @@ describe('Sheet', () => {
     expect(onDismiss).toHaveBeenCalled();
   });
 
-  it('does not call onDismiss when the sheet body is clicked', () => {
+  it('does not call onDismiss when the sheet body is clicked', async () => {
     const onDismiss = jest.fn();
-    render(
+    await renderSheet(
       <Sheet title="Título" onDismiss={onDismiss}>
         Conteúdo
       </Sheet>,
@@ -76,5 +84,156 @@ describe('Sheet', () => {
     );
 
     expect(screen.getByRole('dialog')).toHaveStyle({ maxWidth: '480px' });
+  });
+
+  it('offers a close button that dismisses the sheet', async () => {
+    const onDismiss = jest.fn();
+    await renderSheet(
+      <Sheet title="Título" onDismiss={onDismiss}>
+        Conteúdo
+      </Sheet>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no close button when it cannot be dismissed', () => {
+    render(<Sheet title="Título">Conteúdo</Sheet>);
+
+    expect(screen.queryByRole('button', { name: 'Fechar' })).not.toBeInTheDocument();
+  });
+
+  it('dismisses on Escape', async () => {
+    const onDismiss = jest.fn();
+    await renderSheet(
+      <Sheet title="Título" onDismiss={onDismiss}>
+        Conteúdo
+      </Sheet>,
+    );
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('is named by its title', () => {
+    render(<Sheet title="Nova movimentação">Conteúdo</Sheet>);
+
+    expect(screen.getByRole('dialog', { name: 'Nova movimentação' })).toBeInTheDocument();
+  });
+
+  it('focuses the first control of the content, not the close button', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+        <button type="button">Salvar</button>
+      </Sheet>,
+    );
+
+    expect(screen.getByRole('textbox', { name: 'Valor' })).toHaveFocus();
+  });
+
+  it('focuses the close button when the content has no control', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <p>Só texto</p>
+      </Sheet>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Fechar' })).toHaveFocus();
+  });
+
+  it('skips disabled controls when choosing the first focus', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <button type="button" disabled>
+          Inativo
+        </button>
+        <button type="button">Ativo</button>
+      </Sheet>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Ativo' })).toHaveFocus();
+  });
+
+  it('wraps Tab from the last control back to the first', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+        <button type="button">Salvar</button>
+      </Sheet>,
+    );
+    const last = screen.getByRole('button', { name: 'Salvar' });
+    act(() => last.focus());
+
+    fireEvent.keyDown(last, { key: 'Tab' });
+
+    expect(screen.getByRole('button', { name: 'Fechar' })).toHaveFocus();
+  });
+
+  it('wraps Shift+Tab from the first control to the last', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+        <button type="button">Salvar</button>
+      </Sheet>,
+    );
+    const first = screen.getByRole('button', { name: 'Fechar' });
+    act(() => first.focus());
+
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+
+    expect(screen.getByRole('button', { name: 'Salvar' })).toHaveFocus();
+  });
+
+  it('leaves Tab alone between controls in the middle', async () => {
+    await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+        <button type="button">Salvar</button>
+      </Sheet>,
+    );
+    const middle = screen.getByRole('textbox', { name: 'Valor' });
+    act(() => middle.focus());
+
+    const notPrevented = fireEvent.keyDown(middle, { key: 'Tab' });
+
+    expect(notPrevented).toBe(true);
+    expect(middle).toHaveFocus();
+  });
+
+  it('returns focus to the element that opened it once closed', async () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    const { unmount } = await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+      </Sheet>,
+    );
+    expect(screen.getByRole('textbox', { name: 'Valor' })).toHaveFocus();
+
+    unmount();
+
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+
+  it('closes quietly when the element that opened it is gone', async () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    const { rerender } = await renderSheet(
+      <Sheet title="Título" onDismiss={() => undefined}>
+        <input aria-label="Valor" />
+      </Sheet>,
+    );
+    expect(screen.getByRole('textbox', { name: 'Valor' })).toHaveFocus();
+    opener.remove();
+
+    expect(() => rerender(<Sheet open={false}>Conteúdo</Sheet>)).not.toThrow();
+    expect(document.body).toHaveFocus();
   });
 });
