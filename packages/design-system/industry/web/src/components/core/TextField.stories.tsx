@@ -40,3 +40,11 @@ export const Multiline: Story = {
     </div>
   ),
 };
+
+export const Large: Story = {
+  render: () => (
+    <div style={{ width: 360 }}>
+      <TextField label="Valor" size="lg" placeholder="R$ 0,00" />
+    </div>
+  ),
+};

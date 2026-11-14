@@ -13,15 +13,18 @@ import {
   resolveFieldFrameStyle,
 } from './fieldFrame';
 
+export type TextFieldSize = 'md' | 'lg';
+
 export interface TextFieldProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'style' | 'children' | 'onFocus' | 'onBlur'
+  'style' | 'children' | 'onFocus' | 'onBlur' | 'size'
 > {
   label?: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
   multiline?: boolean;
   rows?: number;
+  size?: TextFieldSize;
   style?: CSSProperties;
   onFocus?: (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onBlur?: (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -33,6 +36,7 @@ export function TextField({
   error,
   multiline,
   rows = 3,
+  size = 'md',
   id,
   disabled,
   style,
@@ -47,13 +51,14 @@ export function TextField({
   const hintId = `${fid}-hint`;
   const describedBy = error || hint ? hintId : undefined;
 
+  const isLarge = size === 'lg' && !multiline;
   const fieldStyle: CSSProperties = {
     ...resolveFieldFrameStyle({ focused, hovered, invalid: Boolean(error), disabled }),
     width: '100%',
-    minHeight: multiline ? 104 : 'var(--control-h)',
+    minHeight: multiline ? 104 : isLarge ? 'calc(var(--control-h) * 1.5)' : 'var(--control-h)',
     padding: multiline ? 'var(--space-2) var(--space-3)' : '0 var(--space-3)',
     font: 'inherit',
-    fontSize: 'var(--text-body)',
+    fontSize: isLarge ? 'var(--text-h3)' : 'var(--text-body)',
     color: 'var(--color-text)',
     caretColor: 'var(--color-accent)',
     resize: multiline ? 'vertical' : undefined,
