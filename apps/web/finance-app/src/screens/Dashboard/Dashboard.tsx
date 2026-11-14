@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { Card, EmptyState, GradientSurface, Icon, PieChart, StatTile } from '@industry/web';
 import type { IconName } from '@industry/web';
+import { CardHeading } from '../../components/CardHeading/CardHeading';
 import { BudgetStatusBadge } from '../../components/BudgetStatusBadge/BudgetStatusBadge';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
 import { MovementRow } from '../../components/MovementRow/MovementRow';
@@ -189,7 +190,7 @@ export function Dashboard() {
           role="region"
           aria-label="Últimas movimentações"
           elevation="sm"
-          title="Últimas movimentações"
+          title={<CardHeading>Últimas movimentações</CardHeading>}
           action={<CardLink to="/transacoes">Ver todas</CardLink>}
         >
           {latest.length === 0 ? (
@@ -219,7 +220,7 @@ export function Dashboard() {
               role="region"
               aria-label="Orçamentos em alerta"
               elevation="sm"
-              title="Orçamentos em alerta"
+              title={<CardHeading>Orçamentos em alerta</CardHeading>}
               action={<CardLink to="/orcamentos">Ver orçamentos</CardLink>}
             >
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -245,7 +246,7 @@ export function Dashboard() {
             role="region"
             aria-label="Despesas por categoria"
             elevation="sm"
-            title="Despesas por categoria"
+            title={<CardHeading>Despesas por categoria</CardHeading>}
           >
             {spending.length === 0 ? (
               <EmptyState title="Sem despesas neste mês" />

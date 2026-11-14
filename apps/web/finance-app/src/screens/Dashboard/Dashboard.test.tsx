@@ -310,6 +310,22 @@ describe('Dashboard', () => {
       expect(latest.queryByRole('button')).not.toBeInTheDocument();
     });
 
+    it('gives each card a section heading for screen readers', () => {
+      jest
+        .mocked(subscribeToBudgets)
+        .mockImplementation(publish([{ id: 'c1', categoryId: 'c1', limitCents: 100000 }]));
+
+      renderSignedIn(<Dashboard />);
+
+      for (const name of [
+        'Últimas movimentações',
+        'Orçamentos em alerta',
+        'Despesas por categoria',
+      ]) {
+        expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
+      }
+    });
+
     it('keeps the card links on one line without underline', () => {
       renderSignedIn(<Dashboard />);
 
