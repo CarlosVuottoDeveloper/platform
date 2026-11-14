@@ -85,6 +85,9 @@ export type { RingProgressProps } from './RingProgress';
 export { AreaChart } from './AreaChart';
 export type { AreaChartProps, AreaChartPoint } from './AreaChart';
 
+export { IconBubble } from './IconBubble';
+export type { IconBubbleProps, IconBubbleSize } from './IconBubble';
+
 export { StatTile } from './StatTile';
 export type { StatTileProps } from './StatTile';
 

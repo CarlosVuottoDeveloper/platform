@@ -20,6 +20,14 @@ describe('StatTile', () => {
     expect(circle.style.background).toBe('var(--color-accent-800)');
   });
 
+  it('lets a long value wrap inside the tile instead of overflowing', () => {
+    render(<StatTile value="R$ 999.999.999,99" label="Saldo" testID="tile" />);
+
+    const text = screen.getByText('R$ 999.999.999,99').parentElement;
+    expect(text?.style.minWidth).toBe('0');
+    expect(text?.style.overflowWrap).toBe('anywhere');
+  });
+
   it('does not reserve the circle without an icon', () => {
     render(<StatTile value="1" label="x" testID="tile" />);
 

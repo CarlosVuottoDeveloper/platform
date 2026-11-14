@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { IconBubble } from './IconBubble';
 
 export interface StatTileProps {
   icon?: ReactNode;
@@ -14,24 +15,8 @@ export function StatTile({ icon, value, label, style, testID }: StatTileProps) {
       data-testid={testID}
       style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', ...style }}
     >
-      {icon ? (
-        <div
-          data-testid={testID ? `${testID}-icon` : undefined}
-          style={{
-            width: 'var(--control-h-sm)',
-            height: 'var(--control-h-sm)',
-            flexShrink: 0,
-            borderRadius: 'var(--radius-pill)',
-            background: 'var(--color-accent-800)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {icon}
-        </div>
-      ) : null}
-      <div>
+      {icon ? <IconBubble testID={testID ? `${testID}-icon` : undefined}>{icon}</IconBubble> : null}
+      <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
         <div
           style={{
             fontFamily: 'var(--font-heading)',
