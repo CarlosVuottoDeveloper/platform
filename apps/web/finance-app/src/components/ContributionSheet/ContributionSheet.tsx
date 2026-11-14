@@ -1,11 +1,11 @@
 import { Controller, useForm } from 'react-hook-form';
 import { TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Goal } from '../../domain/goal';
 import type { Cents } from '../../domain/money';
 import { addContribution } from '../../services/goalsService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 
@@ -15,8 +15,8 @@ interface ContributionSheetProps {
 }
 
 export function ContributionSheet({ goal, onClose }: ContributionSheetProps) {
-  const { user } = useAuth();
-  const { showToast } = useToast();
+  const user = useSignedInUser();
+  const submit = useSubmitWrite(onClose);
   const {
     control,
     handleSubmit,
@@ -26,16 +26,14 @@ export function ContributionSheet({ goal, onClose }: ContributionSheetProps) {
   });
 
   async function save(values: { amountCents: Cents | null; date: string }) {
-    if (!user || values.amountCents === null) return;
-    try {
+    const { amountCents } = values;
+    if (amountCents === null) return;
+    await submit(async () => {
       await addContribution(user.uid, goal.id, {
-        amountCents: values.amountCents,
+        amountCents,
         date: values.date,
       });
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (

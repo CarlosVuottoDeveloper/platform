@@ -1,5 +1,7 @@
 export type Cents = number;
 
+export const MAX_AMOUNT_CENTS: Cents = 99_999_999_999;
+
 const GROUPED_INTEGER = /^\d{1,3}(\.\d{3})+$/;
 const PLAIN_INTEGER = /^\d+$/;
 const DOT_DECIMAL = /^\d+\.\d{1,2}$/;

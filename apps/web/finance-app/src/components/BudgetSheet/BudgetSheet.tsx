@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import type { Budget } from '../../domain/budget';
 import type { Category } from '../../domain/category';
@@ -16,7 +16,7 @@ interface BudgetSheetProps {
 }
 
 export function BudgetSheet({ category, budget, onClose }: BudgetSheetProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const {
     control,
@@ -27,7 +27,6 @@ export function BudgetSheet({ category, budget, onClose }: BudgetSheetProps) {
   });
 
   async function run(action: (uid: string) => Promise<void>) {
-    if (!user) return;
     try {
       await action(user.uid);
       onClose();

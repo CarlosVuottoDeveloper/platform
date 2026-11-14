@@ -9,3 +9,5 @@ export const firebaseOptions: FirebaseOptions = {
 };
 
 export const useEmulators = import.meta.env.VITE_USE_EMULATORS === 'true';
+
+export const recaptchaSiteKey: string | undefined = import.meta.env.VITE_RECAPTCHA_SITE_KEY;

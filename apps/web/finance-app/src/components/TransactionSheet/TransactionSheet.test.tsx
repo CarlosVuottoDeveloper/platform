@@ -321,6 +321,31 @@ describe('TransactionSheet', () => {
       expect(updateTransaction).not.toHaveBeenCalled();
     });
 
+    it('keeps each following instalment at its own amount when the amount was not edited', async () => {
+      jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
+      jest.mocked(updateTransactions).mockResolvedValue();
+      renderSignedIn(<TransactionSheet transaction={first} onClose={onClose} />);
+
+      await userEvent.type(screen.getByLabelText('Descrição (opcional)'), 'Notebook');
+      await userEvent.selectOptions(screen.getByLabelText('Aplicar a'), 'Esta e as seguintes');
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+      expect(updateTransactions).toHaveBeenCalledWith(testUser.uid, [
+        {
+          id: 'i1',
+          input: expect.objectContaining({ amountCents: 3334, description: 'Notebook' }),
+        },
+        {
+          id: 'i2',
+          input: expect.objectContaining({ amountCents: 3333, description: 'Notebook' }),
+        },
+        {
+          id: 'i3',
+          input: expect.objectContaining({ amountCents: 3333, description: 'Notebook' }),
+        },
+      ]);
+    });
+
     it('edits only this instalment by default', async () => {
       jest.mocked(subscribeToTransactions).mockImplementation(publish([first, second, third]));
       jest.mocked(updateTransaction).mockResolvedValue();
@@ -342,5 +367,36 @@ describe('TransactionSheet', () => {
 
       expect(screen.queryByLabelText('Aplicar a')).not.toBeInTheDocument();
     });
+  });
+
+  it('includes a tag left unconfirmed in the tag field when saving', async () => {
+    jest.mocked(createTransaction).mockResolvedValue('t-new');
+    renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '10');
+    await userEvent.selectOptions(screen.getByLabelText('Conta'), 'Nubank');
+    await userEvent.selectOptions(screen.getByLabelText('Categoria'), 'Alimentação');
+    await userEvent.type(screen.getByLabelText('Tags'), 'viagem');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(createTransaction).toHaveBeenCalledWith(
+      testUser.uid,
+      expect.objectContaining({ tags: ['viagem'] }),
+    );
+  });
+
+  it('refuses to split an amount into more instalments than it has cents', async () => {
+    renderSignedIn(<TransactionSheet onClose={onClose} />);
+
+    await userEvent.type(screen.getByLabelText('Valor'), '0,05');
+    await userEvent.selectOptions(screen.getByLabelText('Conta'), 'Nubank');
+    await userEvent.selectOptions(screen.getByLabelText('Categoria'), 'Alimentação');
+    await userEvent.selectOptions(screen.getByLabelText('Parcelar em'), '10x');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(
+      await screen.findByText('Valor pequeno demais para esse número de parcelas'),
+    ).toBeInTheDocument();
+    expect(createInstallments).not.toHaveBeenCalled();
   });
 });

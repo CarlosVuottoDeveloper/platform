@@ -3,15 +3,11 @@ import { EmptyState, SearchField } from '@industry/web';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { MonthSwitcher } from '../../components/MonthSwitcher/MonthSwitcher';
 import { TransactionSheet } from '../../components/TransactionSheet/TransactionSheet';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
+import { useToday } from '../../hooks/useToday';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
-import {
-  formatDateBR,
-  lastDayOfMonth,
-  toCalendarDate,
-  yearMonthOf,
-} from '../../domain/calendarDate';
+import { formatDateBR, lastDayOfMonth, yearMonthOf } from '../../domain/calendarDate';
 import { installmentsFrom } from '../../domain/installment';
 import { projectedOccurrences } from '../../domain/recurrence';
 import type { Transaction } from '../../domain/transaction';
@@ -30,10 +26,10 @@ type SheetState =
   | { mode: 'delete'; transaction: Transaction };
 
 export function Transactions() {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const { accounts, categories, recurrences, transactions } = useUserData();
-  const today = toCalendarDate(new Date());
+  const today = useToday();
   const [month, setMonth] = useState(yearMonthOf(today));
   const [search, setSearch] = useState('');
   const [sheet, setSheet] = useState<SheetState>({ mode: 'closed' });
@@ -52,7 +48,6 @@ export function Transactions() {
   }
 
   async function confirmDelete(toDelete: Transaction[]) {
-    if (!user) return;
     closeSheet();
     try {
       await deleteTransactions(

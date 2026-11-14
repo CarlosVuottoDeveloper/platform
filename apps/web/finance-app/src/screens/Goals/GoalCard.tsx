@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Card, RingProgress } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useToast } from '../../context/ToastContext/ToastContext';
 import { formatDateBR } from '../../domain/calendarDate';
 import { goalProgress } from '../../domain/goal';
@@ -16,9 +16,9 @@ interface GoalCardProps {
 }
 
 function useContributions(goalId: string): Contribution[] {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
-  const uid = user?.uid;
+  const { uid } = user;
   const [contributions, setContributions] = useState<Contribution[]>([]);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function useContributions(goalId: string): Contribution[] {
 }
 
 export function GoalCard({ goal, onEdit, onContribute, onDelete }: GoalCardProps) {
-  const { user } = useAuth();
+  const user = useSignedInUser();
   const { showToast } = useToast();
   const contributions = useContributions(goal.id);
   const progress = goalProgress(goal, contributions);
@@ -39,7 +39,6 @@ export function GoalCard({ goal, onEdit, onContribute, onDelete }: GoalCardProps
   const newestFirst = [...contributions].sort((a, b) => b.date.localeCompare(a.date));
 
   async function removeContribution(contribution: Contribution) {
-    if (!user) return;
     try {
       await deleteContribution(user.uid, goal.id, contribution.id);
     } catch {

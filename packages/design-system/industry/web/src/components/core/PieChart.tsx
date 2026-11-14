@@ -125,7 +125,7 @@ export function PieChart({
                 const dimmed = activeIndex !== null && activeIndex !== index;
                 return (
                   <circle
-                    key={slice.label}
+                    key={`${index}-${slice.label}`}
                     data-slice={slice.label}
                     cx={CENTER}
                     cy={CENTER}
@@ -179,7 +179,7 @@ export function PieChart({
           const formatted = valueFormatter(slice.value);
           return (
             <button
-              key={slice.label}
+              key={`${index}-${slice.label}`}
               type="button"
               aria-pressed={active}
               aria-label={`${slice.label}: ${formatted}, ${percents[index]}%`}

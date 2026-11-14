@@ -1,8 +1,8 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router';
-import { Spinner } from '@industry/web';
+import { Button, EmptyState, Spinner } from '@industry/web';
 import { AppLayout } from './components/AppLayout/AppLayout';
 import { useAuth } from './context/AuthContext/AuthContext';
-import { UserDataProvider } from './context/UserDataContext/UserDataContext';
+import { UserDataProvider, useUserData } from './context/UserDataContext/UserDataContext';
 import { Accounts } from './screens/Accounts/Accounts';
 import { Budgets } from './screens/Budgets/Budgets';
 import { Dashboard } from './screens/Dashboard/Dashboard';
@@ -21,12 +21,33 @@ function SessionLoading() {
   );
 }
 
+function UserDataGate() {
+  const { loading, failed } = useUserData();
+
+  if (failed) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+        <EmptyState
+          title="Não foi possível carregar seus dados"
+          body="Verifique sua conexão e tente novamente."
+          action={
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Tentar de novo
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+  return loading ? <SessionLoading /> : <Outlet />;
+}
+
 function RequireSignedIn() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   return (
     <UserDataProvider>
-      <Outlet />
+      <UserDataGate />
     </UserDataProvider>
   );
 }

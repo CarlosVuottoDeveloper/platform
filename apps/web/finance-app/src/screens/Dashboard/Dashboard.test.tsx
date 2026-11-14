@@ -212,4 +212,61 @@ describe('Dashboard', () => {
 
     expect(screen.queryByRole('region', { name: 'Orçamentos em alerta' })).not.toBeInTheDocument();
   });
+
+  it('names a movement without description by its category, or as a transfer', () => {
+    mockData(
+      [account],
+      [
+        tx({
+          id: 'n1',
+          kind: 'expense',
+          date: '2026-03-02',
+          accountId: 'a',
+          categoryId: 'c1',
+          description: '',
+        }),
+        tx({
+          id: 'n2',
+          kind: 'transfer',
+          date: '2026-03-01',
+          accountId: 'a',
+          toAccountId: 'b',
+          description: '',
+        }),
+      ],
+      [],
+    );
+
+    renderSignedIn(<Dashboard />);
+
+    const latest = within(screen.getByRole('region', { name: 'Últimas movimentações' }));
+    expect(latest.getByText('Moradia')).toBeInTheDocument();
+    expect(latest.getByText('Transferência')).toBeInTheDocument();
+  });
+
+  it('says so when there are no movements yet', () => {
+    mockData([account], [], []);
+
+    renderSignedIn(<Dashboard />);
+
+    expect(screen.getByText('Nenhuma movimentação ainda.')).toBeInTheDocument();
+  });
+
+  it('leaves out alerts of budgets whose category was archived or removed', () => {
+    jest
+      .mocked(subscribeToCategories)
+      .mockImplementation(
+        publish([{ ...categories[0], archived: true } as Category, categories[1] as Category]),
+      );
+    jest.mocked(subscribeToBudgets).mockImplementation(
+      publish([
+        { id: 'c1', categoryId: 'c1', limitCents: 1000 },
+        { id: 'gone', categoryId: 'gone', limitCents: 1000 },
+      ]),
+    );
+
+    renderSignedIn(<Dashboard />);
+
+    expect(screen.queryByRole('region', { name: 'Orçamentos em alerta' })).not.toBeInTheDocument();
+  });
 });

@@ -31,9 +31,13 @@ jobs:
           - name: finance-app
             path: apps/web/finance-app
             build: yarn workspace @industry/tokens build && yarn workspace @industry/web build
-            # main.tsx only mounts the app, firebase.ts only initializes the SDK at module load and firebaseConfig.ts only reads
-            # import.meta.env, which Jest's CommonJS transform cannot parse.
-            exclude_pattern: 'src/main\.tsx$|vite\.config\.ts$|services/firebase(Config)?\.ts$'
+            # main.tsx only mounts the app, firebase.ts only initializes the SDK
+            # at module load and firebaseConfig.ts only reads import.meta.env,
+            # which Jest's CommonJS transform cannot parse. userDataEraser.ts is
+            # exercised against the Firestore emulator by test:rules, not by
+            # this jsdom run. test-stubs, test-utils and *.test-helpers are
+            # test support, not source.
+            exclude_pattern: 'src/main\.tsx$|vite\.config\.ts$|services/firebase(Config)?\.ts$|services/userDataEraser\.ts$|test-stubs/|src/test-utils\.tsx$|\.test-helpers\.ts$|firestore\.rules\.test\.ts$|jest\.setup\.ts$'
           - name: industry-mobile
             path: packages/design-system/industry/mobile
             build: yarn workspace @industry/tokens build

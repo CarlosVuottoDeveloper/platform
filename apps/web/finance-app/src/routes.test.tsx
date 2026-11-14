@@ -2,9 +2,22 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { logout, subscribeToAuthChanges } from './services/authService';
 import { AppRoutes } from './routes';
-import { mockSignedInAs, mockWideScreen, renderWithProviders, testUser } from './test-utils';
+import { subscribeToAccounts } from './services/accountsService';
+import {
+  mockSignedInAs,
+  mockUserData,
+  mockWideScreen,
+  renderWithProviders,
+  testUser,
+} from './test-utils';
 
 jest.mock('./services/authService');
+jest.mock('./services/accountsService');
+jest.mock('./services/budgetsService');
+jest.mock('./services/categoriesService');
+jest.mock('./services/goalsService');
+jest.mock('./services/recurrencesService');
+jest.mock('./services/transactionsService');
 
 const NAV_LABELS = [
   'Painel',
@@ -20,6 +33,7 @@ describe('AppRoutes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockWideScreen(true);
+    mockUserData();
   });
 
   it.each(['/', '/contas', '/relatorios', '/rota-inexistente'])(
@@ -157,5 +171,29 @@ describe('AppRoutes', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('waits for the user data instead of showing empty screens', () => {
+    mockSignedInAs(testUser);
+    jest.mocked(subscribeToAccounts).mockReturnValue(jest.fn());
+
+    renderWithProviders(<AppRoutes />);
+
+    expect(screen.getByRole('status', { name: 'Carregando' })).toBeInTheDocument();
+    expect(screen.queryByText('Comece cadastrando uma conta')).not.toBeInTheDocument();
+  });
+
+  it('says so when the user data cannot be loaded and offers to try again', () => {
+    mockSignedInAs(testUser);
+    jest.mocked(subscribeToAccounts).mockImplementation((_uid, _onChange, onError) => {
+      onError('permission-denied');
+      return jest.fn();
+    });
+
+    renderWithProviders(<AppRoutes />);
+
+    expect(screen.getByText('Não foi possível carregar seus dados')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: 'Carregando' })).not.toBeInTheDocument();
   });
 });

@@ -181,4 +181,14 @@ describe('ReportTab', () => {
 
     expect(await screen.findByText('Não foi possível exportar.')).toBeInTheDocument();
   });
+
+  it('asks for a valid period instead of exporting with a blank date', () => {
+    renderSignedIn(<ReportTab />);
+
+    fireEvent.change(screen.getByLabelText('De'), { target: { value: '' } });
+
+    expect(screen.getByText('Informe o período do relatório')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'PDF' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'CSV' })).toBeDisabled();
+  });
 });

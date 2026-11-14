@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { SegmentedControl, Select, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import { useUserData } from '../../context/UserDataContext/UserDataContext';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Category, CategoryKind } from '../../domain/category';
@@ -16,6 +15,7 @@ import {
   updateTransaction,
   updateTransactions,
 } from '../../services/transactionsService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 import { TagsField } from '../TagsField/TagsField';
@@ -83,8 +83,8 @@ function initialValues(transaction: Transaction | undefined): TransactionFormVal
 }
 
 export function TransactionSheet({ transaction, onClose }: TransactionSheetProps) {
-  const { user } = useAuth();
-  const { showToast } = useToast();
+  const user = useSignedInUser();
+  const submit = useSubmitWrite(onClose);
   const { accounts, categories, transactions } = useUserData();
   const activeAccounts = accounts.filter((account) => !account.archived);
   const {
@@ -126,17 +126,23 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
       await updateTransaction(uid, transaction.id, input);
       return;
     }
+    const amountWasEdited = input.amountCents !== transaction.amountCents;
     await updateTransactions(uid, [
       { id: transaction.id, input },
       ...followingInstallments.map((following) => ({
         id: following.id,
-        input: { ...input, date: following.date, installment: following.installment },
+        input: {
+          ...input,
+          amountCents: amountWasEdited ? input.amountCents : following.amountCents,
+          date: following.date,
+          installment: following.installment,
+        },
       })),
     ]);
   }
 
   async function save(values: TransactionFormValues) {
-    if (!user || values.amountCents === null) return;
+    if (values.amountCents === null) return;
     const input: TransactionInput = {
       kind: values.kind,
       amountCents: values.amountCents,
@@ -149,12 +155,9 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
       recurrenceId: transaction?.recurrenceId ?? null,
       installment: transaction?.installment ?? null,
     };
-    try {
+    await submit(async () => {
       await persist(user.uid, input, values);
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (
@@ -230,8 +233,18 @@ export function TransactionSheet({ transaction, onClose }: TransactionSheetProps
         <Controller
           control={control}
           name="installmentCount"
-          render={({ field }) => (
-            <Select label="Parcelar em" options={INSTALLMENT_OPTIONS} {...field} />
+          rules={{
+            validate: (count) =>
+              (getValues('amountCents') ?? 0) >= Number(count) ||
+              'Valor pequeno demais para esse número de parcelas',
+          }}
+          render={({ field, fieldState }) => (
+            <Select
+              label="Parcelar em"
+              options={INSTALLMENT_OPTIONS}
+              error={fieldState.error?.message}
+              {...field}
+            />
           )}
         />
       ) : null}

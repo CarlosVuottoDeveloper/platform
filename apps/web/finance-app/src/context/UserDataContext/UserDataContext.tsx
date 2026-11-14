@@ -1,8 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Account } from '../../domain/account';
 import type { Budget } from '../../domain/budget';
-import { toCalendarDate } from '../../domain/calendarDate';
 import type { Category } from '../../domain/category';
 import type { Goal } from '../../domain/goal';
 import type { Recurrence } from '../../domain/recurrence';
@@ -16,6 +15,7 @@ import {
   subscribeToRecurrences,
 } from '../../services/recurrencesService';
 import { subscribeToTransactions } from '../../services/transactionsService';
+import { useToday } from '../../hooks/useToday';
 import { useAuth } from '../AuthContext/AuthContext';
 import { useToast } from '../ToastContext/ToastContext';
 
@@ -27,6 +27,7 @@ interface UserDataContextValue {
   recurrences: Recurrence[];
   transactions: Transaction[];
   loading: boolean;
+  failed: boolean;
 }
 
 type Subscribe<T> = (
@@ -37,17 +38,15 @@ type Subscribe<T> = (
 
 const UserDataContext = createContext<UserDataContextValue | null>(null);
 
-function useUserCollection<T>(subscribe: Subscribe<T>): T[] | null {
+function useUserCollection<T>(subscribe: Subscribe<T>, onFailure: () => void): T[] | null {
   const { user } = useAuth();
-  const { showToast } = useToast();
   const uid = user?.uid;
   const [items, setItems] = useState<T[] | null>(null);
 
   useEffect(() => {
     if (!uid) return undefined;
-    const onError = () => showToast('danger', 'Não foi possível carregar seus dados.');
-    return subscribe(uid, setItems, onError);
-  }, [uid, showToast, subscribe]);
+    return subscribe(uid, setItems, onFailure);
+  }, [uid, subscribe, onFailure]);
 
   return items;
 }
@@ -66,20 +65,28 @@ function useRecurrenceMaterialization(recurrences: Recurrence[] | null) {
   const { user } = useAuth();
   const uid = user?.uid;
 
+  const today = useToday();
+
   useEffect(() => {
     if (!uid || !recurrences) return;
-    void materializeDueRecurrences(uid, recurrences, toCalendarDate(new Date()));
-  }, [uid, recurrences]);
+    void materializeDueRecurrences(uid, recurrences, today);
+  }, [uid, recurrences, today]);
 }
 
 export function UserDataProvider({ children }: { children: ReactNode }) {
   useDefaultCategoriesSeeding();
-  const accounts = useUserCollection(subscribeToAccounts);
-  const budgets = useUserCollection(subscribeToBudgets);
-  const categories = useUserCollection(subscribeToCategories);
-  const goals = useUserCollection(subscribeToGoals);
-  const recurrences = useUserCollection(subscribeToRecurrences);
-  const transactions = useUserCollection(subscribeToTransactions);
+  const { showToast } = useToast();
+  const [failed, setFailed] = useState(false);
+  const onFailure = useCallback(() => {
+    setFailed(true);
+    showToast('danger', 'Não foi possível carregar seus dados.');
+  }, [showToast]);
+  const accounts = useUserCollection(subscribeToAccounts, onFailure);
+  const budgets = useUserCollection(subscribeToBudgets, onFailure);
+  const categories = useUserCollection(subscribeToCategories, onFailure);
+  const goals = useUserCollection(subscribeToGoals, onFailure);
+  const recurrences = useUserCollection(subscribeToRecurrences, onFailure);
+  const transactions = useUserCollection(subscribeToTransactions, onFailure);
   useRecurrenceMaterialization(recurrences);
 
   const value = useMemo(
@@ -91,8 +98,9 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       recurrences: recurrences ?? [],
       transactions: transactions ?? [],
       loading: [accounts, budgets, categories, goals, recurrences, transactions].includes(null),
+      failed,
     }),
-    [accounts, budgets, categories, goals, recurrences, transactions],
+    [accounts, budgets, categories, failed, goals, recurrences, transactions],
   );
 
   return <UserDataContext.Provider value={value}>{children}</UserDataContext.Provider>;

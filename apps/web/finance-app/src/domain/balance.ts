@@ -1,6 +1,7 @@
 import type { Account } from './account';
 import type { CalendarDate } from './calendarDate';
 import type { Cents } from './money';
+import type { Recurrence } from './recurrence';
 import type { Transaction } from './transaction';
 
 function effectOn(accountId: string, transaction: Transaction): Cents {
@@ -49,8 +50,27 @@ export function pendingTotalAfter(
   return sum(pending.map((transaction) => effectOn(account.id, transaction)));
 }
 
-export function accountHasTransactions(accountId: string, transactions: Transaction[]): boolean {
-  return transactions.some(
-    (transaction) => transaction.accountId === accountId || transaction.toAccountId === accountId,
+export function isAccountInUse(
+  accountId: string,
+  transactions: Transaction[],
+  recurrences: Recurrence[],
+): boolean {
+  return (
+    transactions.some(
+      (transaction) => transaction.accountId === accountId || transaction.toAccountId === accountId,
+    ) || recurrences.some((recurrence) => recurrence.accountId === accountId)
   );
+}
+
+export function earliestTransactionDate(
+  accountId: string,
+  transactions: Transaction[],
+): CalendarDate | null {
+  const dates = transactions
+    .filter(
+      (transaction) => transaction.accountId === accountId || transaction.toAccountId === accountId,
+    )
+    .map((transaction) => transaction.date)
+    .sort();
+  return dates[0] ?? null;
 }

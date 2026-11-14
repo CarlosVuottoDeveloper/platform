@@ -1,11 +1,11 @@
 import { Controller, useForm } from 'react-hook-form';
 import { Select, TextField } from '@industry/web';
-import { useAuth } from '../../context/AuthContext/AuthContext';
-import { useToast } from '../../context/ToastContext/ToastContext';
+import { useSignedInUser } from '../../context/AuthContext/AuthContext';
 import type { Account } from '../../domain/account';
 import { isCalendarDate, toCalendarDate } from '../../domain/calendarDate';
 import type { Cents } from '../../domain/money';
 import { createTransaction } from '../../services/transactionsService';
+import { useSubmitWrite } from '../../hooks/useSubmitWrite';
 import { FormSheet } from '../FormSheet/FormSheet';
 import { MoneyField } from '../MoneyField/MoneyField';
 
@@ -23,8 +23,8 @@ interface TransferSheetProps {
 }
 
 export function TransferSheet({ accounts, onClose }: TransferSheetProps) {
-  const { user } = useAuth();
-  const { showToast } = useToast();
+  const user = useSignedInUser();
+  const submit = useSubmitWrite(onClose);
   const {
     control,
     handleSubmit,
@@ -52,11 +52,12 @@ export function TransferSheet({ accounts, onClose }: TransferSheetProps) {
   }
 
   async function save(values: TransferFormValues) {
-    if (!user || values.amountCents === null) return;
-    try {
+    const { amountCents } = values;
+    if (amountCents === null) return;
+    await submit(async () => {
       await createTransaction(user.uid, {
         kind: 'transfer',
-        amountCents: values.amountCents,
+        amountCents,
         date: values.date,
         accountId: values.accountId,
         toAccountId: values.toAccountId,
@@ -66,10 +67,7 @@ export function TransferSheet({ accounts, onClose }: TransferSheetProps) {
         recurrenceId: null,
         installment: null,
       });
-      onClose();
-    } catch {
-      showToast('danger', 'Não foi possível salvar.');
-    }
+    });
   }
 
   return (

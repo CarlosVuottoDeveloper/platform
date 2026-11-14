@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Account } from '../../domain/account';
 import { toCalendarDate, yearMonthOf } from '../../domain/calendarDate';
@@ -206,5 +206,112 @@ describe('RecurrencesSection', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
 
     expect(await screen.findByText('Não foi possível salvar.')).toBeInTheDocument();
+  });
+
+  it('refuses a first occurrence before the account was opened', async () => {
+    jest
+      .mocked(subscribeToAccounts)
+      .mockImplementation(
+        publish([{ ...accounts[0], openingDate: '2027-03-10' } as Account, accounts[1] as Account]),
+      );
+    renderSignedIn(<RecurrencesSection />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nova recorrente' }));
+    await userEvent.type(screen.getByLabelText('Valor'), '100');
+    await userEvent.selectOptions(screen.getByLabelText('Conta'), 'Nubank');
+    await userEvent.selectOptions(screen.getByLabelText('Categoria'), 'Moradia');
+    fireEvent.change(screen.getByLabelText('Início'), { target: { value: '2027-03' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(
+      await screen.findByText('O primeiro lançamento seria antes da abertura da conta'),
+    ).toBeInTheDocument();
+    expect(createRecurrence).not.toHaveBeenCalled();
+
+    const day = screen.getByLabelText('Dia do mês');
+    await userEvent.clear(day);
+    await userEvent.type(day, '10');
+    jest.mocked(createRecurrence).mockResolvedValue('r-new');
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    await waitFor(() => expect(createRecurrence).toHaveBeenCalledTimes(1));
+  });
+
+  it('warns when deleting a rule fails', async () => {
+    jest.mocked(deleteRecurrence).mockRejectedValue({ code: 'unavailable' });
+    renderSignedIn(<RecurrencesSection />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Excluir Aluguel' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Excluir' }),
+    );
+
+    expect(await screen.findByText('Não foi possível excluir.')).toBeInTheDocument();
+  });
+
+  it('names a rule without description by its category and marks income with a plus sign', () => {
+    jest
+      .mocked(subscribeToRecurrences)
+      .mockImplementation(
+        publish([{ ...rent, id: 'r2', kind: 'income', categoryId: 'c2', description: '' }]),
+      );
+
+    renderSignedIn(<RecurrencesSection />);
+
+    const row = within(screen.getByTestId('recurrence-r2'));
+    expect(row.getByText('Salário')).toBeInTheDocument();
+    expect(row.getByText(money('+R$ 1.500,00'))).toBeInTheDocument();
+  });
+
+  it('asks for a start month and keeps an archived account of an existing rule selectable', async () => {
+    jest
+      .mocked(subscribeToAccounts)
+      .mockImplementation(
+        publish([{ ...accounts[0], archived: true } as Account, accounts[1] as Account]),
+      );
+    renderSignedIn(<RecurrencesSection />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Editar Aluguel' }));
+    expect(screen.getByLabelText('Conta')).toHaveValue('a1');
+    fireEvent.change(screen.getByLabelText('Início'), { target: { value: '' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+
+    expect(await screen.findByText('Informe o mês de início')).toBeInTheDocument();
+  });
+
+  it('flags a rule whose account was archived', () => {
+    jest
+      .mocked(subscribeToAccounts)
+      .mockImplementation(
+        publish([{ ...accounts[0], archived: true } as Account, accounts[1] as Account]),
+      );
+
+    renderSignedIn(<RecurrencesSection />);
+
+    expect(
+      within(screen.getByTestId('recurrence-r1')).getByText('Conta arquivada'),
+    ).toBeInTheDocument();
+  });
+
+  it('tells the expected month format for browsers without a month picker', async () => {
+    renderSignedIn(<RecurrencesSection />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nova recorrente' }));
+
+    expect(screen.getByLabelText('Início')).toHaveAttribute('placeholder', 'AAAA-MM');
+    expect(screen.getByLabelText('Fim (opcional)')).toHaveAttribute('placeholder', 'AAAA-MM');
+  });
+
+  it('checks for due occurrences again when the day changes with the app open', () => {
+    jest.useFakeTimers().setSystemTime(new Date(2026, 10, 30, 23, 59, 30));
+    renderSignedIn(<RecurrencesSection />);
+    expect(materializeDueRecurrences).toHaveBeenLastCalledWith(testUser.uid, [rent], '2026-11-30');
+
+    act(() => {
+      jest.advanceTimersByTime(31_000);
+    });
+
+    expect(materializeDueRecurrences).toHaveBeenLastCalledWith(testUser.uid, [rent], '2026-12-01');
+    jest.useRealTimers();
   });
 });

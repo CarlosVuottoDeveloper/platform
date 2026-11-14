@@ -1,10 +1,12 @@
 import type { Account } from './account';
 import {
   accountBalanceOn,
-  accountHasTransactions,
   consolidatedBalanceOn,
+  earliestTransactionDate,
+  isAccountInUse,
   pendingTotalAfter,
 } from './balance';
+import type { Recurrence } from './recurrence';
 import { tx } from './transaction.test-helpers';
 
 const base = { name: 'Conta', color: 'viz-1', icon: 'landmark', archived: false } as const;
@@ -67,9 +69,18 @@ describe('balance', () => {
     expect(pendingTotalAfter(other, list, '2026-01-01')).toBe(30000);
   });
 
-  it('knows whether an account has movements, as origin or destination', () => {
-    expect(accountHasTransactions('a', list)).toBe(true);
-    expect(accountHasTransactions('b', list)).toBe(true);
-    expect(accountHasTransactions('z', list)).toBe(false);
+  it('knows whether an account is in use by a movement, on either side, or by a recurring rule', () => {
+    const rule = { accountId: 'r' } as Recurrence;
+
+    expect(isAccountInUse('a', list, [])).toBe(true);
+    expect(isAccountInUse('b', list, [])).toBe(true);
+    expect(isAccountInUse('r', list, [rule])).toBe(true);
+    expect(isAccountInUse('z', list, [rule])).toBe(false);
+  });
+
+  it('finds the earliest movement of an account, as origin or destination', () => {
+    expect(earliestTransactionDate('a', list)).toBe('2026-01-10');
+    expect(earliestTransactionDate('b', list)).toBe('2026-01-20');
+    expect(earliestTransactionDate('z', list)).toBeNull();
   });
 });

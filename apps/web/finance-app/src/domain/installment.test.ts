@@ -1,4 +1,4 @@
-import { buildInstallments, installmentsFrom, splitInstallments } from './installment';
+import { buildInstallments, installmentsFrom } from './installment';
 import { tx } from './transaction.test-helpers';
 import type { TransactionInput } from './transaction';
 
@@ -16,17 +16,18 @@ const draft: TransactionInput = {
 };
 
 describe('installment', () => {
+  const amountsOf = (amountCents: number, count: number) =>
+    buildInstallments({ ...draft, amountCents }, count, 'g').map((item) => item.amountCents);
+
   it('splits the total in cents and puts the remainder on the first instalment', () => {
-    expect(splitInstallments(10000, 3)).toEqual([3334, 3333, 3333]);
-    expect(splitInstallments(9999, 1)).toEqual([9999]);
-    expect(splitInstallments(100, 3)).toEqual([34, 33, 33]);
-    expect(splitInstallments(10, 4)).toEqual([4, 2, 2, 2]);
+    expect(amountsOf(10000, 3)).toEqual([3334, 3333, 3333]);
+    expect(amountsOf(9999, 1)).toEqual([9999]);
+    expect(amountsOf(100, 3)).toEqual([34, 33, 33]);
+    expect(amountsOf(10, 4)).toEqual([4, 2, 2, 2]);
   });
 
   it('never loses or creates a cent', () => {
-    const parts = splitInstallments(123457, 7);
-
-    expect(parts.reduce((total, part) => total + part, 0)).toBe(123457);
+    expect(amountsOf(123457, 7).reduce((total, part) => total + part, 0)).toBe(123457);
   });
 
   it('builds one movement per month, clamping the day in short months', () => {
