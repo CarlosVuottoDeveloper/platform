@@ -476,6 +476,16 @@ describe('Accounts', () => {
       expect(within(card).getByText('Saldo consolidado').style.color).toBe('var(--color-text)');
     });
 
+    it('gives each group a section heading for screen readers', () => {
+      mockAccounts(accounts);
+
+      renderSignedIn(<Accounts />);
+
+      for (const name of ['Ativos', 'Passivos', 'Arquivadas']) {
+        expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
+      }
+    });
+
     it('puts each group in its own card', () => {
       mockAccounts(accounts);
 

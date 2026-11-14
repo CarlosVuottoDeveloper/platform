@@ -9,6 +9,7 @@ import {
   StatTile,
 } from '@industry/web';
 import type { IconName } from '@industry/web';
+import { CardHeading } from '../../components/CardHeading/CardHeading';
 import { AccountSheet } from '../../components/AccountSheet/AccountSheet';
 import { ConfirmSheet } from '../../components/ConfirmSheet/ConfirmSheet';
 import { TransferSheet } from '../../components/TransferSheet/TransferSheet';
@@ -135,7 +136,12 @@ function AccountSection({ title, accounts, isInUse, ...rowProps }: AccountSectio
   if (accounts.length === 0) return null;
 
   return (
-    <Card role="region" aria-label={title} title={title} elevation="sm">
+    <Card
+      role="region"
+      aria-label={title}
+      title={<CardHeading>{title}</CardHeading>}
+      elevation="sm"
+    >
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {accounts.map((account) => (
           <AccountRow key={account.id} account={account} inUse={isInUse(account)} {...rowProps} />
