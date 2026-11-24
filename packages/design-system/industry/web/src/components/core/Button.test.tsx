@@ -1,7 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 import { Button } from './Button';
 
 describe('Button', () => {
+  it('hands its ref to the underlying button so callers can move focus to it', () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(<Button ref={ref}>Salvar</Button>);
+
+    expect(ref.current).toBe(screen.getByRole('button', { name: 'Salvar' }));
+  });
+
   it('renders its children as a button', () => {
     render(<Button>Salvar</Button>);
 

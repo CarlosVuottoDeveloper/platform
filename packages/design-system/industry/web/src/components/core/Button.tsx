@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode, Ref } from 'react';
 import { PRIMARY_ACTION_FILL, PrimaryActionSurface } from './PrimaryActionSurface';
 import { resolveFill, tint, tintedFills, usePressState } from './stateFills';
 import type { StateFills } from './stateFills';
@@ -14,6 +14,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   iconOnly?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const SELECTED_FILLS = tintedFills('var(--color-accent)', 16, 22, 28);

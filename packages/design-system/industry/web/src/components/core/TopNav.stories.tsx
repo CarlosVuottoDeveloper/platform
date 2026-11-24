@@ -29,7 +29,7 @@ export const Default: Story = {
 
 export const Collapsed: Story = {
   render: () => (
-    <div style={{ width: 360 }}>
+    <div style={{ width: 360, minHeight: 320 }}>
       <TopNav brand="Carlos Vuotto" links={LINKS} action={ACTION} collapsed />
     </div>
   ),

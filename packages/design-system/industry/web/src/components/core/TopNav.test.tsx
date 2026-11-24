@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { TopNav } from './TopNav';
 
 const LINKS = [
@@ -22,7 +22,7 @@ describe('TopNav', () => {
     expect(within(nav).getByRole('button', { name: 'Ação' })).toBeInTheDocument();
   });
 
-  it('keeps only the brand and the action when collapsed', () => {
+  function renderCollapsed() {
     render(
       <TopNav
         brand="Carlos Vuotto"
@@ -31,11 +31,94 @@ describe('TopNav', () => {
         collapsed
       />,
     );
+    return screen.getByRole('button', { name: 'Abrir menu' });
+  }
 
+  it('hides the links behind a closed menu button when collapsed', () => {
+    const toggle = renderCollapsed();
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
-    expect(screen.queryByRole('list')).not.toBeInTheDocument();
     expect(screen.getByText('Carlos Vuotto')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ação' })).toBeInTheDocument();
+  });
+
+  it('opens the links in a panel the menu button controls', () => {
+    const toggle = renderCollapsed();
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveAccessibleName('Fechar menu');
+    const panel = document.getElementById(toggle.getAttribute('aria-controls') ?? '');
+    expect(panel).not.toBeNull();
+    expect(within(panel as HTMLElement).getByRole('link', { name: 'Projetos' })).toHaveAttribute(
+      'href',
+      '#projetos',
+    );
+    expect(within(panel as HTMLElement).getByRole('link', { name: 'Sobre' }).style.minHeight).toBe(
+      'var(--tap)',
+    );
+  });
+
+  it('closes the panel when the menu button is pressed again', () => {
+    const toggle = renderCollapsed();
+    fireEvent.click(toggle);
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('closes the panel once a section is chosen', () => {
+    const toggle = renderCollapsed();
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole('link', { name: 'Sobre' }));
+
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes the panel on Escape and returns focus to the menu button', () => {
+    const toggle = renderCollapsed();
+    fireEvent.click(toggle);
+    screen.getByRole('link', { name: 'Projetos' }).focus();
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(toggle).toHaveFocus();
+  });
+
+  it('ignores other keys while the panel is open', () => {
+    const toggle = renderCollapsed();
+    fireEvent.click(toggle);
+    fireEvent.keyDown(document, { key: 'Tab' });
+
+    expect(screen.getAllByRole('link')).toHaveLength(2);
+  });
+
+  it('closes the panel when someone presses outside the navigation', () => {
+    const toggle = renderCollapsed();
+    fireEvent.click(toggle);
+    fireEvent.mouseDown(screen.getByRole('navigation'));
+    expect(screen.getAllByRole('link')).toHaveLength(2);
+
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('drops the open panel when the navigation widens again', () => {
+    const { rerender } = render(<TopNav brand="Carlos Vuotto" links={LINKS} collapsed />);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    rerender(<TopNav brand="Carlos Vuotto" links={LINKS} />);
+
+    expect(screen.queryByRole('button', { name: /menu/ })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link')).toHaveLength(2);
+
+    rerender(<TopNav brand="Carlos Vuotto" links={LINKS} collapsed />);
+    expect(screen.getByRole('button', { name: 'Abrir menu' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('is a translucent pill that sticks to the top while scrolling', () => {

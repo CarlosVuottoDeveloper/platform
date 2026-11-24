@@ -11,3 +11,16 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   }),
 });
+
+class PointerEventPolyfill extends MouseEvent {
+  readonly pointerType: string;
+
+  constructor(type: string, init: PointerEventInit = {}) {
+    super(type, init);
+    this.pointerType = init.pointerType ?? '';
+  }
+}
+
+if (!('PointerEvent' in window)) {
+  Object.defineProperty(window, 'PointerEvent', { writable: true, value: PointerEventPolyfill });
+}
