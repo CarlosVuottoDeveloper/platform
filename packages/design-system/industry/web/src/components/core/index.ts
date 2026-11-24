@@ -4,6 +4,9 @@ export type { GradientSurfaceProps, GradientName } from './GradientSurface';
 export { Icon } from './Icon';
 export type { IconProps, IconSize, IconName } from './Icon';
 
+export { BrandIcon } from './BrandIcon';
+export type { BrandIconProps, BrandName } from './BrandIcon';
+
 export { Duotone } from './Duotone';
 export type { DuotoneProps } from './Duotone';
 
