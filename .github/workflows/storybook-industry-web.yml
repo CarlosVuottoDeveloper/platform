@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - 'packages/design-system/industry/web/**'
-      - 'packages/design-system/industry/tokens/**'
+      - "packages/design-system/industry/web/**"
+      - "packages/design-system/industry/tokens/**"
   pull_request:
     branches:
       - main
     paths:
-      - 'packages/design-system/industry/web/**'
-      - 'packages/design-system/industry/tokens/**'
+      - "packages/design-system/industry/web/**"
+      - "packages/design-system/industry/tokens/**"
 
 jobs:
   chromatic:
@@ -23,6 +23,6 @@ jobs:
       package_path: packages/design-system/industry/web
       tokens_path: packages/design-system/industry/tokens
       display_name: Industry Web
-      emoji: '📖'
+      emoji: "📖"
     secrets:
       chromatic_project_token: ${{ secrets.CHROMATIC_PROJECT_TOKEN_INDUSTRY_WEB }}

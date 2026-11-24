@@ -13,57 +13,63 @@ export function Process() {
       title="Como eu trabalho"
       subtitle="Um caminho previsível, com entregas visíveis em cada etapa."
     >
-      <div
+      <ol
+        aria-label="Etapas"
         data-testid="process-grid"
         style={{
+          listStyle: 'none',
+          margin: 0,
+          padding: 0,
           display: 'grid',
           gap: 'var(--space-4)',
           gridTemplateColumns: isWide ? 'repeat(4, minmax(0, 1fr))' : 'minmax(0, 1fr)',
         }}
       >
         {PROCESS_STEPS.map((step, index) => (
-          <Reveal key={step.id} delay={isWide ? index * 100 : 0} style={{ display: 'grid' }}>
-            <Card elevation="sm" style={{ gap: 'var(--space-3)', padding: 'var(--space-6)' }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  fontFamily: 'var(--font-heading)',
-                  fontWeight: 'var(--font-heading-weight)',
-                  fontSize: 'clamp(48px, 6vw, 72px)',
-                  lineHeight: 1,
-                  background:
-                    'linear-gradient(180deg, var(--color-accent-400), var(--color-accent-700))',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  color: 'transparent',
-                }}
-              >
-                {step.number}
-              </span>
-              <h3
-                style={{
-                  margin: 0,
-                  fontFamily: 'var(--font-heading)',
-                  fontWeight: 'var(--font-heading-weight)',
-                  fontSize: 'var(--text-h4)',
-                }}
-              >
-                {step.title}
-              </h3>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 'var(--text-h6)',
-                  lineHeight: 1.6,
-                  color: 'var(--color-neutral-300)',
-                }}
-              >
-                {step.description}
-              </p>
-            </Card>
-          </Reveal>
+          <li key={step.id} style={{ display: 'grid' }}>
+            <Reveal delay={isWide ? index * 100 : 0} style={{ display: 'grid' }}>
+              <Card elevation="sm" style={{ gap: 'var(--space-3)', padding: 'var(--space-6)' }}>
+                <span
+                  aria-hidden="true"
+                  style={{
+                    fontFamily: 'var(--font-heading)',
+                    fontWeight: 'var(--font-heading-weight)',
+                    fontSize: 'clamp(48px, 6vw, 72px)',
+                    lineHeight: 1,
+                    background:
+                      'linear-gradient(180deg, var(--color-accent-300), var(--color-accent-500))',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    color: 'transparent',
+                  }}
+                >
+                  {step.number}
+                </span>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontFamily: 'var(--font-heading)',
+                    fontWeight: 'var(--font-heading-weight)',
+                    fontSize: 'var(--text-h4)',
+                  }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 'var(--text-h6)',
+                    lineHeight: 1.6,
+                    color: 'var(--color-neutral-300)',
+                  }}
+                >
+                  {step.description}
+                </p>
+              </Card>
+            </Reveal>
+          </li>
         ))}
-      </div>
+      </ol>
       <Reveal>
         <Card
           elevation="sm"

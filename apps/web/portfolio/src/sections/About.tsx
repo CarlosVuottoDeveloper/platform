@@ -37,11 +37,7 @@ export function About() {
             elevation="sm"
             style={{ alignItems: 'center', gap: 'var(--space-4)', padding: 'var(--space-6)' }}
           >
-            <PhotoFrame
-              src={PHOTO_SRC}
-              alt={`${CONTACT.name}, de óculos e camiseta preta, sorrindo de braços cruzados`}
-              size={240}
-            />
+            <PhotoFrame src={PHOTO_SRC} alt="" size={240} />
             <Badge tone="success">Disponível para novos projetos</Badge>
             <p style={{ ...HEADING, fontSize: 'var(--text-h3)' }}>{CONTACT.name}</p>
             <div

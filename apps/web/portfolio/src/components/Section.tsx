@@ -19,7 +19,6 @@ export function Section({ id, title, subtitle, children }: SectionProps) {
       style={{
         display: 'grid',
         gap: 'var(--space-8)',
-        scrollMarginTop: 'calc(var(--control-h) + var(--space-12))',
       }}
     >
       <Reveal>

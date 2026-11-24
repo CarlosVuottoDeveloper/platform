@@ -17,6 +17,19 @@ describe('Process', () => {
     }
   });
 
+  it('lists the steps in order with numbers that stay readable on the card', () => {
+    mockWideScreen(true);
+    render(<Process />);
+    const list = screen.getByRole('list', { name: 'Etapas' });
+
+    expect(within(list).getAllByRole('listitem')).toHaveLength(PROCESS_STEPS.length);
+    for (const step of PROCESS_STEPS) {
+      const background = within(list).getByText(step.number).style.background;
+      expect(background).toContain('var(--color-accent-500)');
+      expect(background).not.toContain('var(--color-accent-700)');
+    }
+  });
+
   it('invites the visitor to talk on WhatsApp', () => {
     mockWideScreen(true);
     render(<Process />);

@@ -18,18 +18,6 @@ describe('Section', () => {
     expect(screen.getByText('Conteúdo')).toBeInTheDocument();
   });
 
-  it('leaves room for the sticky navigation when reached by an anchor', () => {
-    render(
-      <Section id="sobre" title="Sobre mim">
-        x
-      </Section>,
-    );
-
-    expect(screen.getByRole('region').style.scrollMarginTop).toBe(
-      'calc(var(--control-h) + var(--space-12))',
-    );
-  });
-
   it('has no subtitle line when none is given', () => {
     render(
       <Section id="servicos" title="Serviços">

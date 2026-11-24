@@ -12,7 +12,8 @@ describe('About', () => {
     const section = screen.getByRole('region', { name: 'Sobre mim' });
 
     expect(section).toHaveAttribute('id', 'sobre');
-    expect(within(section).getByRole('img', { name: /Carlos Vuotto/ })).toBeInTheDocument();
+    expect(section.querySelector('img')).toHaveAttribute('alt', '');
+    expect(within(section).queryByRole('img', { name: /Carlos Vuotto/ })).not.toBeInTheDocument();
     expect(within(section).getByText('Disponível para novos projetos')).toBeInTheDocument();
     for (const tool of STACK) {
       expect(within(section).getByText(tool)).toBeInTheDocument();

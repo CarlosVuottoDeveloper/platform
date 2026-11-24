@@ -33,6 +33,20 @@ describe('Hero', () => {
     );
   });
 
+  it('is visible from the first paint, without waiting for an entrance animation', () => {
+    mockWideScreen(true);
+    window.IntersectionObserver = jest.fn(() => ({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
+    })) as unknown as typeof IntersectionObserver;
+    render(<Hero />);
+
+    expect(screen.getByRole('heading', { level: 1 }).closest('[style*="opacity: 0"]')).toBeNull();
+    expect(screen.getByRole('img').closest('[style*="opacity: 0"]')).toBeNull();
+    Reflect.deleteProperty(window, 'IntersectionObserver');
+  });
+
   it.each([
     [true, 'minmax(0, 1.2fr) minmax(0, 1fr)'],
     [false, 'minmax(0, 1fr)'],

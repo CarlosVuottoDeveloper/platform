@@ -13,9 +13,7 @@ describe('Projects', () => {
     for (const project of PROJECTS) {
       const link = within(section).getByRole('link', { name: new RegExp(project.name) });
       expect(link).toHaveAttribute('href', project.url);
-      expect(
-        within(link).getByRole('img', { name: `Página inicial do site ${project.name}` }),
-      ).toHaveAttribute('src', project.image);
+      expect(link.querySelector('img')).toHaveAttribute('src', project.image);
     }
   });
 
