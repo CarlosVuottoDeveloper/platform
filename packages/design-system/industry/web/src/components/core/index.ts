@@ -90,6 +90,9 @@ export type { BreadcrumbsProps, Crumb } from './Breadcrumbs';
 export { Accordion } from './Accordion';
 export type { AccordionProps, AccordionItem } from './Accordion';
 
+export { Reveal } from './Reveal';
+export type { RevealProps } from './Reveal';
+
 export { RingProgress } from './RingProgress';
 export type { RingProgressProps } from './RingProgress';
 
