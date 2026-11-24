@@ -38,6 +38,8 @@ export { AppShell } from './AppShell';
 export type { AppShellProps } from './AppShell';
 export { Sidebar } from './Sidebar';
 export type { SidebarProps, SidebarItem } from './Sidebar';
+export { TopNav } from './TopNav';
+export type { TopNavProps, TopNavLink } from './TopNav';
 export { TabBar } from './TabBar';
 export type { TabBarProps, TabBarItem } from './TabBar';
 export { Sheet } from './Sheet';
