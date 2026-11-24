@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { MAIN_ID } from './content/navigation';
 import { About } from './sections/About';
 import { Companies } from './sections/Companies';
@@ -10,7 +11,16 @@ import { Process } from './sections/Process';
 import { Projects } from './sections/Projects';
 import { Services } from './sections/Services';
 
+function useScrollToAddressedSection() {
+  useEffect(() => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (id) document.getElementById(id)?.scrollIntoView();
+  }, []);
+}
+
 export function App() {
+  useScrollToAddressedSection();
+
   return (
     <div
       style={{
