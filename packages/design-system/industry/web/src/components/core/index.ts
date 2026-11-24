@@ -61,6 +61,9 @@ export type { SkeletonProps } from './Skeleton';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 
+export { MediaCard } from './MediaCard';
+export type { MediaCardProps } from './MediaCard';
+
 export { ListRow } from './ListRow';
 export type { ListRowProps } from './ListRow';
 export { DataTable } from './DataTable';
