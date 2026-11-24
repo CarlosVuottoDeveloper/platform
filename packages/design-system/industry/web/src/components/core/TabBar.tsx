@@ -15,7 +15,6 @@ export interface TabBarProps {
   style?: CSSProperties;
 }
 
-/** Bottom navigation bar. Respects the safe-area inset. */
 export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
   return (
     <nav

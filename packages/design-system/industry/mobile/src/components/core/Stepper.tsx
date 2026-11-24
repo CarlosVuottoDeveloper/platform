@@ -10,7 +10,6 @@ export interface Step {
 
 export interface StepperProps {
   steps?: (string | Step)[];
-  /** Zero-based index of the current step. Earlier steps read as done. */
   current?: number;
   style?: StyleProp<ViewStyle>;
 }

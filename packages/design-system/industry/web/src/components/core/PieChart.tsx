@@ -70,7 +70,6 @@ export function resolveSliceDash(
   };
 }
 
-/** Donut chart with a press-to-highlight legend. Pass `--viz-*` tokens as slice colors. */
 export function PieChart({
   slices,
   size = 200,

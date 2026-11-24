@@ -1,9 +1,7 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 export interface AppShellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'style'> {
-  /** Usually a `<Sidebar>`. */
   sidebar?: ReactNode;
-  /** Contents of the top bar above the page body. */
   header?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;

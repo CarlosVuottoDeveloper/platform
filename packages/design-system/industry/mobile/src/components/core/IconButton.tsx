@@ -20,9 +20,7 @@ export function resolveIconButtonIconColor(variant: IconButtonVariant): string {
 }
 
 export interface IconButtonProps extends Omit<PressableProps, 'style' | 'disabled'> {
-  /** Lucide icon name (PascalCase). */
   icon: IconName;
-  /** Required — becomes accessibilityLabel. */
   label: string;
   variant?: IconButtonVariant;
   size?: IconButtonSize;

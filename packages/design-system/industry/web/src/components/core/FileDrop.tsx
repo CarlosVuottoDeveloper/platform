@@ -19,13 +19,11 @@ export interface FileDropProps extends Omit<HTMLAttributes<HTMLLabelElement>, 's
   label?: string;
   hint?: ReactNode;
   error?: ReactNode;
-  /** Comma-separated MIME types/extensions, same syntax as the native `accept` attribute — also used to validate files before `onFiles` fires. */
   accept?: string;
   multiple?: boolean;
   maxSizeBytes?: number;
   disabled?: boolean;
   onFiles?: (files: File[]) => void;
-  /** Files rejected by `accept`/`maxSizeBytes`, with the reason. */
   onReject?: (rejected: RejectedFile[]) => void;
   style?: CSSProperties;
 }

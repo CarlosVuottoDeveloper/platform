@@ -8,7 +8,6 @@ export interface SheetProps {
   open?: boolean;
   title?: ReactNode;
   onDismiss?: () => void;
-  /** Action row pinned under the content. */
   actions?: ReactNode;
   children?: ReactNode;
   style?: CSSProperties;
@@ -35,7 +34,6 @@ function tabbablesIn(container: HTMLElement | null): HTMLElement[] {
   );
 }
 
-/** Bottom sheet — positions against its nearest positioned ancestor. */
 export function Sheet({ open = true, title, onDismiss, actions, children, style }: SheetProps) {
   const titleId = useId();
   const backdropRef = useRef<HTMLDivElement>(null);

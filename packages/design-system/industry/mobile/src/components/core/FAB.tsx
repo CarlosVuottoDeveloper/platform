@@ -10,14 +10,12 @@ const BOX: Record<FABSize, number> = { md: 48, lg: 56 };
 
 export interface FABProps extends Omit<PressableProps, 'style' | 'disabled'> {
   icon?: IconName;
-  /** Required — becomes accessibilityLabel. */
   label: string;
   size?: FABSize;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
-/** Floating action button — anchor it with absolute positioning via `style`. */
 export function FAB({
   icon = 'Plus',
   label,

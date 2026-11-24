@@ -15,7 +15,6 @@ export interface TextFieldProps extends Omit<TextInputProps, 'style'> {
   label?: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
-  /** Adds a trailing eye/eye-off toggle that flips `secureTextEntry`. */
   secureToggle?: boolean;
   style?: StyleProp<ViewStyle>;
 }

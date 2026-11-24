@@ -12,9 +12,6 @@ interface Props<T extends string> {
   tones: Record<T, BadgeTone>;
 }
 
-// 3 short-label options (status) fit a segmented control; 5 longer labels
-// (priority) would truncate in one, so they render as stacked radios
-// instead — matches the spec's rule for which widget each field gets.
 const SEGMENTED_MAX_OPTIONS = 3;
 
 export function TicketOptionField<T extends string>({

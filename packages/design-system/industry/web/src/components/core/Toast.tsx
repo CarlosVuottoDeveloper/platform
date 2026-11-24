@@ -18,7 +18,6 @@ const ACCENT_COLOR: Record<ToastTone, string> = {
   danger: 'var(--color-danger)',
 };
 
-/** Stack several inside a `display: flex; flex-direction: column` wrapper. */
 export function Toast({ tone = 'accent', title, onDismiss, children, style }: ToastProps) {
   return (
     <div

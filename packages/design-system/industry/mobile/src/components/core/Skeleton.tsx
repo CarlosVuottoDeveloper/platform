@@ -5,7 +5,6 @@ import { color, radii, space } from '@industry/tokens';
 import { useReduceMotion } from './useReduceMotion';
 
 export interface SkeletonProps {
-  /** Render N text lines instead of a block; the last one is short. */
   lines?: number;
   height?: number;
   width?: number | `${number}%`;

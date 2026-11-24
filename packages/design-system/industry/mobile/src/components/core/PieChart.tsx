@@ -29,11 +29,8 @@ export interface PieChartProps {
   slices: PieChartSlice[];
   size?: number;
   valueFormatter?: (value: number) => string;
-  /** Where the legend sits relative to the donut. */
   legendPlacement?: PieChartLegendPlacement;
-  /** What each legend row shows on the right: the formatted value with its share, or the share alone. */
   legendValue?: PieChartLegendValue;
-  /** Rendered centered over the donut hole, e.g. the total. */
   centerLabel?: ReactNode;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -48,7 +45,6 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 export const defaultValueFormatter = (value: number): string =>
   new Intl.NumberFormat('pt-BR').format(value);
 
-/** Renders each slice's stroke-dasharray offset from the running total so far. */
 export function resolveSliceDash(
   slices: readonly { value: number }[],
   index: number,
@@ -63,7 +59,6 @@ export function resolveSliceDash(
   };
 }
 
-/** Donut chart with a tap-to-highlight legend. Colors come from the `--viz-*` tokens. */
 export function PieChart({
   slices,
   size = 200,

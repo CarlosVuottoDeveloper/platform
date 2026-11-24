@@ -4,7 +4,6 @@ export interface EmptyStateProps {
   icon?: ReactNode;
   title?: ReactNode;
   body?: ReactNode;
-  /** Usually a primary `<Button>`. */
   action?: ReactNode;
   style?: CSSProperties;
 }

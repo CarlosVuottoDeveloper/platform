@@ -1,4 +1,3 @@
-// https://docs.expo.dev/guides/monorepos/
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 
@@ -7,10 +6,8 @@ const monorepoRoot = path.resolve(projectRoot, '../../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Watch all files within the monorepo
 config.watchFolders = [monorepoRoot];
 
-// Resolve from app-local node_modules first, then monorepo root.
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),

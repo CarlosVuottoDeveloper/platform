@@ -14,7 +14,6 @@ import {
 
 export interface ChipProps {
   children: string;
-  /** Single-choice selection state (unlike a removable filter tag). */
   selected?: boolean;
   onPress?: () => void;
   disabled?: boolean;

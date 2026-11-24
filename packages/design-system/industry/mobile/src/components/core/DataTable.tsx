@@ -18,9 +18,7 @@ export interface Column<Row extends Record<string, ReactNode> = Record<string, R
   key: string;
   label?: ReactNode;
   width?: number;
-  /** Set false for a column that cannot be sorted. */
   sortable?: boolean;
-  /** Custom cell renderer — return a badge, a link, formatted text. */
   render?: (row: Row) => ReactNode;
 }
 
@@ -32,15 +30,12 @@ export interface DataTableProps<Row extends Record<string, ReactNode> = Record<s
   page?: number;
   pageCount?: number;
   onPage?: (page: number) => void;
-  /** Record count shown at the left of the pager. */
   total?: number;
-  /** Row above the table — search, filters, actions. */
   toolbar?: ReactNode;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-/** Sorting, filtering and paging are controlled — the table renders, you own the data. */
 export function DataTable<Row extends Record<string, ReactNode> = Record<string, ReactNode>>({
   columns = [],
   rows = [],

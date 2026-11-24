@@ -9,15 +9,7 @@ const OUTER_LAYERS = [
 ];
 
 /**
- * Enforces the domain -> services -> screens/components layering documented
- * in the root CLAUDE.md ("Clean Architecture"): domain depends on nothing
- * app-specific, services is the only place touching external systems, and
- * screens/components/hooks/context/store/navigation compose both. Import
- * direction only flows inward (screens/hooks -> services -> domain), never
- * back out, so this only needs to restrict what domain/ and services/ can
- * import — everything else is already free to import both.
- *
- * @param {string} appSrcDir - path (relative to the consuming eslint.config.mjs) to the app's `src` directory, e.g. "src".
+ * @param {string} appSrcDir
  * @returns {import("eslint").Linter.Config[]}
  */
 export function domainServicesBoundaries(appSrcDir) {

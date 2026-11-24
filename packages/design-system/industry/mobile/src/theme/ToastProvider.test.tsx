@@ -1,4 +1,5 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react-native';
+import { useEffect } from 'react';
 import { Text } from 'react-native';
 import { space } from '@industry/tokens';
 import { ToastProvider, useToast } from './ToastProvider';
@@ -29,6 +30,29 @@ describe('ToastProvider', () => {
       </Text>
     );
   }
+
+  it('does not re-run a consumer effect that depends on useToast when a toast shows', () => {
+    const effectRuns = jest.fn();
+    function Watcher() {
+      const toast = useToast();
+      useEffect(() => effectRuns(), [toast]);
+      return (
+        <Text testID="watch" onPress={() => toast.show({ title: 'Oi' })}>
+          Disparar
+        </Text>
+      );
+    }
+    render(
+      <ToastProvider>
+        <Watcher />
+      </ToastProvider>,
+    );
+
+    fireEvent.press(screen.getByTestId('watch'));
+
+    expect(screen.getByText('Oi')).toBeTruthy();
+    expect(effectRuns).toHaveBeenCalledTimes(1);
+  });
 
   it('shows a toast with the given title', () => {
     render(
@@ -141,9 +165,6 @@ describe('ToastProvider', () => {
     const style = [screen.getByTestId('toast-stack').props.style].flat();
     const paddingTop = style.reduce((found, s) => found ?? s?.paddingTop, undefined);
 
-    // The mocked useSafeAreaInsets() always returns top: 0 here, so this
-    // pins down that the gap comes from `space[6]` (not a hardcoded number)
-    // plus whatever the real device's inset turns out to be.
     expect(paddingTop).toBe(space[6]);
   });
 

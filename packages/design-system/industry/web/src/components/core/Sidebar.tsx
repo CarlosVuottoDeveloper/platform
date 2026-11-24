@@ -7,14 +7,12 @@ export interface SidebarItem {
   label?: ReactNode;
   icon?: ReactNode;
   href?: string;
-  /** Renders a group label instead of a link. */
   section?: ReactNode;
 }
 
 export interface SidebarProps {
   brand?: ReactNode;
   items?: SidebarItem[];
-  /** id (or label) of the active item. */
   current?: string;
   onSelect?: (id: string) => void;
   footer?: ReactNode;

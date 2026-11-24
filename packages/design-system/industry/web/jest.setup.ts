@@ -1,5 +1,3 @@
-// jsdom doesn't implement matchMedia — usePrefersReducedMotion (Spinner,
-// Skeleton) needs a working stub to render at all under Jest.
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string) => ({

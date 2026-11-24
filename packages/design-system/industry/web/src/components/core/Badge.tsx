@@ -3,9 +3,7 @@ import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 export type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
 
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'style'> {
-  /** Semantic tone — hues rotated off the steel accent. */
   tone?: BadgeTone;
-  /** Filled instead of outlined. Use for the one status that must shout. */
   solid?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
