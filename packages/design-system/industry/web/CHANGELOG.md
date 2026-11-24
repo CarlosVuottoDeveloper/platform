@@ -1,5 +1,15 @@
 # @industry/web
 
+## 0.5.0
+
+### Minor Changes
+
+- b9a3516: `TopNav`: com `collapsed`, os links de seção passam a ficar atrás de um botão de menu de 44px, em vez de sumirem. O painel fecha ao escolher um link, com Esc (devolvendo o foco ao botão quando ele estava na barra) ou com um toque/clique fora da barra. Recolhida, a barra fica mais compacta e a marca encolhe com reticências, para o botão de menu nunca sair da tela. `Button` agora aceita `ref`.
+
+### Patch Changes
+
+- b9a3516: `MediaCard`: a elevação só acontece com mouse, então não fica presa depois de um toque, e a descrição passa de 13px para o tamanho de corpo (16px).
+
 ## 0.4.0
 
 ### Minor Changes
