@@ -58,7 +58,7 @@ export function Process() {
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 'var(--text-h6)',
+                    fontSize: 'var(--text-body)',
                     lineHeight: 1.6,
                     color: 'var(--color-neutral-300)',
                   }}
@@ -92,7 +92,9 @@ export function Process() {
             >
               Tem um projeto em mente?
             </p>
-            <p style={{ margin: 0, fontSize: 'var(--text-h6)', color: 'var(--color-neutral-300)' }}>
+            <p
+              style={{ margin: 0, fontSize: 'var(--text-body)', color: 'var(--color-neutral-300)' }}
+            >
               Me conte a ideia e eu te ajudo a tirar do papel.
             </p>
           </div>

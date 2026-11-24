@@ -37,4 +37,13 @@ describe('Projects', () => {
     expect(last.style.justifySelf).toBe('center');
     expect(cells[0]?.style.gridColumn).toBe('');
   });
+
+  it('stretches every card to the height of its row so neighbours line up', () => {
+    mockWideScreen(true);
+    render(<Projects />);
+
+    for (const cell of Array.from(screen.getByTestId('projects-grid').children)) {
+      expect((cell as HTMLElement).style.display).toBe('grid');
+    }
+  });
 });

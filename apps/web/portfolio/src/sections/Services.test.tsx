@@ -26,4 +26,13 @@ describe('Services', () => {
 
     expect(screen.getByTestId('services-grid').style.gridTemplateColumns).toBe(columns);
   });
+
+  it('sets each description in body-size text so it reads comfortably on a phone', () => {
+    mockWideScreen(false);
+    render(<Services />);
+
+    SERVICES.forEach((service) =>
+      expect(screen.getByText(service.description).style.fontSize).toBe('var(--text-body)'),
+    );
+  });
 });

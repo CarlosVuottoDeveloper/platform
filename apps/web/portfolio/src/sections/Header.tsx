@@ -42,7 +42,20 @@ export function Header() {
     >
       <SkipLink />
       <TopNav
-        brand={CONTACT.name}
+        brand={
+          <a
+            href={`#${MAIN_ID}`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              minHeight: 'var(--tap)',
+              color: 'inherit',
+              textDecoration: 'none',
+            }}
+          >
+            {CONTACT.name}
+          </a>
+        }
         links={NAV_LINKS}
         collapsed={!isWide}
         action={

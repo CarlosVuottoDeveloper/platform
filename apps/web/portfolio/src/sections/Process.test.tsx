@@ -50,4 +50,16 @@ describe('Process', () => {
 
     expect(screen.getByTestId('process-grid').style.gridTemplateColumns).toBe(columns);
   });
+
+  it('sets the step descriptions and the call to action in body-size text', () => {
+    mockWideScreen(false);
+    render(<Process />);
+
+    PROCESS_STEPS.forEach((step) =>
+      expect(screen.getByText(step.description).style.fontSize).toBe('var(--text-body)'),
+    );
+    expect(
+      screen.getByText('Me conte a ideia e eu te ajudo a tirar do papel.').style.fontSize,
+    ).toBe('var(--text-body)');
+  });
 });
