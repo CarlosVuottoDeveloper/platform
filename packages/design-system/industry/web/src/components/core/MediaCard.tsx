@@ -23,7 +23,7 @@ export function MediaCard({ image, kicker, title, body, href, style, testID }: M
     <>
       <img
         src={image.src}
-        alt={image.alt}
+        alt={href ? '' : image.alt}
         loading="lazy"
         style={{
           display: 'block',

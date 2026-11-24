@@ -33,14 +33,23 @@ describe('MediaCard', () => {
   });
 
   it('turns the whole card into a link that opens the site in a new tab', async () => {
-    render(<MediaCard image={IMAGE} title="Barbearia JB" href="https://barbeariajb1.com/" />);
-    const link = screen.getByRole('link', { name: /Barbearia JB/ });
+    render(<MediaCard image={IMAGE} title="Barbearia JB1" href="https://barbeariajb1.com/" />);
+    const link = screen.getByRole('link', { name: /Barbearia JB1/ });
 
     expect(link).toHaveAttribute('href', 'https://barbeariajb1.com/');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-    expect(link).toContainElement(screen.getByRole('img', { name: IMAGE.alt }));
+    expect(link).toHaveAccessibleName('Barbearia JB1');
     await waitFor(() => expect(link.querySelectorAll('svg')).toHaveLength(1));
+  });
+
+  it('keeps the screenshot decorative inside the link so the title alone names it', () => {
+    const { container } = render(
+      <MediaCard image={IMAGE} title="Barbearia JB1" href="https://barbeariajb1.com/" />,
+    );
+
+    expect(container.querySelector('img')).toHaveAttribute('alt', '');
+    expect(screen.queryByRole('img', { name: IMAGE.alt })).not.toBeInTheDocument();
   });
 
   it('is not a link without an address', () => {

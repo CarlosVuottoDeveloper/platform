@@ -20,6 +20,13 @@ export function Reveal({ children, delay = 0, style, testID }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!animated) return undefined;
+    const showForPrint = () => setShown(true);
+    window.addEventListener('beforeprint', showForPrint);
+    return () => window.removeEventListener('beforeprint', showForPrint);
+  }, [animated]);
+
+  useEffect(() => {
     if (!animated || !ref.current) return undefined;
     const observer = new IntersectionObserver(
       (entries) => {
