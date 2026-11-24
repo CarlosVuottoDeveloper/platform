@@ -12,8 +12,6 @@ export const PRIORITY_LABELS: Record<TicketPriority, string> = {
   very_high: 'Muito alta',
 };
 
-// Priority is a distinct axis from ticket status (see STATUS_TONES) — only
-// the top level should read as urgent, so most of the scale stays neutral.
 export const PRIORITY_TONES: Record<TicketPriority, BadgeTone> = {
   very_low: 'neutral',
   low: 'neutral',
@@ -22,9 +20,6 @@ export const PRIORITY_TONES: Record<TicketPriority, BadgeTone> = {
   very_high: 'danger',
 };
 
-// "very_high" is the one priority badge that also renders solid (see call
-// sites using `solid={isPriorityMaximum(priority)}`) — reserved for the top
-// of the scale so a solid fill still reads as urgent once it's used.
 export function isPriorityMaximum(priority: TicketPriority): boolean {
   return priority === 'very_high';
 }

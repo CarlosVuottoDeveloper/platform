@@ -40,7 +40,6 @@ function positionFor(resolvedSide: TooltipSide): ViewStyle {
 }
 
 export interface TooltipProps {
-  /** Mono text, one short line. Never information required to complete the task. */
   label: string;
   side?: TooltipSide;
   children?: ReactNode;
@@ -48,7 +47,6 @@ export interface TooltipProps {
   testID?: string;
 }
 
-/** Revealed by a long press — touch has no hover to borrow from. */
 export function Tooltip({ label, side = 'top', children, style, testID }: TooltipProps) {
   const [open, setOpen] = useState(false);
   const [resolvedSide, setResolvedSide] = useState<TooltipSide>(side);

@@ -28,7 +28,6 @@ export interface TabBarProps {
   style?: StyleProp<ViewStyle>;
 }
 
-/** Bottom navigation bar. Respects the device's safe-area bottom inset. */
 export function TabBar({ items = [], current, onSelect, style }: TabBarProps) {
   const insets = useSafeAreaInsets();
 

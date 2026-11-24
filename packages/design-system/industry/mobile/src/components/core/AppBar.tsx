@@ -8,7 +8,6 @@ import type { IconName } from './Icon';
 export interface AppBarAction {
   icon: IconName;
   onPress: () => void;
-  /** Required — becomes accessibilityLabel. */
   label: string;
   testID?: string;
 }
@@ -16,14 +15,12 @@ export interface AppBarAction {
 export interface AppBarProps {
   title: string;
   onBackPress?: () => void;
-  /** For a trigger that needs more than a plain icon button, e.g. a `Menu`-anchored filter. Renders between the title and `actions`. */
   trailing?: ReactNode;
   actions?: AppBarAction[];
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-/** Top navigation bar — title with an optional back button and trailing icon actions. */
 export function AppBar({ title, onBackPress, trailing, actions = [], style, testID }: AppBarProps) {
   return (
     <View

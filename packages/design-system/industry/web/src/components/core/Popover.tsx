@@ -5,7 +5,6 @@ export type PopoverSide = 'top' | 'bottom' | 'left' | 'right';
 export type PopoverAlign = 'start' | 'center' | 'end';
 
 export interface PopoverProps {
-  /** Usually a `<Button>` or `<IconButton>` — receives the click that opens the popover. */
   trigger: ReactNode;
   children?: ReactNode;
   side?: PopoverSide;
@@ -38,7 +37,6 @@ function alignStyle(side: PopoverSide, align: PopoverAlign): CSSProperties {
     : { top: '50%', transform: 'translateY(-50%)' };
 }
 
-/** A click-triggered floating panel — use `Menu` instead for a list of actions. */
 export function Popover({
   trigger,
   children,

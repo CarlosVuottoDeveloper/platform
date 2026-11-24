@@ -2,7 +2,6 @@ import type { CSSProperties } from 'react';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 export interface SkeletonProps {
-  /** Render N text lines instead of a block; the last one is short. */
   lines?: number;
   height?: number | string;
   width?: number | string;

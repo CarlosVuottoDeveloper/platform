@@ -2,20 +2,15 @@ import { useState } from 'react';
 import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
 
 export interface ListRowProps extends Omit<HTMLAttributes<HTMLElement>, 'style' | 'title'> {
-  /** Leading slot — icon or avatar. */
   lead?: ReactNode;
   title?: ReactNode;
   meta?: ReactNode;
-  /** Trailing slot — badge, chevron, switch. */
   trail?: ReactNode;
-  /** `button` (default), `a`, `div` or `li`. */
   as?: ElementType;
-  /** Target URL — only meaningful when `as="a"`. */
   href?: string;
   style?: CSSProperties;
 }
 
-/** The list unit — 64px tall, one tap target. */
 export function ListRow({
   lead,
   title,

@@ -14,10 +14,6 @@ function MockAppStack() {
   return <Text>Dashboard</Text>;
 }
 
-// App.tsx's own responsibility is picking loading vs. AuthStack vs. AppStack
-// from the resolved auth state — stand in for the stacks themselves so this
-// file doesn't also need to mock their full descendant dependency tree
-// (ticket/user Firestore listeners, etc.).
 jest.mock('./src/navigation/AuthStack', () => ({ AuthStack: MockAuthStack }));
 jest.mock('./src/navigation/AppStack', () => ({ AppStack: MockAppStack }));
 
@@ -49,14 +45,11 @@ function renderApp() {
   const result = render(<App />);
   return {
     ...result,
-    // react-navigation's internal async effects can throw an AggregateError
-    // during RTL's automatic between-test cleanup — see the identical
-    // safeUnmount workaround in AppStack.test.tsx.
     safeUnmount: () => {
       try {
         result.unmount();
       } catch {
-        // no-op
+        return;
       }
     },
   };

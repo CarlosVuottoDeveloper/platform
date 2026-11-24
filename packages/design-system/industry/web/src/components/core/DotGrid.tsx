@@ -3,12 +3,9 @@ import type { CSSProperties } from 'react';
 export type DotLevel = 0 | 1 | 2 | 3;
 
 export interface DotGridProps {
-  /** Intensity of each dot, from 0 (empty) to 1 (full). */
   values: number[];
   columns: number;
-  /** Labels shown at both ends of a legend under the grid. */
   legend?: { low: string; high: string };
-  /** Accessible name. Without it the grid is decorative. */
   label?: string;
   style?: CSSProperties;
   testID?: string;
@@ -44,7 +41,6 @@ function Dot({ level, size }: { level: DotLevel; size?: number }) {
   );
 }
 
-/** Grid of round cells shaded by intensity — a calendar-style heatmap. */
 export function DotGrid({ values, columns, legend, label, style, testID }: DotGridProps) {
   return (
     <div style={{ display: 'grid', gap: 'var(--space-3)', ...style }}>

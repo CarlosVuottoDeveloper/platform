@@ -65,10 +65,6 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # Build Output API v3: hand Vercel the already-built static site so it
-      # never runs an install or build of its own. Keeps the monorepo's yarn
-      # workspace resolution (and the mobile Storybook's react-native-web
-      # aliasing) on the runner, where CI already proves it works.
       - name: Stage prebuilt output
         working-directory: ${{ matrix.path }}
         run: |

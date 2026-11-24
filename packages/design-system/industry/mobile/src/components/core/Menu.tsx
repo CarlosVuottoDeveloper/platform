@@ -22,7 +22,6 @@ export interface MenuItem {
 }
 
 export interface MenuProps {
-  /** Usually a `<Button>` or `<IconButton>` — receives the press that opens the menu. */
   trigger: ReactNode;
   header?: string;
   items?: MenuItem[];
@@ -41,7 +40,6 @@ export function resolveMenuPosition(
   };
 }
 
-/** Anchored dropdown list of actions, positioned below and right-aligned to the trigger. */
 export function Menu({
   trigger,
   header,

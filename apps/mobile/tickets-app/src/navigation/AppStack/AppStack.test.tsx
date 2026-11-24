@@ -41,7 +41,7 @@ function renderAppStack() {
       try {
         result.unmount();
       } catch {
-        // no-op
+        return;
       }
     },
   };

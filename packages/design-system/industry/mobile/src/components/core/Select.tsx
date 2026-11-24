@@ -21,7 +21,6 @@ export interface SelectProps {
   label?: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
-  /** Plain strings or {value,label} pairs. */
   options?: (string | SelectOption)[];
   value?: string;
   onValueChange?: (value: string) => void;

@@ -13,8 +13,6 @@ jest.mock('firebase/auth', () => ({
   signOut: jest.fn(),
 }));
 
-// Home fetches the user's forms on mount — stub it so the authenticated-user
-// test renders Home's empty state instead of hitting the real Firestore SDK.
 jest.mock('./src/services/formsService', () => ({
   listForms: jest.fn().mockResolvedValue([]),
   createForm: jest.fn(),
@@ -22,9 +20,6 @@ jest.mock('./src/services/formsService', () => ({
   deleteForm: jest.fn(),
 }));
 
-// FormDetail imports expo-print/expo-sharing at module load — these are
-// native modules with no binding available under Jest, so importing
-// AppStack (which registers FormDetail as a screen) needs them mocked too.
 jest.mock('expo-print', () => ({ printToFileAsync: jest.fn() }));
 jest.mock('expo-sharing', () => ({ shareAsync: jest.fn() }));
 

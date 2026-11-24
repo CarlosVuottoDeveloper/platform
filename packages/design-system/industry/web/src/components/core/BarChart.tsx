@@ -7,7 +7,6 @@ export interface BarChartSeries {
 
 export interface BarChartGroup {
   label: string;
-  /** One value per series, in the same order as `series`. */
   values: number[];
 }
 
@@ -41,7 +40,6 @@ const LABEL_STYLE: CSSProperties = {
   color: 'var(--color-neutral-400)',
 };
 
-/** Grouped vertical bars, one bar per series in each group. Pass `--viz-*` tokens as series colors. */
 export function BarChart({
   series,
   groups,

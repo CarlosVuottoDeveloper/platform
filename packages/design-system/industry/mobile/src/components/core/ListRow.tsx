@@ -5,16 +5,13 @@ import type { ReactNode } from 'react';
 import { alpha, color, space, fontFamily, fontWeight } from '@industry/tokens';
 
 export interface ListRowProps extends Omit<PressableProps, 'style' | 'children'> {
-  /** Leading slot — icon or avatar. */
   lead?: ReactNode;
   title?: ReactNode;
   meta?: ReactNode;
-  /** Trailing slot — badge, chevron, switch. */
   trail?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
-/** The list unit — 64px tall, one tap target. */
 export function ListRow({
   lead,
   title,

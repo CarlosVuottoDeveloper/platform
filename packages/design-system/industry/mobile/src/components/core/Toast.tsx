@@ -30,7 +30,6 @@ const ACCENT_COLOR: Record<ToastTone, string> = {
   danger: semanticColor.danger,
 };
 
-/** Stack several inside a `flexDirection: 'column'` wrapper. */
 export function Toast({ tone = 'accent', title, onDismiss, children, style }: ToastProps) {
   return (
     <View

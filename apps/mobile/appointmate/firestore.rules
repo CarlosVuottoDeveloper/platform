@@ -1,12 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // NOTA: a permissão `read` abaixo também governa `list` (queries de
-    // coleção), não só `get` de documento único. Qualquer código futuro que
-    // fizer uma query em `forms` (ex.: tela de dashboard/listagem) PRECISA
-    // filtrar por `where('userId', '==', uid)` — uma query sem esse filtro é
-    // negada por completo por estas regras, mesmo que o usuário só pudesse
-    // "ver" um subconjunto dos resultados.
     match /forms/{formId} {
       allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null

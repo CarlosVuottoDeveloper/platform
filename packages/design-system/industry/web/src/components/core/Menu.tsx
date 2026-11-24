@@ -13,7 +13,6 @@ export interface MenuItem {
 }
 
 export interface MenuProps {
-  /** Usually a `<Button>` or `<IconButton>` — receives the click that opens the menu. */
   trigger: ReactNode;
   header?: string;
   items?: MenuItem[];
@@ -24,7 +23,6 @@ export interface MenuProps {
   style?: CSSProperties;
 }
 
-/** Anchored dropdown list of actions. Use `Select` instead for choosing a value. */
 export function Menu({
   trigger,
   header,

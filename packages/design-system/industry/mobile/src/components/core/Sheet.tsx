@@ -9,14 +9,12 @@ export interface SheetProps {
   open?: boolean;
   title?: ReactNode;
   onDismiss?: () => void;
-  /** Action row pinned under the content. */
   actions?: ReactNode;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-/** Bottom sheet — the mobile counterpart of the dialog. */
 export function Sheet({
   open = true,
   title,

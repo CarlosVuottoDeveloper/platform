@@ -1,10 +1,5 @@
 'use strict';
 
-// Runs before `eas build` to bump the human-facing expo.version (patch),
-// independently of EAS's own autoIncrement — that only touches
-// android.versionCode / ios.buildNumber when autoIncrement is `true`, never
-// expo.version, so the two bumps never collide.
-
 const fs = require('fs');
 const path = require('path');
 

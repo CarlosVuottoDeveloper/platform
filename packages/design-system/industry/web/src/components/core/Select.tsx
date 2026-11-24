@@ -21,7 +21,6 @@ export interface SelectProps extends Omit<
   label?: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
-  /** Plain strings or {value,label} pairs. */
   options?: (string | SelectOption)[];
   size?: SelectSize;
   style?: CSSProperties;

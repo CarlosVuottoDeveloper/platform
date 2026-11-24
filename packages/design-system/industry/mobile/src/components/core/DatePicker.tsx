@@ -64,7 +64,6 @@ export function formatDate(date: Date): string {
   return date.toLocaleDateString('pt-BR');
 }
 
-/** Returns a flat, week-padded (multiple of 7) list of dates for the given month; `null` fills the leading/trailing gaps. */
 export function buildMonthMatrix(year: number, month: number): (Date | null)[] {
   const first = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();

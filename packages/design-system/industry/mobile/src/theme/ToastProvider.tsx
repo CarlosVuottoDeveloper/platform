@@ -43,7 +43,6 @@ export function useToast(): ToastContextValue {
   return ctx;
 }
 
-/** Mount once near the app root, wrapping the whole tree. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState<QueuedToast[]>([]);
@@ -52,9 +51,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const timers = useRef<Map<string, TimerEntry>>(new Map());
 
   const dismiss = useCallback((id: string) => {
-    // clearTimeout(undefined) is a spec-safe no-op — TS's lib types just
-    // don't model it, so the cast avoids an `if` branch no caller can
-    // actually take (dismiss is only ever invoked for a visible toast).
     clearTimeout(timers.current.get(id)?.timeoutId as ReturnType<typeof setTimeout>);
     timers.current.delete(id);
     setVisible((prev) => prev.filter((t) => t.id !== id));
@@ -88,12 +84,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setQueue((prev) => [...prev, { ...options, id }]);
   }, []);
 
-  // Keeps `useToast()`'s return value referentially stable across
-  // ToastProvider re-renders (which happen on every show/dismiss) — without
-  // this, any consumer effect that lists `toast` in its dependency array
-  // (e.g. to call `toast.show` on a fetch failure) re-fires every time a
-  // toast is shown, since the raw `{ show }` object literal is a new
-  // reference on every render.
   const contextValue = useMemo(() => ({ show }), [show]);
 
   return (

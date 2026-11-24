@@ -18,8 +18,6 @@ import {
   where,
 } from 'firebase/firestore';
 
-// Regras de segurança para a coleção top-level `forms` (schema do formulário
-// "Preparação para o retorno" definido em APP-103).
 describe('Firestore security rules — forms', () => {
   let testEnv: RulesTestEnvironment;
 

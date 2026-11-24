@@ -35,7 +35,6 @@ export function resolveDropzoneBackground(pressed: boolean): string {
   return pressed ? color.surface2 : color.surface;
 }
 
-/** Dashed drop zone for a file/photo picker — the only dashed border in the system. Fires `onPress`; wiring an actual native picker (e.g. expo-document-picker) is left to the consumer. */
 export const FileDrop = forwardRef<View, FileDropProps>(function FileDrop(
   {
     label = 'Toque para escolher um arquivo',

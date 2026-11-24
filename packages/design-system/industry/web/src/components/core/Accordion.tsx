@@ -11,7 +11,6 @@ export interface AccordionItem {
 
 export interface AccordionProps {
   items?: AccordionItem[];
-  /** Allow more than one item open at once. Default: only one at a time. */
   multiple?: boolean;
   defaultOpenKeys?: string[];
   openKeys?: string[];

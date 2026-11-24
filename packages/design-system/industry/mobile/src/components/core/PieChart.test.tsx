@@ -23,7 +23,6 @@ describe('resolveSliceDash', () => {
 
   it('offsets each following slice by the running total so far', () => {
     const { dashoffset } = resolveSliceDash(SLICES, 1, 10);
-    // 3/10 of the circumference (2π·70) already consumed by the first slice.
     expect(dashoffset).toBeCloseTo(-(3 / 10) * 2 * Math.PI * 70);
   });
 
