@@ -71,7 +71,7 @@ jobs:
         run: yarn workspace @app/appointmate test --runInBand
 
   industry-mobile:
-    name: "@industry/mobile — lint, check-types, test"
+    name: '@industry/mobile — lint, check-types, test'
     runs-on: ubuntu-latest
 
     steps:

@@ -50,7 +50,7 @@ describe('content', () => {
 
   it('links to the real profiles', () => {
     expect(CONTACT.linkedin).toBe('https://www.linkedin.com/in/kaduvuotto');
-    expect(CONTACT.github).toBe('https://github.com/CarlosAmorimDeveloper');
+    expect(CONTACT.github).toBe('https://github.com/CarlosVuottoDeveloper');
     expect(CONTACT.whatsappPhone).toBe('5511964561982');
   });
 

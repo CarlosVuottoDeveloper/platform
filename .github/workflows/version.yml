@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - ".changeset/**"
+      - '.changeset/**'
   workflow_dispatch:
 
 jobs:
@@ -30,8 +30,8 @@ jobs:
       - uses: changesets/action@v1
         with:
           version: yarn version-packages
-          title: "chore: version packages"
-          commit: "chore: version packages"
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: 0

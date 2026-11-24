@@ -20,7 +20,7 @@
 - Nomes em inglês (pastas, arquivos, componentes, funções, tipos, ids, imagens, workflow, secrets). Texto visível em português.
 - Nome no site: **Carlos Vuotto**. Monograma "CV".
 - Sem números de marketing, sem depoimentos, sem formulário, sem analytics, sem cookies. Nenhum dado inventado.
-- WhatsApp: `5511964561982`. LinkedIn: `https://www.linkedin.com/in/kaduvuotto`. GitHub: `https://github.com/CarlosAmorimDeveloper`.
+- WhatsApp: `5511964561982`. LinkedIn: `https://www.linkedin.com/in/kaduvuotto`. GitHub: `https://github.com/CarlosVuottoDeveloper`.
 - Todo link externo abre em nova aba com `rel="noopener noreferrer"`.
 - Cor, espaçamento e raio só de tokens. Hex só em SVG estático e no `theme-color` (`#070b1f`).
 - Zero comentários, sem `any`, `--max-warnings 0`, cobertura ≥ 95% nos arquivos alterados.

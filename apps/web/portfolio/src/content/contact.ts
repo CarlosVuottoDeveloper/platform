@@ -5,7 +5,7 @@ export const CONTACT = {
   whatsappPhone: '5511964561982',
   whatsappMessage: 'Olá, Carlos! Vi seu portfólio e quero conversar sobre um projeto.',
   linkedin: 'https://www.linkedin.com/in/kaduvuotto',
-  github: 'https://github.com/CarlosAmorimDeveloper',
+  github: 'https://github.com/CarlosVuottoDeveloper',
 } as const;
 
 export const WHATSAPP_URL = whatsappLink(CONTACT.whatsappPhone, CONTACT.whatsappMessage);
