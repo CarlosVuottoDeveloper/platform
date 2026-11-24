@@ -75,64 +75,81 @@ function isTextLabel(children: ReactNode) {
   return isText(children) || (Array.isArray(children) && children.every(isText));
 }
 
-export function Button({
-  variant = 'secondary',
-  size = 'md',
-  block,
+interface ButtonSurfaceOptions {
+  variant: ButtonVariant;
+  size: ButtonSize;
+  hovered: boolean;
+  pressed: boolean;
+  selected: boolean;
+  iconOnly: boolean;
+  block: boolean;
+  disabled: boolean;
+}
+
+export function hasGradientSurface(variant: ButtonVariant, selected: boolean): boolean {
+  return variant === 'primary' && !selected;
+}
+
+export function buttonSurfaceStyle({
+  variant,
+  size,
+  hovered,
+  pressed,
   selected,
   iconOnly,
+  block,
   disabled,
-  children,
-  style,
-  ...rest
-}: ButtonProps) {
-  const { hovered: isHovered, pressed: isPressed, handlers } = usePressState(disabled);
+}: ButtonSurfaceOptions): CSSProperties {
   const height = size === 'sm' ? 'var(--control-h-sm)' : 'var(--control-h)';
-  const hasGradient = variant === 'primary' && !selected;
+  const hasGradient = hasGradientSurface(variant, selected);
   const basePadding = size === 'sm' ? 'var(--space-3)' : 'var(--space-4)';
   const horizontalPadding = iconOnly ? 0 : hasGradient ? `calc(${basePadding} + 1px)` : basePadding;
 
+  return {
+    position: 'relative',
+    isolation: 'isolate',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 'var(--space-2)',
+    minHeight: height,
+    width: iconOnly ? height : block ? '100%' : undefined,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    textDecoration: 'none',
+    fontFamily: 'var(--font-heading)',
+    fontWeight: 'var(--font-heading-weight)',
+    fontSize: size === 'sm' ? 'var(--text-h6)' : 'var(--text-body)',
+    lineHeight: 1.2,
+    borderWidth: hasGradient ? 0 : 1,
+    borderStyle: 'solid',
+    borderRadius: 'var(--radius-pill)',
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: horizontalPadding,
+    paddingRight: horizontalPadding,
+    opacity: disabled ? 0.45 : 1,
+    transition: 'background 120ms ease, border-color 120ms ease',
+    ...skin(variant, hovered, pressed, selected),
+  };
+}
+
+export function ButtonContent({
+  gradient,
+  hovered,
+  pressed,
+  disabled,
+  children,
+}: {
+  gradient: boolean;
+  hovered: boolean;
+  pressed: boolean;
+  disabled: boolean;
+  children?: ReactNode;
+}) {
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      {...handlers}
-      style={{
-        position: 'relative',
-        isolation: 'isolate',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 'var(--space-2)',
-        minHeight: height,
-        width: iconOnly ? height : block ? '100%' : undefined,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        textDecoration: 'none',
-        fontFamily: 'var(--font-heading)',
-        fontWeight: 'var(--font-heading-weight)',
-        fontSize: size === 'sm' ? 'var(--text-h6)' : 'var(--text-body)',
-        lineHeight: 1.2,
-        borderWidth: hasGradient ? 0 : 1,
-        borderStyle: 'solid',
-        borderRadius: 'var(--radius-pill)',
-        paddingTop: 0,
-        paddingBottom: 0,
-        paddingLeft: horizontalPadding,
-        paddingRight: horizontalPadding,
-        opacity: disabled ? 0.45 : 1,
-        transition: 'background 120ms ease, border-color 120ms ease',
-        ...skin(variant, isHovered, isPressed, Boolean(selected)),
-        ...style,
-      }}
-      {...rest}
-      aria-pressed={selected ?? rest['aria-pressed']}
-    >
-      {hasGradient ? (
-        <PrimaryActionSurface
-          pressed={isPressed}
-          hovered={isHovered}
-          disabled={Boolean(disabled)}
-        />
+    <>
+      {gradient ? (
+        <PrimaryActionSurface pressed={pressed} hovered={hovered} disabled={disabled} />
       ) : null}
       {isTextLabel(children) ? (
         <span
@@ -149,6 +166,52 @@ export function Button({
       ) : (
         children
       )}
+    </>
+  );
+}
+
+export function Button({
+  variant = 'secondary',
+  size = 'md',
+  block,
+  selected,
+  iconOnly,
+  disabled,
+  children,
+  style,
+  ...rest
+}: ButtonProps) {
+  const { hovered: isHovered, pressed: isPressed, handlers } = usePressState(disabled);
+
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      {...handlers}
+      style={{
+        ...buttonSurfaceStyle({
+          variant,
+          size,
+          hovered: isHovered,
+          pressed: isPressed,
+          selected: Boolean(selected),
+          iconOnly: Boolean(iconOnly),
+          block: Boolean(block),
+          disabled: Boolean(disabled),
+        }),
+        ...style,
+      }}
+      {...rest}
+      aria-pressed={selected ?? rest['aria-pressed']}
+    >
+      <ButtonContent
+        gradient={hasGradientSurface(variant, Boolean(selected))}
+        hovered={isHovered}
+        pressed={isPressed}
+        disabled={Boolean(disabled)}
+      >
+        {children}
+      </ButtonContent>
     </button>
   );
 }

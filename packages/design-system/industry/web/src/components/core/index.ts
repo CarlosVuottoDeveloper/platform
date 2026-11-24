@@ -4,11 +4,17 @@ export type { GradientSurfaceProps, GradientName } from './GradientSurface';
 export { Icon } from './Icon';
 export type { IconProps, IconSize, IconName } from './Icon';
 
+export { BrandIcon } from './BrandIcon';
+export type { BrandIconProps, BrandName } from './BrandIcon';
+
 export { Duotone } from './Duotone';
 export type { DuotoneProps } from './Duotone';
 
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
+
+export { LinkButton } from './LinkButton';
+export type { LinkButtonProps } from './LinkButton';
 
 export { TextField } from './TextField';
 export type { TextFieldProps, TextFieldSize } from './TextField';
@@ -32,6 +38,8 @@ export { AppShell } from './AppShell';
 export type { AppShellProps } from './AppShell';
 export { Sidebar } from './Sidebar';
 export type { SidebarProps, SidebarItem } from './Sidebar';
+export { TopNav } from './TopNav';
+export type { TopNavProps, TopNavLink } from './TopNav';
 export { TabBar } from './TabBar';
 export type { TabBarProps, TabBarItem } from './TabBar';
 export { Sheet } from './Sheet';
@@ -52,6 +60,9 @@ export { Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
+
+export { MediaCard } from './MediaCard';
+export type { MediaCardProps } from './MediaCard';
 
 export { ListRow } from './ListRow';
 export type { ListRowProps } from './ListRow';
@@ -78,6 +89,9 @@ export type { BreadcrumbsProps, Crumb } from './Breadcrumbs';
 
 export { Accordion } from './Accordion';
 export type { AccordionProps, AccordionItem } from './Accordion';
+
+export { Reveal } from './Reveal';
+export type { RevealProps } from './Reveal';
 
 export { RingProgress } from './RingProgress';
 export type { RingProgressProps } from './RingProgress';
