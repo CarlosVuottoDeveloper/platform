@@ -13,6 +13,9 @@ export type { DuotoneProps } from './Duotone';
 export { Button } from './Button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 
+export { LinkButton } from './LinkButton';
+export type { LinkButtonProps } from './LinkButton';
+
 export { TextField } from './TextField';
 export type { TextFieldProps, TextFieldSize } from './TextField';
 export { SearchField } from './SearchField';
