@@ -137,7 +137,7 @@ Cada peça ganha teste, story e changeset. Nenhum token novo.
     - está no mesmo escopo do Vercel do finance-app, então os secrets `VERCEL_ORG_ID` e `VERCEL_TOKEN` servem;
     - não está ligado a nenhum repositório Git (foi publicado pela CLI);
     - não tem domínio próprio além de `carlos-vuotto.vercel.app`.
-  - **[Escolha do autor]** O workflow começa só com disparo manual (`workflow_dispatch`). O primeiro deploy só acontece depois que o Carlos revisar os textos rascunhados e decidir se publica já com o monograma ou espera a foto. O disparo automático em push no `main` (com os mesmos `paths` do finance-app) entra num passo final, quando ele liberar.
+  - **[Decidido]** O workflow roda a cada push no `main` que toque o app, o `@industry/web` ou o `@industry/tokens` (os mesmos `paths` do finance-app), além do disparo manual. O primeiro merge já publica o site, com os textos rascunhados e o monograma no lugar da foto; ajustes de texto e a foto entram em merges seguintes.
 - **Documentação:** o `CLAUDE.md` (visão do monorepo e tabela de workflows) e a página de arquitetura no Notion ganham o app novo.
 
 ## Restrições
