@@ -32,11 +32,12 @@ export function Projects() {
             style={
               isWide && isAloneInLastRow(index)
                 ? {
+                    display: 'grid',
                     gridColumn: '1 / -1',
                     justifySelf: 'center',
                     width: 'calc((100% - var(--space-6)) / 2)',
                   }
-                : undefined
+                : { display: 'grid' }
             }
           >
             <MediaCard

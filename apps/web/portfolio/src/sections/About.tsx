@@ -119,7 +119,7 @@ export function About() {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: 'var(--text-h6)',
+                      fontSize: 'var(--text-body)',
                       lineHeight: 1.6,
                       color: 'var(--color-neutral-300)',
                     }}

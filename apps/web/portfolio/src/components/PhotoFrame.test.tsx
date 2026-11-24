@@ -3,11 +3,11 @@ import { PhotoFrame } from './PhotoFrame';
 
 describe('PhotoFrame', () => {
   it('shows the photo with its description', () => {
-    render(<PhotoFrame src="/carlos.png" alt="Carlos Vuotto de braços cruzados" size={320} />);
+    render(<PhotoFrame src="/carlos.webp" alt="Carlos Vuotto de braços cruzados" size={320} />);
 
     expect(screen.getByRole('img', { name: 'Carlos Vuotto de braços cruzados' })).toHaveAttribute(
       'src',
-      '/carlos.png',
+      '/carlos.webp',
     );
     expect(screen.queryByText('CV')).not.toBeInTheDocument();
   });
@@ -19,7 +19,7 @@ describe('PhotoFrame', () => {
     expect(screen.getByText('CV')).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it.each(['/carlos.png', ''])('sits on a round blue glow (photo: %p)', (src) => {
+  it.each(['/carlos.webp', ''])('sits on a round blue glow (photo: %p)', (src) => {
     render(<PhotoFrame src={src} alt="Carlos Vuotto" size={320} />);
     const glow = screen.getByTestId('photo-glow');
 
@@ -29,7 +29,7 @@ describe('PhotoFrame', () => {
   });
 
   it('keeps the frame at the given size but never wider than its column', () => {
-    render(<PhotoFrame src="/carlos.png" alt="Carlos Vuotto" size={320} />);
+    render(<PhotoFrame src="/carlos.webp" alt="Carlos Vuotto" size={320} />);
     const frame = screen.getByTestId('photo-frame');
 
     expect(frame.style.width).toBe('320px');
@@ -38,7 +38,7 @@ describe('PhotoFrame', () => {
   });
 
   it('rounds off the bottom of the photo along the circle, letting the head rise above it', () => {
-    render(<PhotoFrame src="/carlos.png" alt="Carlos Vuotto" size={320} />);
+    render(<PhotoFrame src="/carlos.webp" alt="Carlos Vuotto" size={320} />);
     const mask = screen.getByRole('img').style.getPropertyValue('mask-image');
 
     expect(mask).toContain('radial-gradient(circle closest-side');

@@ -47,4 +47,14 @@ describe('About', () => {
 
     expect(screen.getByTestId('about-grid').style.gridTemplateColumns).toBe(columns);
   });
+
+  it('sets each experience description in body-size text and keeps the period as a small label', () => {
+    mockWideScreen(false);
+    render(<About />);
+
+    EXPERIENCE.forEach((job) => {
+      expect(screen.getByText(job.description).style.fontSize).toBe('var(--text-body)');
+      expect(screen.getByText(job.period).style.fontSize).toBe('var(--text-h6)');
+    });
+  });
 });

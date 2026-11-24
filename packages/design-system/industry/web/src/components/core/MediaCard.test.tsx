@@ -64,13 +64,22 @@ describe('MediaCard', () => {
     expect(screen.getByText(/NomeMuitoLongo/).style.overflowWrap).toBe('anywhere');
   });
 
-  it('lifts on hover and settles back when the pointer leaves', () => {
+  it('lifts while a mouse hovers and settles back when it leaves', () => {
     render(<MediaCard image={IMAGE} title="Barbearia JB" testID="card" />);
     const card = screen.getByTestId('card');
 
-    fireEvent.mouseEnter(card);
+    fireEvent.pointerEnter(card, { pointerType: 'mouse' });
     expect(card.style.transform).toBe('translateY(-4px)');
-    fireEvent.mouseLeave(card);
+    fireEvent.pointerLeave(card, { pointerType: 'mouse' });
+    expect(card.style.transform).toBe('');
+  });
+
+  it('stays still when a finger touches it, so the lift never gets stuck', () => {
+    render(<MediaCard image={IMAGE} title="Barbearia JB" testID="card" />);
+    const card = screen.getByTestId('card');
+
+    fireEvent.pointerEnter(card, { pointerType: 'touch' });
+    fireEvent.mouseEnter(card);
     expect(card.style.transform).toBe('');
   });
 
@@ -79,8 +88,14 @@ describe('MediaCard', () => {
     render(<MediaCard image={IMAGE} title="Barbearia JB" testID="card" />);
     const card = screen.getByTestId('card');
 
-    fireEvent.mouseEnter(card);
+    fireEvent.pointerEnter(card, { pointerType: 'mouse' });
     expect(card.style.transform).toBe('');
     expect(card.style.transition).toBe('');
+  });
+
+  it('sets the body in body-size text so it reads comfortably on a phone', () => {
+    render(<MediaCard image={IMAGE} title="Barbearia JB" body="Agendamento online" />);
+
+    expect(screen.getByText('Agendamento online').style.fontSize).toBe('var(--text-body)');
   });
 });

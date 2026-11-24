@@ -44,7 +44,8 @@ describe('content', () => {
     }
   });
 
-  it('shows the photo that exists in the public folder', () => {
+  it('shows the photo that exists in the public folder, as a light WebP', () => {
+    expect(PHOTO_SRC).toMatch(/\.webp$/);
     expect(existsSync(join(PUBLIC_DIR, PHOTO_SRC))).toBe(true);
   });
 

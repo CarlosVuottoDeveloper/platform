@@ -29,7 +29,7 @@ describe('Hero', () => {
 
     expect(screen.getByRole('img', { name: /Carlos Vuotto/ })).toHaveAttribute(
       'src',
-      '/carlos.png',
+      '/carlos.webp',
     );
   });
 

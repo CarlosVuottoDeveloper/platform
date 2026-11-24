@@ -56,7 +56,7 @@ export function MediaCard({ image, kicker, title, body, href, style, testID }: M
           {href ? <Icon name="arrow-up-right" size="sm" color="var(--color-accent-300)" /> : null}
         </span>
         {body ? (
-          <span style={{ fontSize: 'var(--text-h6)', color: 'var(--color-neutral-400)' }}>
+          <span style={{ fontSize: 'var(--text-body)', color: 'var(--color-neutral-400)' }}>
             {body}
           </span>
         ) : null}
@@ -67,8 +67,8 @@ export function MediaCard({ image, kicker, title, body, href, style, testID }: M
   return (
     <GradientSurface
       data-testid={testID}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onPointerEnter={(event) => setHovered(event.pointerType === 'mouse')}
+      onPointerLeave={() => setHovered(false)}
       style={{
         border: '1px solid var(--color-divider)',
         boxShadow: lifted ? 'var(--shadow-md)' : 'var(--shadow-sm)',

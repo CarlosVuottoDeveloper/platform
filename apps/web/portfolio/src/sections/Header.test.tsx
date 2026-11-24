@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { WHATSAPP_URL } from '../content/contact';
 import { mockWideScreen } from '../test-utils';
 import { Header } from './Header';
@@ -42,12 +42,31 @@ describe('Header', () => {
     expect(action).toHaveAttribute('target', '_blank');
   });
 
-  it('keeps only the brand and the action on a narrow screen', () => {
+  it.each([true, false])('turns the brand into a link back to the start (wide: %s)', (wide) => {
+    mockWideScreen(wide);
+    render(<Header />);
+    const brand = within(screen.getByRole('navigation', { name: 'Principal' })).getByRole('link', {
+      name: 'Carlos Vuotto',
+    });
+
+    expect(brand).toHaveAttribute('href', '#conteudo');
+    expect(brand.style.lineHeight).toBe('var(--tap)');
+    expect(brand.style.textOverflow).toBe('ellipsis');
+  });
+
+  it('puts the section links behind a menu button on a narrow screen', () => {
     mockWideScreen(false);
     render(<Header />);
     const nav = screen.getByRole('navigation', { name: 'Principal' });
 
     expect(within(nav).queryByRole('link', { name: 'Projetos' })).not.toBeInTheDocument();
     expect(within(nav).getByRole('link', { name: 'Vamos conversar' })).toBeInTheDocument();
+
+    fireEvent.click(within(nav).getByRole('button', { name: 'Abrir menu' }));
+    expect(
+      ['Projetos', 'Serviços', 'Sobre', 'Dúvidas'].map((label) =>
+        within(nav).getByRole('link', { name: label }).getAttribute('href'),
+      ),
+    ).toEqual(['#projetos', '#servicos', '#sobre', '#duvidas']);
   });
 });

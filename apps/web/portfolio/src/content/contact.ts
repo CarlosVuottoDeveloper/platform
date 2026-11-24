@@ -10,4 +10,4 @@ export const CONTACT = {
 
 export const WHATSAPP_URL = whatsappLink(CONTACT.whatsappPhone, CONTACT.whatsappMessage);
 
-export const PHOTO_SRC = '/carlos.png';
+export const PHOTO_SRC = '/carlos.webp';
