@@ -22,6 +22,7 @@ Turborepo + Yarn Workspaces v1 monorepo. **Always use Yarn** — the lockfile an
 apps/mobile/appointmate/    # Expo app — mental health check-in log (LGPD sensitive data)
 apps/mobile/tickets-app/    # Expo app — multi-tenant ticketing, published on Play Store
 apps/web/finance-app/       # Vite + React SPA — personal finance tracker (@app/finance), consumes @industry/web
+apps/web/portfolio/         # Vite + React static site — Carlos Vuotto's landing page (@app/portfolio), consumes @industry/web
 packages/design-system/industry/
   web/                        # @industry/web — React components (Industry design system), no MUI/Emotion
   mobile/                     # @industry/mobile — React Native components (Industry design system), no React Native Paper
