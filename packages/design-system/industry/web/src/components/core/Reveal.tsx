@@ -28,7 +28,7 @@ export function Reveal({ children, delay = 0, style, testID }: RevealProps) {
           observer.disconnect();
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0, rootMargin: '0px 0px -10% 0px' },
     );
     observer.observe(ref.current);
     return () => observer.disconnect();

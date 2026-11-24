@@ -55,6 +55,15 @@ describe('Reveal', () => {
     expect(disconnect).toHaveBeenCalled();
   });
 
+  it('reveals content taller than the screen as soon as any part of it enters', () => {
+    render(<Reveal testID="reveal">x</Reveal>);
+
+    expect(window.IntersectionObserver).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({ threshold: 0 }),
+    );
+  });
+
   it('ignores updates that are not about entering the screen', () => {
     render(<Reveal testID="reveal">x</Reveal>);
 
