@@ -1,3 +1,8 @@
+const CIRCLE_WITH_OPEN_TOP = [
+  'radial-gradient(circle closest-side at 50% 50%, black 83%, transparent 85%)',
+  'linear-gradient(to bottom, black 32%, transparent 44%)',
+].join(', ');
+
 interface PhotoFrameProps {
   src: string;
   alt: string;
@@ -38,6 +43,8 @@ export function PhotoFrame({ src, alt, size }: PhotoFrameProps) {
             height: '100%',
             objectFit: 'contain',
             objectPosition: 'bottom',
+            maskImage: CIRCLE_WITH_OPEN_TOP,
+            WebkitMaskImage: CIRCLE_WITH_OPEN_TOP,
           }}
         />
       ) : (

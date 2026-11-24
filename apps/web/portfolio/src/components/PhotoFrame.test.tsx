@@ -36,4 +36,12 @@ describe('PhotoFrame', () => {
     expect(frame.style.maxWidth).toBe('100%');
     expect(frame.style.aspectRatio).toBe('1 / 1');
   });
+
+  it('rounds off the bottom of the photo along the circle, letting the head rise above it', () => {
+    render(<PhotoFrame src="/carlos.png" alt="Carlos Vuotto" size={320} />);
+    const mask = screen.getByRole('img').style.getPropertyValue('mask-image');
+
+    expect(mask).toContain('radial-gradient(circle closest-side');
+    expect(mask).toContain('linear-gradient(to bottom');
+  });
 });
