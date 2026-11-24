@@ -1,8 +1,14 @@
 import { MAIN_ID } from './content/navigation';
+import { About } from './sections/About';
 import { Companies } from './sections/Companies';
+import { ContactCta } from './sections/ContactCta';
+import { Faq } from './sections/Faq';
+import { Footer } from './sections/Footer';
 import { Header } from './sections/Header';
 import { Hero } from './sections/Hero';
+import { Process } from './sections/Process';
 import { Projects } from './sections/Projects';
+import { Services } from './sections/Services';
 
 export function App() {
   return (
@@ -30,7 +36,15 @@ export function App() {
           <Hero />
           <Companies />
           <Projects />
+          <Services />
+          <Process />
+          <About />
+          <Faq />
+          <ContactCta />
         </main>
+        <div style={{ marginTop: 'var(--space-12)' }}>
+          <Footer />
+        </div>
       </div>
     </div>
   );

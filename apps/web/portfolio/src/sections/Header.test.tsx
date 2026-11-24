@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { WHATSAPP_URL } from '../content/contact';
 import { mockWideScreen } from '../test-utils';
 import { Header } from './Header';
@@ -12,6 +12,18 @@ describe('Header', () => {
       'href',
       '#conteudo',
     );
+  });
+
+  it('brings the skip link into view only while it has keyboard focus', () => {
+    mockWideScreen(true);
+    render(<Header />);
+    const skip = screen.getByRole('link', { name: 'Pular para o conteúdo' });
+
+    expect(skip.style.top).toBe('-100px');
+    act(() => skip.focus());
+    expect(skip.style.top).toBe('var(--space-4)');
+    act(() => skip.blur());
+    expect(skip.style.top).toBe('-100px');
   });
 
   it('shows the brand, the four section links and the WhatsApp action on a wide screen', () => {
