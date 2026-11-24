@@ -59,16 +59,17 @@ function useDismissMenu(
 ) {
   useEffect(() => {
     if (!open) return undefined;
-    function onMouseDown(event: MouseEvent) {
+    function onPointerDown(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) close({ restoreFocus: false });
     }
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') close({ restoreFocus: true });
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      close({ restoreFocus: Boolean(rootRef.current?.contains(document.activeElement)) });
     }
-    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
     return () => {
-      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [open, rootRef, close]);
@@ -104,8 +105,8 @@ export function TopNav({ brand, links, action, collapsed = false, style }: TopNa
         zIndex: 10,
         display: 'flex',
         alignItems: 'center',
-        gap: 'var(--space-4)',
-        padding: 'var(--space-2) var(--space-2) var(--space-2) var(--space-6)',
+        gap: collapsed ? 'var(--space-2)' : 'var(--space-4)',
+        padding: `var(--space-2) var(--space-2) var(--space-2) ${collapsed ? 'var(--space-4)' : 'var(--space-6)'}`,
         borderRadius: 'var(--radius-pill)',
         border: '1px solid var(--color-divider)',
         background: 'color-mix(in srgb, var(--color-surface) 72%, transparent)',
@@ -121,6 +122,9 @@ export function TopNav({ brand, links, action, collapsed = false, style }: TopNa
           fontSize: 'var(--text-body)',
           color: 'var(--color-text)',
           whiteSpace: 'nowrap',
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         }}
       >
         {brand}
@@ -159,8 +163,9 @@ export function TopNav({ brand, links, action, collapsed = false, style }: TopNa
               iconOnly
               aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
               aria-expanded={showPanel}
-              aria-controls={panelId}
+              aria-controls={showPanel ? panelId : undefined}
               onClick={() => setMenuOpen((open) => !open)}
+              style={{ width: 'var(--tap)', minHeight: 'var(--tap)' }}
             >
               <Icon name={menuOpen ? 'x' : 'menu'} size="md" />
             </Button>

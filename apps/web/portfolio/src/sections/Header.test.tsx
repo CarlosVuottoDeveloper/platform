@@ -50,7 +50,8 @@ describe('Header', () => {
     });
 
     expect(brand).toHaveAttribute('href', '#conteudo');
-    expect(brand.style.minHeight).toBe('var(--tap)');
+    expect(brand.style.lineHeight).toBe('var(--tap)');
+    expect(brand.style.textOverflow).toBe('ellipsis');
   });
 
   it('puts the section links behind a menu button on a narrow screen', () => {

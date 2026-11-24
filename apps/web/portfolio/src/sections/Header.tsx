@@ -46,9 +46,10 @@ export function Header() {
           <a
             href={`#${MAIN_ID}`}
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              minHeight: 'var(--tap)',
+              display: 'block',
+              lineHeight: 'var(--tap)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
               color: 'inherit',
               textDecoration: 'none',
             }}

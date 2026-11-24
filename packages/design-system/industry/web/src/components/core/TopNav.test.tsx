@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { TopNav } from './TopNav';
 
 const LINKS = [
@@ -38,6 +38,7 @@ describe('TopNav', () => {
     const toggle = renderCollapsed();
 
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).not.toHaveAttribute('aria-controls');
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(screen.getByText('Carlos Vuotto')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Ação' })).toBeInTheDocument();
@@ -58,6 +59,25 @@ describe('TopNav', () => {
     expect(within(panel as HTMLElement).getByRole('link', { name: 'Sobre' }).style.minHeight).toBe(
       'var(--tap)',
     );
+  });
+
+  it('gives the menu button a full touch target', () => {
+    const toggle = renderCollapsed();
+
+    expect(toggle.style.width).toBe('var(--tap)');
+    expect(toggle.style.minHeight).toBe('var(--tap)');
+  });
+
+  it('tightens its spacing and lets a long brand shrink so the menu button always fits', () => {
+    renderCollapsed();
+    const nav = screen.getByRole('navigation');
+    const brand = screen.getByText('Carlos Vuotto');
+
+    expect(nav.style.gap).toBe('var(--space-2)');
+    expect(nav.style.padding).toBe('var(--space-2) var(--space-2) var(--space-2) var(--space-4)');
+    expect(brand.style.minWidth).toBe('0');
+    expect(brand.style.overflow).toBe('hidden');
+    expect(brand.style.textOverflow).toBe('ellipsis');
   });
 
   it('closes the panel when the menu button is pressed again', () => {
@@ -88,6 +108,34 @@ describe('TopNav', () => {
     expect(toggle).toHaveFocus();
   });
 
+  it('leaves focus where it is when Escape is pressed outside the navigation', () => {
+    render(
+      <>
+        <TopNav brand="Carlos Vuotto" links={LINKS} collapsed />
+        <button type="button">Fora</button>
+      </>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    const outside = screen.getByRole('button', { name: 'Fora' });
+    outside.focus();
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(outside).toHaveFocus();
+  });
+
+  it('leaves the panel alone when another widget already handled Escape', () => {
+    renderCollapsed();
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    const escape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    escape.preventDefault();
+    act(() => {
+      document.dispatchEvent(escape);
+    });
+
+    expect(screen.getAllByRole('link')).toHaveLength(2);
+  });
+
   it('ignores other keys while the panel is open', () => {
     const toggle = renderCollapsed();
     fireEvent.click(toggle);
@@ -99,10 +147,10 @@ describe('TopNav', () => {
   it('closes the panel when someone presses outside the navigation', () => {
     const toggle = renderCollapsed();
     fireEvent.click(toggle);
-    fireEvent.mouseDown(screen.getByRole('navigation'));
+    fireEvent.pointerDown(screen.getByRole('navigation'));
     expect(screen.getAllByRole('link')).toHaveLength(2);
 
-    fireEvent.mouseDown(document.body);
+    fireEvent.pointerDown(document.body);
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
