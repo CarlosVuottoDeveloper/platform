@@ -104,7 +104,7 @@ Textos reaproveitados do site atual sempre que eram fatos dele; o resto é rascu
 
 ## Design system (`@industry/web`, changeset minor) **[Escolha do autor]**
 
-O `Accordion`, o `Card`, o `Badge`, o `Button`, o `IconBubble`, o `GradientSurface` e o `Icon` (lucide) já cobrem a maior parte. Faltam três peças:
+O `Accordion`, o `Card`, o `Badge`, o `Button`, o `IconBubble`, o `GradientSurface` e o `Icon` (lucide) já cobrem a maior parte. Faltam quatro peças:
 
 1. **`BrandIcon`**: ícones de marca que o lucide não tem.
    - Props: `name: 'linkedin' | 'github' | 'whatsapp'`, `size` (mesma escala do `Icon`) e `aria-label` opcional (sem ele, é decorativo).
@@ -116,6 +116,10 @@ O `Accordion`, o `Card`, o `Badge`, o `Button`, o `IconBubble`, o `GradientSurfa
    - Props: `image: { src: string; alt: string }`, `kicker?`, `title`, `body?` e `href?`.
    - Com `href`, o cartão inteiro vira um link que abre em nova aba (`rel="noopener noreferrer"`) e mostra o ícone `arrow-up-right`.
    - A imagem tem proporção fixa de 16:10 e carrega com `loading="lazy"`.
+
+4. **`LinkButton`**: um link (`<a>`) com o mesmo visual do `Button`. O `Button` atual só renderiza `<button>`, e os botões do site são links: WhatsApp, LinkedIn e "Ver projetos".
+   - Props: `href`, `variant`, `size`, `external?: boolean` (abre em nova aba com `rel="noopener noreferrer"`) e `children`.
+   - O estilo vem de uma função compartilhada com o `Button`, então as duas peças não divergem.
 
 Cada peça ganha teste, story e changeset. Nenhum token novo.
 
