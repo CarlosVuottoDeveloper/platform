@@ -64,6 +64,16 @@ describe('Reveal', () => {
     );
   });
 
+  it('shows everything before the page is printed or saved as PDF', () => {
+    render(<Reveal testID="reveal">x</Reveal>);
+
+    act(() => {
+      window.dispatchEvent(new Event('beforeprint'));
+    });
+
+    expect(screen.getByTestId('reveal').style.opacity).toBe('1');
+  });
+
   it('ignores updates that are not about entering the screen', () => {
     render(<Reveal testID="reveal">x</Reveal>);
 
