@@ -1,5 +1,24 @@
 # @industry/web
 
+## 0.4.0
+
+### Minor Changes
+
+- 277156e: `BrandIcon`: marcas de LinkedIn, GitHub e WhatsApp, que o lucide não tem. Os desenhos vêm do Simple Icons (CC0), sempre na cor do texto em volta.
+- 277156e: `LinkButton`: um link (`<a>`) com o mesmo visual do `Button`, para ações que levam a outro endereço. Com `external`, abre em nova aba com `rel="noopener noreferrer"`. O estilo vem de `buttonSurfaceStyle`, compartilhado com o `Button`.
+- 277156e: `MediaCard`: cartão com imagem em 16:10, rótulo, título e texto.
+  - Com `href`, o cartão inteiro vira um link que abre em nova aba. A imagem fica decorativa (`alt=""`), e o título nomeia o link.
+  - No hover, sobe 4px; para quem prefere menos movimento, fica parado.
+
+- 277156e: `Reveal`: mostra o conteúdo com um leve fade e subida quando ele entra na tela, com `delay` opcional para escalonar.
+
+  O conteúdo aparece direto em três casos:
+  - para quem prefere menos movimento;
+  - em navegador sem `IntersectionObserver`;
+  - antes de imprimir ou salvar a página em PDF.
+
+- 277156e: `TopNav`: barra de navegação em pílula translúcida, presa no topo ao rolar, com marca, links de seção e uma ação. Com `collapsed`, mostra só a marca e a ação, para telas estreitas.
+
 ## 0.3.0
 
 ### Minor Changes
