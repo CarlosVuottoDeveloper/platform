@@ -22,6 +22,7 @@ Turborepo + Yarn Workspaces v1 monorepo. **Always use Yarn** — the lockfile an
 apps/mobile/appointmate/    # Expo app — mental health check-in log (LGPD sensitive data)
 apps/mobile/tickets-app/    # Expo app — multi-tenant ticketing, published on Play Store
 apps/web/finance-app/       # Vite + React SPA — personal finance tracker (@app/finance), consumes @industry/web
+apps/web/portfolio/         # Vite + React static site — Carlos Vuotto's landing page (@app/portfolio), consumes @industry/web
 packages/design-system/industry/
   web/                        # @industry/web — React components (Industry design system), no MUI/Emotion
   mobile/                     # @industry/mobile — React Native components (Industry design system), no React Native Paper
@@ -162,18 +163,19 @@ Industry has a single appearance: deep navy background, filled rounded surfaces 
 
 ### CI workflows
 
-| Workflow                        | Trigger                                                                                           | What it does                                                                   |
-| ------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `coverage.yml`                  | PR → main (tickets-app, appointmate, finance-app, industry/{web,mobile,tokens} paths)             | Runs Jest only on changed source files; enforces ≥ 95% coverage on those files |
-| `deploy-finance-app.yml`        | Push → main (finance-app, industry/{web,tokens} paths) + manual                                   | Builds finance-app and deploys it to Vercel (`--prebuilt`)                     |
-| `storybook-vercel.yml`          | Push → main (industry/{web,mobile,tokens} paths) + manual                                         | Builds both Storybooks and deploys them to Vercel                              |
-| `web-apps.yml`                  | PR → main (apps/web, industry/web, industry/tokens, eslint-config, typescript-config paths)       | Lint/check-types/test for finance-app                                          |
-| `mobile-apps.yml`               | PR → main (mobile apps, industry/mobile, industry/tokens, eslint-config, typescript-config paths) | Lint/check-types/test for appointmate + tickets-app                            |
-| `storybook-industry-web.yml`    | Push/PR → main (industry/web, industry/tokens paths)                                              | Chromatic publish for `@industry/web`                                          |
-| `storybook-industry-mobile.yml` | Push/PR → main (industry/mobile, industry/tokens paths)                                           | Chromatic publish for `@industry/mobile`                                       |
-| `version.yml`                   | Push → main (`.changeset/**`)                                                                     | Opens/updates the Changesets "Version Packages" PR                             |
-| `copilot-review.yml`            | PR opened/synchronized (any)                                                                      | Requests a Copilot code review                                                 |
-| `auto-update-prs.yml`           | Push → main                                                                                       | Merges `main` into open PRs                                                    |
+| Workflow                        | Trigger                                                                                           | What it does                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `coverage.yml`                  | PR → main (tickets-app, appointmate, finance-app, portfolio, industry/{web,mobile,tokens} paths)  | Runs Jest only on changed source files; enforces ≥ 95% coverage on those files    |
+| `deploy-finance-app.yml`        | Push → main (finance-app, industry/{web,tokens} paths) + manual                                   | Builds finance-app and deploys it to Vercel (`--prebuilt`)                        |
+| `deploy-portfolio.yml`          | Push → main (portfolio, industry/{web,tokens} paths) + manual                                     | Builds portfolio and deploys it to Vercel (`--prebuilt`), project `carlos-vuotto` |
+| `storybook-vercel.yml`          | Push → main (industry/{web,mobile,tokens} paths) + manual                                         | Builds both Storybooks and deploys them to Vercel                                 |
+| `web-apps.yml`                  | PR → main (apps/web, industry/web, industry/tokens, eslint-config, typescript-config paths)       | Lint/check-types/test for finance-app and portfolio                               |
+| `mobile-apps.yml`               | PR → main (mobile apps, industry/mobile, industry/tokens, eslint-config, typescript-config paths) | Lint/check-types/test for appointmate + tickets-app                               |
+| `storybook-industry-web.yml`    | Push/PR → main (industry/web, industry/tokens paths)                                              | Chromatic publish for `@industry/web`                                             |
+| `storybook-industry-mobile.yml` | Push/PR → main (industry/mobile, industry/tokens paths)                                           | Chromatic publish for `@industry/mobile`                                          |
+| `version.yml`                   | Push → main (`.changeset/**`)                                                                     | Opens/updates the Changesets "Version Packages" PR                                |
+| `copilot-review.yml`            | PR opened/synchronized (any)                                                                      | Requests a Copilot code review                                                    |
+| `auto-update-prs.yml`           | Push → main                                                                                       | Merges `main` into open PRs                                                       |
 
 ## ESLint configs
 

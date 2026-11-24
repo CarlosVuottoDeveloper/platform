@@ -93,7 +93,7 @@ Textos reaproveitados do site atual sempre que eram fatos dele; o resto é rascu
   Sem preço.
 
 - **WhatsApp:** `https://wa.me/5511964561982?text=` com mensagem pronta ("Olá, Carlos! Vi seu portfólio e quero conversar sobre um projeto."). O número é o que já está público no site atual.
-- **Links:** LinkedIn `linkedin.com/in/kaduvuotto`, GitHub `github.com/CarlosAmorimDeveloper`.
+- **Links:** LinkedIn `linkedin.com/in/kaduvuotto`, GitHub `github.com/CarlosVuottoDeveloper`.
 - **Responsivo:**
   - abaixo de 768px, tudo vira uma coluna;
   - a navegação mostra só o nome e o botão "Vamos conversar". As seções ficam acessíveis rolando a página e pelos links do rodapé.

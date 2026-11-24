@@ -8,6 +8,7 @@ on:
       - 'apps/mobile/tickets-app/**'
       - 'apps/mobile/appointmate/**'
       - 'apps/web/finance-app/**'
+      - 'apps/web/portfolio/**'
       - 'packages/design-system/industry/mobile/**'
       - 'packages/design-system/industry/web/**'
       - 'packages/design-system/industry/tokens/**'
@@ -32,6 +33,10 @@ jobs:
             path: apps/web/finance-app
             build: yarn workspace @industry/tokens build && yarn workspace @industry/web build
             exclude_pattern: 'src/main\.tsx$|vite\.config\.ts$|services/firebase(Config)?\.ts$|services/userDataEraser\.ts$|test-stubs/|src/test-utils\.tsx$|\.test-helpers\.ts$|firestore\.rules\.test\.ts$|jest\.setup\.ts$'
+          - name: portfolio
+            path: apps/web/portfolio
+            build: yarn workspace @industry/tokens build && yarn workspace @industry/web build
+            exclude_pattern: 'src/main\.tsx$|vite\.config\.ts$|src/test-utils\.ts$|jest\.setup\.ts$'
           - name: industry-mobile
             path: packages/design-system/industry/mobile
             build: yarn workspace @industry/tokens build

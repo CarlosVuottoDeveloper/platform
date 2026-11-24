@@ -49,6 +49,43 @@ jobs:
             exit 1
           fi
 
+  portfolio:
+    name: portfolio — lint, check-types, test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npx yarn install
+
+      - name: Build @industry/tokens and @industry/web
+        run: yarn workspace @industry/tokens build && yarn workspace @industry/web build
+
+      - name: Lint
+        run: yarn workspace @app/portfolio lint
+
+      - name: Check types
+        run: yarn workspace @app/portfolio check-types
+
+      - name: Test
+        run: yarn workspace @app/portfolio test --runInBand
+
+      - name: Build stays under the Vercel upload limit
+        run: |
+          yarn workspace @app/portfolio build
+          count=$(find apps/web/portfolio/dist -type f | wc -l)
+          echo "portfolio build: $count files"
+          if [ "$count" -gt 200 ]; then
+            echo "::error::The build has $count files; the Vercel free plan accepts 5000 uploads a day, so keep it under 200."
+            exit 1
+          fi
+
   finance-app-rules:
     name: finance-app — Firestore rules (emulator)
     runs-on: ubuntu-latest
