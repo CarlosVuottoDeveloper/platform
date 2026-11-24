@@ -27,7 +27,7 @@ jobs:
           - name: appointmate
             path: apps/mobile/appointmate
             build: yarn workspace @industry/tokens build && yarn workspace @industry/mobile build
-            exclude_pattern: ''
+            exclude_pattern: 'appointmate/index\.ts$'
           - name: finance-app
             path: apps/web/finance-app
             build: yarn workspace @industry/tokens build && yarn workspace @industry/web build
@@ -35,7 +35,7 @@ jobs:
           - name: industry-mobile
             path: packages/design-system/industry/mobile
             build: yarn workspace @industry/tokens build
-            exclude_pattern: '\.stories\.|\.storybook/(manager|theme)\.ts$'
+            exclude_pattern: '\.stories\.|\.storybook/(main|manager|theme)\.ts$'
 
     steps:
       - uses: actions/checkout@v4
